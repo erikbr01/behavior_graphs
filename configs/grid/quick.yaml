@@ -1,0 +1,29 @@
+# Quick first scan (~54 jobs): the knobs that usually matter most, at low
+# resolution, to find the interesting region before the full sweep.
+#
+#   python scripts/run_sweep.py grid=quick 'rollouts={name: /path/to/rollouts}'
+#
+# Each stage option carries its own parameter grid; the runner takes the
+# cross-product of (option × grid) across stage groups. Grid values are a
+# scalar (fixed), a list, or a _target_ generator (behavior_graphs.pipeline.grid).
+stages:
+  windowing:
+    sliding:
+      width: [1, 5, 10]
+      stride: 2
+  reduction:
+    pca:
+      n_components: 32
+    umap:
+      n_components: 8
+  clustering:
+    kmeans:
+      n_clusters: {_target_: behavior_graphs.pipeline.grid.irange, _args_: [4, 20, 2]}
+
+# Model selection over the finished sweep (also editable live in the GUI).
+selection:
+  _target_: behavior_graphs.model_selection.scoring.CompositeSelection
+  weights:
+    silhouette: 1.0
+  constraints:
+    silhouette: {min: 0.05}

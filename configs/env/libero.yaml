@@ -1,0 +1,6 @@
+_target_: behavior_graphs.envs.libero.LiberoAdapter
+task_suite: libero_spatial
+checkpoint: gs://openpi-assets/checkpoints/pi05_libero
+config_name: pi05_libero
+num_trials_per_task: 20
+replan_steps: 5

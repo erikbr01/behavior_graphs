@@ -1,0 +1,16 @@
+# Graph backbone with a UMAP reduction before KMeans (alternative to identity).
+_target_: behavior_graphs.progress_estimation.methods.GraphBackbone
+window_width: 2
+window_stride: 3
+reduction:
+  _target_: behavior_graphs.stages.reduction.umap.UMAPReduction
+  n_components: 8
+  n_neighbors: 5
+  min_dist: 0.05
+  normalize: standard
+  random_state: 0
+clustering:
+  _target_: behavior_graphs.stages.clustering.kmeans.KMeansClustering
+  n_clusters: 16
+  n_init: 10
+  random_state: 0

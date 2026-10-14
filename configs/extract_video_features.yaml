@@ -1,0 +1,32 @@
+# Bake a vision-backbone embedding of the episode videos into a trajectory
+# directory, as another policy_embeddings/<layer>.npz.
+#
+#   python scripts/utils/extract_video_features.py rollout_dir=<dir>
+#   python scripts/utils/extract_video_features.py rollout_dir=<dir> \
+#       pipeline/features@features=dino_pooled layer=dino_pooled
+#
+# The pipeline can compute the same features on the fly
+# (`pipeline/features@features=dino_patch`) and caches them like any other
+# stage; writing them as a layer is for everything that reads layers instead
+# of running the features stage -- the demo app's layer picker, the sweep
+# runner's per-layer passes, the outcome classifiers -- and for keeping the
+# GPU out of the loop afterwards.
+defaults:
+  - pipeline/features@features: dino_patch
+  - _self_
+
+# Trajectory directory in the canonical layout (rollouts or featurized demos).
+# Must contain media/; the new layer is written into it in place.
+rollout_dir: ???
+
+# Name of the embedding layer to write (policy_embeddings/<layer>.npz).
+layer: dino_patch
+
+# Refuse to replace an existing layer of that name unless set.
+overwrite: false
+
+hydra:
+  run:
+    dir: ${rollout_dir}/logs/extract_video_features/${now:%Y-%m-%d_%H-%M-%S}
+  job:
+    chdir: false

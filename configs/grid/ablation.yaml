@@ -1,0 +1,86 @@
+# The balanced ablation: two reported axes, four nuisance axes, no maxima over
+# unequal search spaces.
+#
+# Reported axes -- the table has a row per level, and every level is searched
+# over the identical nuisance grid:
+#
+#   representation  rgrl_cond (512)  the policy's conditioning vector
+#                   rgrl_dit  (512)  its last diffusion-head layer
+#                   state      (14)  proprioception, no learning at all
+#                   dinov3   (9216)  a vision backbone the policy never saw
+#
+#   reduction       cuml_umap n_components=100
+#                   pca       n_components=100
+#                   identity                     -- no reduction at all
+#
+# Nuisance axes -- selected, never reported as a finding, because there is no
+# universal best value for any of them and a table row per level would be a
+# table of arbitrary choices:
+#
+#   width x stride  {1, 3, 5, 8} x {1, 2}
+#   K               9 levels, 4 to 32
+#   smoothing       none | sticky
+#
+# 4 x 3 x 8 x 9 x 2 = 1,728 cells per task, 13,824 over the eight ABC tasks.
+# Only 4 x 3 x 8 = 96 of them per task are expensive: K and smoothing reuse a
+# fitted reduction through the shared stage store.
+#
+# Three things about this design are not clean, and are better stated here than
+# discovered in the table:
+#
+# * `state` is 14-dimensional, so n_components=100 is not a reduction for it.
+#   PCA clamps to 14, making `state x pca@100` identity up to a rotation --
+#   that cell is expected to duplicate `state x identity` and the duplication
+#   is the finding, not a bug. UMAP@100 on 14-d is a genuine but *expanding*
+#   nonlinear embedding, which is a different operation from what it does to
+#   dinov3's 9216. The reduction axis therefore cannot be read as one axis
+#   across representations; it is only within-representation evidence.
+#
+# * `identity` means something different per arm for the same reason: 14-d
+#   k-means and 9216-d k-means are not the same problem. That is exactly the
+#   question the level is there to ask, but the answer is confounded with
+#   dimensionality and has to be reported that way.
+#
+# * (width 1, stride 2) is in the grid because the cross product puts it there.
+#   It is not degenerate -- it is pure subsampling with no temporal averaging,
+#   which isolates stride from window width. (1, 1) is the real baseline: raw
+#   per-frame features, no windowing whatsoever.
+#
+# K brackets the plausible optimum on every task rather than surrounding one
+# guess: ground truth runs 10.1 subtasks per episode on whiteboard and 39.3 on
+# chess, so an optimum can sit anywhere from below 10 to above 30. Add 40 for
+# legos (37.2/episode) if its maximum lands on the 32 boundary.
+#
+# What this grid deliberately drops from the existing sweep: gmm and hsmm (one
+# clusterer keeps the nuisance grid affordable and k-means is the one every
+# dataset can run), sae and vae (half of `sweep_all` and never competitive on
+# ABC), n_components 10 and 50, rgrl_enc and state_dinov3. Those belong in a
+# separate table with their own caveats, not in the balanced one.
+stages:
+  windowing:
+    sliding:
+      width: [1, 3, 5, 8]
+      stride: [1, 2]
+  reduction:
+    cuml_umap:
+      n_components: [100]
+      normalize: standard
+    pca:
+      n_components: [100]
+    identity: {}
+  clustering:
+    kmeans:
+      n_clusters: [4, 6, 8, 10, 12, 16, 20, 24, 32]
+  graph:
+    transition:
+      smoothing: [none, sticky]
+      sticky_lambda: 1.0
+      degree_one_prune: false
+
+base_overrides:
+  - pipeline/evaluation@evaluation=subtask
+  - viz/viz_reduction@viz_reduction=pca_2d
+
+selection:
+  weights:
+    boundary_gain: 1.0

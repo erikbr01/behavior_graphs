@@ -1,0 +1,21 @@
+# Frames embedded with DINOv2 patch tokens, pooled to a 2x2 spatial map --
+# the policy-free embedding source (no checkpoint needed, just the videos).
+# 4 cells x 768 dims = 3072 features per timestep; the reduction stage takes
+# it from there. See docs/vision_backbone_features.md.
+#
+# Every key here is part of the features stage cache key, batch_size and
+# device included: retuning throughput re-embeds the dataset.
+_target_: behavior_graphs.stages.features.vision_backbone.VisionBackboneFeatures
+model_name: facebook/dinov2-base
+pooling: grid
+grid: 2
+# null: the one view the trajectory reader returns. A list names the views to
+# embed and concatenate (e.g. [exterior_image_1_left, wrist_image_left]).
+cameras: null
+image_size: 224
+frame_in_step: first
+batch_size: 64
+# Clips decoded in parallel; decode is ~95% of the wall clock, not the GPU.
+decode_workers: 8
+device: null
+l2_normalize: false

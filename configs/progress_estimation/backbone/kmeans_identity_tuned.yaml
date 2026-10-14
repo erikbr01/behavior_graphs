@@ -1,0 +1,25 @@
+# Graph backbone that picks K on a split of the TRAIN set, not on the eval fold.
+#
+# Same pipeline as kmeans_identity (windows -> identity reduction -> KMeans ->
+# BehaviorGraph), but `fit` first holds `val_frac` of the train view back,
+# scores every entry in `grid` on it, and refits the winner on the whole train
+# view. The runner only ever hands `fit` the train split, so the held-out fold
+# cannot influence the choice -- unlike sweeping K outside the runner and
+# keeping the best test score, which is what the cross-dataset sweep did.
+#
+# `grid` says only what varies; unset keys fall back to the fields below.
+_target_: behavior_graphs.progress_estimation.methods.TunedGraphBackbone
+grid:
+  - {n_clusters: 8}
+  - {n_clusters: 16}
+  - {n_clusters: 32}
+  - {n_clusters: 64}
+  - {n_clusters: 128}
+val_frac: 0.25
+val_seed: 0
+seed: 0
+window_width: 2
+window_stride: 3
+reduction:
+  _target_: behavior_graphs.stages.reduction.identity.IdentityReduction
+  normalize: standard

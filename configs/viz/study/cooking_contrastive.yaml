@@ -1,0 +1,36 @@
+task: cooking_contrastive
+title: 'Cooking Task: Contrastive Study'
+task_description: >-
+  The robot should pick up the ladle from the pot and place it with its head on the kitchen towel.
+  Then, it should pick up the carrot from the metal bowl and place it in the pot. Afterwards, it
+  should pick up the corn from the metal bowl and place it in the pot, followed by picking up the
+  chili from the plate on the top of the shelf. Finally, the robot should pick up the pot lid and
+  place it on top of the pot.
+strategies: []
+ranking:
+  top_n: 3
+label: Cooking Contrastive
+run_dir: ${oc.env:DATA_PATH}/sweeps/sweep_all/cooking_baseline_dit_200/6976cf54d714
+rollout_dir: ${oc.env:DATA_PATH}/rollouts/cooking_baseline_dit_200
+demo_videos_dir: ${oc.env:DATA_PATH}/droid_data_collection_examples
+shuffle: true
+hide_episode_index: true
+graph:
+  view_mode: native_svg
+  min_branch: 2
+  color_mode: outcome
+  video_panel: below
+  # Hidden for now: the path list is a second reading of the same graph.
+  show_paths: false
+  # The videos are watched, not read: no behavior badges or timeline bars
+  # over them and no camera names. Every clip opens near its end, where
+  # the outcome is, so the grid is quick to browse.
+  show_behavior_annotations: false
+  show_camera_labels: false
+  video_lead_seconds: 6
+  # Numbers drawn from a permutation, so a clip's number says nothing
+  # about which clips were recorded next to it.
+  shuffle_rollout_indices: true
+  # Room on top of what the tree's depth needs, so the graph is not
+  # drawn to the edge of its frame.
+  graph_height_extra: 90

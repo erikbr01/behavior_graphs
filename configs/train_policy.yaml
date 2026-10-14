@@ -1,0 +1,16 @@
+# Entry config for scripts/train_policy.py.
+defaults:
+  - env: ???
+  - _self_
+
+# Forwarded verbatim to the env submodule's own config system.
+train_overrides: {}
+
+# Number of local GPUs for DDP training. 1 = single-GPU (default).
+num_gpus: 1
+
+hydra:
+  run:
+    dir: runs/train/${now:%Y-%m-%d_%H-%M-%S}
+  job:
+    chdir: false

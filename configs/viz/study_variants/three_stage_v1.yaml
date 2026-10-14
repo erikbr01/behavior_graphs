@@ -1,0 +1,59 @@
+id: three_stage_v1
+title: "Three-Stage Study: Three Tasks, One Display Each"
+description: >
+  Three stages, one task each -- set table, prepare tray and cooking -- in an
+  order drawn per participant. The first two stages show one display method
+  each, videos and the behavior graph, also in a drawn order; the third stage
+  opens a modal that lets the participant pick which of the two they want, and
+  records the pick. Task order and display assignment are drawn per session
+  rather than counterbalanced by group, so there is one group here rather than
+  an A and a B.
+# One stage per task, in the order they are read out of this file -- which is
+# not the order anybody sees them in. `question_set` names the task's question
+# bank in variants/contrastive_same_page/questions.py; `session` names the
+# rollouts and behavior graph under configs/viz/study/. Per-task graph settings
+# (prepare_tray's shallower `min_branch`, say) come from the session yaml's own
+# `graph:` block on top of the shared defaults below, so they stay in one place.
+stages:
+  - task: set_table
+    label: "Set the table"
+    session: set_table_contrastive
+    question_set: set_table
+  - task: prepare_tray
+    label: "Prepare the tray"
+    session: prepare_tray_contrastive
+    question_set: prepare_tray
+  - task: cooking
+    label: "Cook the meal"
+    session: cooking_contrastive
+    question_set: cooking
+graph:
+  view_mode: native_svg
+  min_branch: 2
+  color_mode: outcome
+  video_panel: below
+  # Hidden for now: the path list is a second reading of the same graph.
+  show_paths: false
+  # No +/- badges on the nodes. Folding a rare branch back in, or splitting a
+  # leaf into subclusters, are things to do to a graph you are already fluent
+  # in — a participant meeting one for the first time has a reading task, and
+  # two extra controls per node is a second one on top of it.
+  show_fold_toggles: false
+  # The videos are watched, not read: no behavior badges or timeline bars
+  # over them and no camera names. Every clip opens near its end, where
+  # the outcome is, so the grid is quick to browse.
+  show_behavior_annotations: false
+  show_camera_labels: false
+  video_lead_seconds: 6
+  # Numbers drawn from a permutation, so a clip's number says nothing
+  # about which clips were recorded next to it.
+  shuffle_rollout_indices: true
+  # Room on top of what the tree's depth needs, so the graph is not
+  # drawn to the edge of its frame.
+  graph_height_extra: 90
+groups:
+  - id: randomized
+    label: "Randomized -- drawn per participant"
+    # The evidence order is not a property of the group here: each participant
+    # gets their own draw, recorded in their response.
+    order: []

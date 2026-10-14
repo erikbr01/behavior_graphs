@@ -1,0 +1,53 @@
+# MimicGen EVAL backend (conda/miniforge) -- robosuite 1.4.1 stack.
+#
+# Part of the hybrid env layout: uv manages the MAIN repo (training + graph +
+# curation, version-agnostic, no robosuite); conda manages the sim EVAL backends,
+# one env per robosuite/sim version. This one matches the MimicGen *_d0 datasets
+# (env_version 1.4.1, OSC_POSE). Sibling specs: envs/rm_v15.yml (robosuite 1.5.1),
+# envs/droid_eval.yml, etc.
+#
+# Versions pinned from the proven diffusion_policy_venv. Only touched at EVAL:
+# train a checkpoint in the uv env with --no-eval, then run rgrl's eval.py under
+# this env's interpreter (checkpoint is the portable artifact).
+#
+# BUILD (SSD prefix -- boot drive / is ~98% full, do NOT use ~/miniforge3/envs):
+#   export CONDA_PKGS_DIRS=${CONDA_PKGS_DIRS}
+#   conda env create -f envs/mimicgen_eval.yml \
+#     -p ${DATA_ROOT}/behavior_graphs/venvs/mimicgen_eval
+#
+# EVAL usage (rgrl source stays in the single checkout; conda env only supplies
+# interpreter + sim deps):
+#   PYTHONPATH=third_party/rgrl:third_party/rgrl/third_party/robo_dataset \
+#     ${DATA_ROOT}/behavior_graphs/venvs/mimicgen_eval/bin/python \
+#     third_party/rgrl/eval.py ckpt=<...> env=mimicgen_stackthree
+name: mimicgen_eval
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  # conda's value-add: system GL/EGL for MuJoCo offscreen rendering (pip can't).
+  - mesalib
+  - libglu
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cu121
+      - torch==2.4.0+cu121
+      - torchvision==0.19.0
+      - robosuite==1.4.1
+      - robomimic==0.3.0
+      - mujoco==3.2.6
+      - robosuite-task-zoo @ git+https://github.com/ARISE-Initiative/robosuite-task-zoo@74eab7f88214c21ca1ae8617c2b2f8d19718a9ed
+      - "numpy<2"          # old robosuite/robomimic/numba need numpy 1.x
+      - scipy==1.9.1
+      - h5py==3.7.0
+      # hydra-core / omegaconf / zarr / numba intentionally UNPINNED: the editable
+      # robo_dataset (923891d) requires a newer hydra than 1.2.0, so let pip resolve
+      # these support libs rather than force a conflict.
+      - egl_probe==1.0.2
+      - imageio==2.22.0
+      - imageio-ffmpeg==0.4.7
+      - opencv-python==4.6.0.66
+      - PyOpenGL==3.1.10
+      # vendored, editable -- keep in lockstep with the repo checkout
+      - -e <worktree>/third_party/mimicgen
+      - -e <worktree>/third_party/rgrl/third_party/robo_dataset

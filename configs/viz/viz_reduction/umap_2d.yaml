@@ -1,0 +1,7 @@
+_target_: behavior_graphs.stages.reduction.umap.UMAPReduction
+n_components: 2
+n_neighbors: 15
+min_dist: 0.1
+metric: euclidean
+normalize: none
+random_state: 42

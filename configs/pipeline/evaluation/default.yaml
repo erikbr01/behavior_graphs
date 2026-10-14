@@ -1,0 +1,9 @@
+evaluators:
+  - _target_: behavior_graphs.stages.evaluation.graph_stats.GraphStatsEvaluator
+  - _target_: behavior_graphs.stages.evaluation.cluster_quality.ClusterQualityEvaluator
+  - _target_: behavior_graphs.stages.evaluation.values.ValueEvaluator
+    gamma: 0.99
+    reward_success: 1.0
+    reward_failure: -1.0
+    reward_end: 0.0
+  - _target_: behavior_graphs.stages.evaluation.label_stats.LabelStatsEvaluator

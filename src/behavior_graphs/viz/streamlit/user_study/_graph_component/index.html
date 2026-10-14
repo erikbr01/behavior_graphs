@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
+  html, svg { background: transparent; }
+  svg { display: block; width: 100%; height: 100%; cursor: default; }
+
+  /* Theme: dark (default) — labels are light on a dark Streamlit canvas.
+     The light-theme override below flips just the bits that need to be
+     visible on paper. */
+  .node-label {
+    pointer-events: none;
+    font-size: 10px;
+    fill: #ccc;
+    font-weight: 400;
+    text-anchor: middle;
+    dominant-baseline: auto;
+    user-select: none;
+  }
+  body.theme-light .node-label { fill: #1a1a1a; }
+  /* Backing chip drawn behind each label (see the JS that sizes it from
+     the label's own bbox) so it stays legible over an edge line. Its whole job
+     is to hide the line, so it is the canvas colour with no outline: an
+     outlined chip per node turned a tree of labels into a field of boxes that
+     read as loudly as the nodes. */
+  .node-label-chip {
+    pointer-events: none;
+    fill: #0e1117;
+    fill-opacity: 0.82;
+    stroke: none;
+  }
+  body.theme-light .node-label-chip { fill: #ffffff; }
+  /* Selected-node stroke is fine to gate by class — only the visible
+     shape sets the .selected class, the hit-area circle never does. */
+  body.theme-light .node-circle.selected { stroke: #000 !important; }
+
+  /* "Collapse this branch" badges: present on every branch point, so they stay
+     out of the way until the node under the cursor makes one relevant. Fully
+     hidden rather than dimmed — at 22% they were still a ring per node, and a
+     tree's worth of them read as a smudge hanging off every circle rather than
+     as a control. `pointer-events: none` while hidden, so a badge nobody can see
+     can never take a click meant for the node underneath; the group's own
+     (larger) hit circle keeps the hover alive, and the badge always sits inside
+     it, so it is interactive exactly while it is visible.
+     Only the "−" (collapse) direction is quiet: a "+" means something *is*
+     hidden, which the reader has to be able to see without hunting. */
+  .fold-badge-quiet { opacity: 0; pointer-events: none; transition: opacity 0.12s; }
+  .node-group:hover .fold-badge-quiet { opacity: 1; pointer-events: auto; }
+
+  .node-circle {
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    transform-origin: center;
+  }
+  .node-circle:hover { opacity: 0.85; filter: brightness(1.1); }
+  .node-circle.selected { stroke: #1a1a1a; stroke-width: 3px; }
+
+  .edge { pointer-events: none; }
+
+  #tooltip {
+    position: fixed;
+    background: rgba(0,0,0,0.82);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    pointer-events: none;
+    display: none;
+    z-index: 999;
+    max-width: 260px;
+    white-space: pre-line;
+  }
+  .tt-thumbs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .tt-thumbs img {
+    width: 72px;
+    height: 72px;
+    border-radius: 3px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  #instructions {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #666;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  #reset-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    background: rgba(40, 40, 40, 0.85);
+    color: #ddd;
+    border: 1px solid #555;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    user-select: none;
+    display: none;  /* shown only after a manual drag */
+  }
+  #reset-btn:hover { background: rgba(70, 70, 70, 0.95); }
+  body.theme-light #reset-btn {
+    background: rgba(255,255,255,0.92); color: #222; border-color: #c8c8cf;
+  }
+  body.theme-light #reset-btn:hover { background: #ebebed; }
+</style>
+</head>
+<body>
+
+<div id="tooltip"></div>
+<button id="reset-btn" title="Restore the computed layout">↺ Reset positions</button>
+<svg id="graph"></svg>
+<!-- Dragging still works; it is just not advertised. A participant reading
+     "drag any node to move it" first has been handed a task, and the graph is
+     not a thing to tidy — the one interaction worth naming is the click. -->
+<div id="instructions">Click any node to inspect</div>
+
+<script>
+// ── Streamlit messaging ───────────────────────────────────────────────────
+const STREAMLIT_ORIGIN = window.parent !== window ? "*" : null;
+
+function sendReady() {
+  window.parent.postMessage({ isStreamlitMessage: true, type: "streamlit:componentReady", apiVersion: 1 }, "*");
+}
+
+function sendValue(value) {
+  window.parent.postMessage({
+    isStreamlitMessage: true,
+    type: "streamlit:setComponentValue",
+    value: value,
+    dataType: "json",
+  }, "*");
+}
+
+function setHeight(h) {
+  window.parent.postMessage({ isStreamlitMessage: true, type: "streamlit:setFrameHeight", height: h }, "*");
+}
+
+// Fold-badge clicks are sent as [FOLD_TOGGLE_OFFSET - node.id, seq] over the
+// same list channel as normal node clicks (see the Python-side
+// _FOLD_TOGGLE_OFFSET in graph_plot.py, which this must match exactly) —
+// NOT a separate {fold_toggle: ...} dict message. A dict-shaped message
+// reliably desynced this component's identity after the first click
+// ("Received component message for unregistered ComponentInstance" in the
+// console); plain [id, seq] lists don't have that problem.
+const FOLD_TOGGLE_OFFSET = -1000000;
+
+// ── Graph state ───────────────────────────────────────────────────────────
+let graphData = null;
+let selectedNodeId = null;
+let selectedEdge = null;   // {src, tgt} when an edge is selected
+let clickSeq = 0;          // bumps per user click so repeats are distinct
+                           // even when the payload (node id) is the same
+let highlightedPath = null; // array of node IDs forming the highlighted path
+let pixPosMut = {};         // mutable pixel positions (live, including user drags)
+let initialPixPos = {};     // snapshot from the most recent layout (for reset)
+let userOverrides = {};     // nodes the user has manually moved; cleared on reset
+let dragging = null;        // {nodeId, startMouse, startNode, moved}
+let lastRenderArgs = null;  // svgW, svgH for re-render on reset
+
+// ── Viz options (settable from Python) ─────────────────────────────────────
+let theme = "dark";              // "dark" | "light"
+let edgeStyle = "lines";         // "arrows" | "lines"
+// Linear scaling. Width = EDGE_BASE_W + edgeWidthSlope * prob; the slope
+// (in px) is the slider value, so the user reads it as "how many extra
+// pixels of stroke at p=1". Same shape for node radius vs visit fraction.
+let edgeWidthSlope = 5.0;
+let nodeSizeSlope = 16.0;
+let annotations = [];            // callout lines naming what the drawing encodes
+let staticMode = false;          // a figure: no drag, no click, no instructions
+let figurePadding = null;        // {left,right,top,bottom} to reserve for callouts
+// lastSentSvg + svgCaptureScheduled are declared next to the export
+// builders below, near the SVG export section.
+
+// ── Layout helpers ────────────────────────────────────────────────────────
+function toSvgCoords(pos, svgW, svgH, padding) {
+  // pos is {nodeId: [x, y]} in data space; map to SVG pixel space.
+  //
+  // The layout is normalised to fill the canvas, so the extreme nodes always
+  // land on the padding however far apart the caller put them — which is why
+  // reserving room (for callout text, say) is a padding question and not a
+  // position question. `padding` may be one number or {left,right,top,bottom}.
+  const pad = typeof padding === "number"
+    ? { left: padding, right: padding, top: padding, bottom: padding }
+    : { left: 60, right: 60, top: 60, bottom: 60, ...padding };
+  const xs = Object.values(pos).map(p => p[0]);
+  const ys = Object.values(pos).map(p => p[1]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const rangeX = maxX - minX || 1;
+  const rangeY = maxY - minY || 1;
+  const result = {};
+  for (const [id, [x, y]] of Object.entries(pos)) {
+    result[id] = [
+      pad.left + ((x - minX) / rangeX) * Math.max(1, svgW - pad.left - pad.right),
+      pad.top + ((y - minY) / rangeY) * Math.max(1, svgH - pad.top - pad.bottom),
+    ];
+  }
+  return result;
+}
+
+// ── Label placement ───────────────────────────────────────────────────────
+// Every label sits in the same place — centred just below its node — because a
+// label that moves around depending on its neighbours is far harder to read
+// than one that overlaps something: the eye stops being able to guess where a
+// name will be. What did need fixing is that labels used to live inside their
+// own node's <g>, and node groups are appended in data order, so in a tall
+// graph the *next* layer's circles painted straight over the previous layer's
+// labels. They now live in one layer appended after every node: same position
+// as always, but on top of the graph rather than under the next row of it.
+
+// A label past this width wraps onto a second line rather than taking the room
+// for one long one — the tree divides horizontal space between siblings and runs
+// out of it long before it runs out of vertical space between depths. Mirrored
+// by _LABEL_MAX_PX in trajectory_tree_view.py, which budgets each branch's width
+// from the wrapped shape; change both together.
+const LABEL_MAX_PX = 108;
+const LABEL_LINE_PX = 11;
+const LABEL_MAX_LINES = 2;
+
+// Terminal labels ("FAILURE 12%") always stack — outcome above share. They are
+// the most numerous labels at a tree's most crowded levels, and stacked they need
+// barely half the horizontal room, which is what the tree runs out of.
+const LABEL_WRAP_ALWAYS = 0;
+
+// Measured text widths, kept across renders. Writing to the measuring element and
+// reading its length back forces a layout each time, and a tree re-renders the
+// same few hundred labels on every click, drag and rerun — so measure each
+// distinct string once for the life of the page.
+const textWidths = new Map();
+
+function measureText(measure, s) {
+  let width = textWidths.get(s);
+  if (width === undefined) {
+    measure.textContent = s;
+    width = measure.getComputedTextLength();
+    textWidths.set(s, width);
+  }
+  return width;
+}
+
+// Greedy fill; the last allowed line takes whatever is left rather than dropping
+// it, so a single unwrappable word stays whole and just runs wide.
+function wrapLabel(measure, text, maxPx) {
+  const words = String(text).split(/\s+/).filter(Boolean);
+  if (words.length < 2) return [String(text)];
+  const lines = [];
+  let current = words[0];
+  for (let i = 1; i < words.length; i++) {
+    const candidate = current + " " + words[i];
+    if (lines.length === LABEL_MAX_LINES - 1 || measureText(measure, candidate) <= maxPx) current = candidate;
+    else { lines.push(current); current = words[i]; }
+  }
+  lines.push(current);
+  return lines;
+}
+
+function placeLabels(layer, specs, svgW, svgH) {
+  const MARGIN = 4;
+  // One off-canvas <text> to measure against: getComputedTextLength() needs an
+  // element in the document, and re-appending one per candidate line is slow.
+  const measure = svgEl("text", { class: "node-label", x: -9999, y: -9999 });
+  layer.appendChild(measure);
+  for (const spec of specs) {
+    const group = svgEl("g", {
+      class: "node-label-group",
+      "data-node-id": String(spec.id),
+      transform: `translate(${spec.cx},${spec.cy})`,
+    });
+    const text = svgEl("text", {
+      class: "node-label" + (spec.terminal ? " node-label-terminal" : ""),
+      x: 0, y: spec.r + 13,
+    });
+    const lines = wrapLabel(measure, spec.text, spec.terminal ? LABEL_WRAP_ALWAYS : LABEL_MAX_PX);
+    for (let i = 0; i < lines.length; i++) {
+      const line = svgEl("tspan", { x: 0, dy: i === 0 ? 0 : LABEL_LINE_PX });
+      line.textContent = lines[i];
+      text.appendChild(line);
+    }
+    group.appendChild(text);
+    // Appended before measuring: getBBox() on a detached element is all zeros.
+    layer.appendChild(group);
+
+    // Keep the label (and its chip) inside the viewBox: a long label on a node
+    // near an edge would otherwise be clipped away.
+    const bbox = text.getBBox();
+    let shiftX = 0, shiftY = 0;
+    if (spec.cx + bbox.x < MARGIN) shiftX = MARGIN - (spec.cx + bbox.x);
+    else if (spec.cx + bbox.x + bbox.width > svgW - MARGIN)
+      shiftX = (svgW - MARGIN) - (spec.cx + bbox.x + bbox.width);
+    if (spec.cy + bbox.y < MARGIN) shiftY = MARGIN - (spec.cy + bbox.y);
+    else if (spec.cy + bbox.y + bbox.height > svgH - MARGIN)
+      shiftY = (svgH - MARGIN) - (spec.cy + bbox.y + bbox.height);
+    if (shiftX !== 0 || shiftY !== 0) {
+      text.setAttribute("x", String(shiftX));
+      text.setAttribute("y", String(spec.r + 13 + shiftY));
+      // Each line carries its own x for centring, which overrides the <text>'s,
+      // so the horizontal shift has to be applied line by line.
+      for (const line of text.children) line.setAttribute("x", String(shiftX));
+    }
+
+    const CHIP_PAD_X = 3, CHIP_PAD_Y = 1.5;
+    const chip = svgEl("rect", {
+      x: bbox.x + shiftX - CHIP_PAD_X,
+      y: bbox.y + shiftY - CHIP_PAD_Y,
+      width: bbox.width + 2 * CHIP_PAD_X,
+      height: bbox.height + 2 * CHIP_PAD_Y,
+      rx: 3,
+      class: "node-label-chip",
+    });
+    group.insertBefore(chip, text);
+  }
+  measure.remove();
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────
+// Compute the SVG path `d` attribute and arrowhead-direction vector for an
+// edge between two pixel positions. Curvature scales with chord length so
+// short hops are nearly straight, long hops arc clearly.
+function edgePathD(x0, y0, x1, y1, side) {
+  const chord = Math.sqrt((x1 - x0)**2 + (y1 - y0)**2) || 1;
+  const pcx = -(y1 - y0) / chord;
+  const pcy =  (x1 - x0) / chord;
+  const curve = Math.min(60, Math.max(0, (chord - 80) * 0.18));
+  const arc = (side !== undefined) ? side : ((x1 >= x0) ? -1 : 1);
+  const cx = (x0 + x1) / 2 + pcx * curve * arc;
+  const cy = (y0 + y1) / 2 + pcy * curve * arc;
+  return `M ${x0} ${y0} Q ${cx} ${cy} ${x1} ${y1}`;
+}
+
+// Recompute the path for every edge touching nodeId and update DOM.
+function redrawEdgesFor(nodeId) {
+  if (!graphData) return;
+  const svg = document.getElementById("graph");
+  const maxEpisodes = Math.max(...graphData.nodes.map(n => n.num_episodes), 1);
+  for (const edge of graphData.edges) {
+    if (edge.src !== nodeId && edge.tgt !== nodeId) continue;
+    const [x0, y0] = pixPosMut[edge.src] || [0, 0];
+    const [x1, y1] = pixPosMut[edge.tgt] || [0, 0];
+    const rSrc = nodeRadius(graphData.nodes.find(n => n.id === edge.src), maxEpisodes);
+    const targetNode = graphData.nodes.find(n => n.id === edge.tgt);
+    const rTgtVis = visualRadius(targetNode, maxEpisodes);
+    const dx = x1 - x0, dy = y1 - y0;
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const ux = dx / len, uy = dy / len;
+    // Match the offset to the live path's marker (which is userSpaceOnUse,
+    // so the arrow is a fixed pixel size — 10/12 px or 0 for lines mode).
+    const sel = `[data-src="${edge.src}"][data-tgt="${edge.tgt}"]`;
+    const livePath = svg.querySelector(`path.edge${sel}`);
+    let markerWidthPx = 10;
+    if (livePath) {
+      const me = livePath.getAttribute("marker-end") || "url(#arrow)";
+      markerWidthPx = me === "url(#arrow)" ? 10 : me === "none" ? 0 : 12;
+    }
+    const idealOffset = rTgtVis + markerWidthPx + 3;
+    const maxOffset = Math.max(0, len - rSrc - 2);
+    const endOffset = Math.min(idealOffset, maxOffset);
+    const sx = x0 + ux * (rSrc + 2), sy = y0 + uy * (rSrc + 2);
+    const ex = x1 - ux * endOffset, ey = y1 - uy * endOffset;
+    let ox = 0, oy = 0;
+    if (graphData.edges.some(e => e.src === edge.tgt && e.tgt === edge.src)) {
+      ox = -uy * 5; oy = ux * 5;
+    }
+    const d = edgePathD(sx + ox, sy + oy, ex + ox, ey + oy);
+    // Update both visible and hit-area paths
+    svg.querySelectorAll(`path${sel}`).forEach(p => p.setAttribute("d", d));
+  }
+}
+
+function render(data, svgW, svgH) {
+  graphData = data;
+  lastRenderArgs = { svgW, svgH };
+  const svg = document.getElementById("graph");
+  svg.setAttribute("viewBox", `0 0 ${svgW} ${svgH}`);
+  svg.innerHTML = "";
+
+  // More room at the bottom than at the sides, because two things live down
+  // there that the layout does not know about: a node's caption, which hangs
+  // below the node the layout placed, and the "Click any node to inspect" line
+  // pinned to the bottom of the box. At an even 60 the two met — the caption of
+  // a bottom-row node overlapped the line by a few pixels.
+  const padding = figurePadding || { left: 60, right: 60, top: 60, bottom: 92 };
+  // Compute fresh positions from data, then overlay any user drags.
+  const freshPos = toSvgCoords(data.positions, svgW, svgH, padding);
+  initialPixPos = JSON.parse(JSON.stringify(freshPos));
+  pixPosMut = {};
+  for (const id of Object.keys(freshPos)) {
+    pixPosMut[id] = userOverrides[id] ? [...userOverrides[id]] : [...freshPos[id]];
+  }
+  const pixPos = pixPosMut;  // alias for the rest of this function
+
+  const maxEpisodes = Math.max(...data.nodes.map(n => n.num_episodes), 1);
+  // START's episode count is the natural denominator for "P(reach
+  // terminal)" — it's all episodes the policy ran. Fall back to the
+  // overall max if there's no START in the graph (custom callers).
+  const startNode = data.nodes.find(n => n.symbol === "diamond");
+  const totalEpisodes = (startNode && startNode.num_episodes) || maxEpisodes;
+
+  // ── defs: arrowhead marker ─────────────────────────────────────────────
+  const pathSet = highlightedPath ? new Set(highlightedPath.map(String)) : null;
+  const hasPath = pathSet && pathSet.size > 0;
+
+  const defs = svgEl("defs");
+  // Arrowhead anchored at its BASE (refX=0), not its tip — the polygon
+  // extends only forward from the line endpoint, so the line never
+  // crosses underneath it.
+  //
+  // `markerUnits="userSpaceOnUse"` pins the arrow to a fixed pixel size
+  // regardless of stroke-width. With the default (strokeWidth units),
+  // a thick edge into a small terminal node ended up with an arrow
+  // visibly larger than the node itself — looked bizarre. Fixed sizing
+  // keeps arrows consistent and always smaller than typical nodes.
+  // Sizes are picked to be readable (≥ 10 px) but smaller than the
+  // smallest cluster (r=6 px → diameter 12 px).
+  //
+  // Default arrow: inherits the line's RGB via the SVG-2
+  // `context-stroke` keyword (Chrome 91+, Firefox, Safari 16+).
+  const ARROW_BASE = { markerUnits: "userSpaceOnUse", orient: "auto" };
+  const marker = svgEl("marker", { ...ARROW_BASE, id: "arrow",
+    markerWidth: "10", markerHeight: "10", refX: "0", refY: "5" });
+  marker.appendChild(svgEl("polygon", { points: "0 0, 10 5, 0 10", fill: "context-stroke" }));
+  defs.appendChild(marker);
+  const markerHL = svgEl("marker", { ...ARROW_BASE, id: "arrow-hl",
+    markerWidth: "12", markerHeight: "12", refX: "0", refY: "6" });
+  markerHL.appendChild(svgEl("polygon", { points: "0 0, 12 6, 0 12", fill: "#f5a623" }));
+  defs.appendChild(markerHL);
+  // Selected-node edge arrowhead (cyan)
+  const markerSel = svgEl("marker", { ...ARROW_BASE, id: "arrow-sel",
+    markerWidth: "12", markerHeight: "12", refX: "0", refY: "6" });
+  markerSel.appendChild(svgEl("polygon", { points: "0 0, 12 6, 0 12", fill: "#64c8ff" }));
+  defs.appendChild(markerSel);
+  // Selected-edge arrowhead (gold)
+  const markerEdgeSel = svgEl("marker", { ...ARROW_BASE, id: "arrow-edge-sel",
+    markerWidth: "12", markerHeight: "12", refX: "0", refY: "6" });
+  markerEdgeSel.appendChild(svgEl("polygon", { points: "0 0, 12 6, 0 12", fill: "#ffc832" }));
+  defs.appendChild(markerEdgeSel);
+  svg.appendChild(defs);
+
+  const hasSelected = selectedNodeId !== null && !hasPath;
+  const hasSelectedEdge = selectedEdge !== null && !hasPath && selectedNodeId === null;
+
+  // ── edges ─────────────────────────────────────────────────────────────
+  const edgeGroup = svgEl("g", { class: "edges" });
+  for (const edge of data.edges) {
+    const [x0, y0] = pixPos[edge.src] || [0, 0];
+    const [x1, y1] = pixPos[edge.tgt] || [0, 0];
+    if (!pixPos[edge.src] || !pixPos[edge.tgt]) continue;
+
+    const rSrc = nodeRadius(data.nodes.find(n => n.id === edge.src), maxEpisodes);
+    const targetNode = data.nodes.find(n => n.id === edge.tgt);
+    const rTgtVis = visualRadius(targetNode, maxEpisodes);
+    const dx = x1 - x0, dy = y1 - y0;
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const ux = dx/len, uy = dy/len;
+
+    const onPath = hasPath &&
+      pathSet.has(String(edge.src)) && pathSet.has(String(edge.tgt)) &&
+      highlightedPath.indexOf(edge.src) < highlightedPath.indexOf(edge.tgt);
+
+    const isOutgoing = hasSelected && edge.src === selectedNodeId;
+    const isIncoming = hasSelected && edge.tgt === selectedNodeId;
+    const isEdgeSel = hasSelectedEdge && edge.src === selectedEdge.src && edge.tgt === selectedEdge.tgt;
+
+    // Linear encoding. Width = base + slope * prob, where slope is set by
+    // the user. Grey "darkness" goes from ~background (essentially
+    // invisible, matching the 0.2-opacity spec) to the theme's foreground
+    // grey (solid), tracking prob linearly so width and shade stay
+    // coupled — wider edges are also darker.
+    //
+    // Implementation note: we encode the grey by mixing two fully-opaque
+    // RGB values, not by varying alpha. The arrowhead inherits the line
+    // colour via `fill=context-stroke`, and any line stroke that overlaps
+    // the marker polygon at the tip would otherwise alpha-compound and
+    // darken there. Using opaque RGB on both sides means line + arrow
+    // join seamlessly with no double-alpha at the seam.
+    const probClamped = Math.max(0, Math.min(1, edge.prob));
+    // Rare-but-preserved edges (outcome outliers kept by the state-merging
+    // graph mode): floor their visual weight so a 1-in-100 transition stays
+    // legible, and render dashed so the reader sees "individual episodes",
+    // not a probability estimate.
+    const isRare = !!edge.rare;
+    const probVis = isRare ? Math.max(probClamped, 0.3) : probClamped;
+    const defaultW = (0.6 + probVis * edgeWidthSlope);
+    const defaultOpacity = (0.2 + probVis * 0.8);  // used only for non-default branches
+    const probShaped = probVis;
+    function mix(a, b, t) {
+      const m = (i) => Math.round(a[i] + (b[i] - a[i]) * t);
+      return `rgb(${m(0)},${m(1)},${m(2)})`;
+    }
+    const defaultStroke = theme === "light"
+        ? mix([255, 255, 255], [60, 60, 60], defaultOpacity)
+        : mix([14, 17, 23], [180, 180, 180], defaultOpacity);
+
+    let stroke, strokeW, markerEnd;
+    if (onPath) {
+      stroke = "rgba(245,166,35,0.95)";
+      strokeW = (1.5 + probShaped * 5).toFixed(1);
+      markerEnd = "url(#arrow-hl)";
+    } else if (hasPath) {
+      stroke = `rgba(120,120,120,${(0.1 + probShaped * 0.15).toFixed(2)})`;
+      strokeW = (0.5 + probShaped * 2).toFixed(1);
+      markerEnd = "url(#arrow)";
+    } else if (isEdgeSel) {
+      stroke = "rgba(255,200,50,0.97)";
+      strokeW = "3.5";
+      markerEnd = "url(#arrow-edge-sel)";
+    } else if (hasSelectedEdge) {
+      stroke = `rgba(80,80,80,${(0.05 + probShaped * 0.06).toFixed(2)})`;
+      strokeW = (0.4 + probShaped * 1.5).toFixed(1);
+      markerEnd = "url(#arrow)";
+    } else if (isOutgoing) {
+      stroke = `rgba(100,200,255,${(0.75 + probShaped * 0.25).toFixed(2)})`;
+      strokeW = (1.8 + probShaped * 4).toFixed(1);
+      markerEnd = "url(#arrow-sel)";
+    } else if (isIncoming) {
+      stroke = `rgba(100,200,255,${(0.45 + probShaped * 0.25).toFixed(2)})`;
+      strokeW = (1.0 + probShaped * 3).toFixed(1);
+      markerEnd = "url(#arrow-sel)";
+    } else if (hasSelected) {
+      stroke = `rgba(100,100,100,${(0.06 + probShaped * 0.08).toFixed(2)})`;
+      strokeW = (0.4 + probShaped * 1.5).toFixed(1);
+      markerEnd = "url(#arrow)";
+    } else {
+      stroke = defaultStroke;
+      strokeW = defaultW.toFixed(1);
+      markerEnd = "url(#arrow)";
+    }
+    if (edgeStyle === "lines") markerEnd = "none";
+
+    // Compute the line-end offset *after* the stroke width is decided.
+    // Markers are userSpaceOnUse so they're a fixed pixel size: 10 px for
+    // the default arrow, 12 px for the highlight/selection markers,
+    // 0 when arrowheads are disabled ("lines" mode).
+    //
+    // Clamp the offset to the chord length so the line endpoint never
+    // crosses past the source — that would reverse the path's tangent
+    // and the auto-oriented marker would point backward, which looked
+    // like "arrows flipping" on short edges.
+    const markerWidthPx = markerEnd === "url(#arrow)" ? 10
+                        : markerEnd === "none" ? 0 : 12;
+    const tipGap = 3;
+    const idealOffset = rTgtVis + markerWidthPx + tipGap;
+    const maxOffset = Math.max(0, len - rSrc - 2);
+    const endOffset = Math.min(idealOffset, maxOffset);
+    const sx = x0 + ux * (rSrc + 2), sy = y0 + uy * (rSrc + 2);
+    const ex = x1 - ux * endOffset, ey = y1 - uy * endOffset;
+
+    let ox = 0, oy = 0;
+    if (data.edges.some(e => e.src === edge.tgt && e.tgt === edge.src)) {
+      ox = -uy * 5; oy = ux * 5;
+    }
+
+    // Build a path. Short edges → straight line. Long edges → quadratic
+    // Bezier whose control point sits perpendicular to the chord.
+    const x0p = sx + ox, y0p = sy + oy, x1p = ex + ox, y1p = ey + oy;
+    const d = edgePathD(x0p, y0p, x1p, y1p);
+
+    const line = svgEl("path", {
+      class: "edge",
+      d,
+      fill: "none",
+      stroke, "stroke-width": strokeW,
+      "stroke-dasharray": isRare ? "6 5" : "none",
+      "marker-end": markerEnd,
+      "data-src": String(edge.src),
+      "data-tgt": String(edge.tgt),
+    });
+    edgeGroup.appendChild(line);
+
+    // Transparent wider hit-area path so edges are easy to click
+    const hit = svgEl("path", {
+      d,
+      fill: "none",
+      stroke: "transparent", "stroke-width": "12",
+      "pointer-events": "stroke", cursor: "pointer",
+      "data-src": String(edge.src),
+      "data-tgt": String(edge.tgt),
+    });
+    (function(e) {
+      hit.addEventListener("click", function(evt) {
+        evt.stopPropagation();
+        if (selectedEdge && selectedEdge.src === e.src && selectedEdge.tgt === e.tgt) {
+          selectedEdge = null;
+          sendValue([-1, ++clickSeq]);
+        } else {
+          selectedEdge = {src: e.src, tgt: e.tgt};
+          selectedNodeId = null;
+          sendValue([e.src, e.tgt, ++clickSeq]);
+        }
+        render(graphData, svgW, svgH);
+      });
+    })(edge);
+    edgeGroup.appendChild(hit);
+  }
+  svg.appendChild(edgeGroup);
+
+  // ── nodes ─────────────────────────────────────────────────────────────
+  const nodeGroup = svgEl("g", { class: "nodes" });
+  svg.appendChild(nodeGroup);
+  // Filled by the node loop, laid out and drawn after it (see placeLabels).
+  const labelSpecs = [];
+  for (const node of data.nodes) {
+    const [cx, cy] = pixPos[node.id] || [0, 0];
+    const r = nodeRadius(node, maxEpisodes);
+    const g = svgEl("g", {
+      class: "node-group",
+      transform: `translate(${cx},${cy})`,
+      "data-node-id": String(node.id),
+    });
+    // Appended to the live tree immediately (rather than at the end of
+    // this loop iteration) so label.getBBox() below returns real
+    // measurements -- Chrome returns an all-zero bbox for elements not
+    // yet attached to the rendered document.
+    nodeGroup.appendChild(g);
+
+    // Selection halo: a translucent ring rendered behind the node so the
+    // node keeps its normal white stroke when selected (no jarring restyle).
+    if (node.id === selectedNodeId) {
+      const haloR = r + 8;
+      const halo = svgEl("circle", {
+        r: haloR,
+        fill: "none",
+        stroke: "rgba(80, 200, 255, 0.95)",
+        "stroke-width": "3",
+        "pointer-events": "none",
+      });
+      g.appendChild(halo);
+    }
+
+    // Main circle/shape. Stroke is inlined per-theme so the (transparent)
+    // hit-area circles below stay invisible regardless of the canvas
+    // colour; only the visible shape gets the dark outline.
+    const nodeStroke = theme === "light" ? "#1a1a1a" : "white";
+    // "star" is the symbol *name* in the node data; the glyph it draws is a
+  // checkmark, which is what the rest of the app calls success.
+  const _GLYPH = { star: "✓", x: "✕", diamond: "▶", square: "■" };
+    const _isSpecial = node.symbol in _GLYPH;
+    let shape;
+    let _innerGlyph = null;
+    if (_isSpecial) {
+      // All special nodes → circle + inner glyph so radius is governed by
+      // nodeSizeSlope like any cluster node.
+      shape = svgEl("circle", {
+        r: r,
+        fill: node.color,
+        stroke: nodeStroke,
+        "stroke-width": "2",
+        class: "node-circle" + (node.id === selectedNodeId ? " selected" : ""),
+      });
+      _innerGlyph = svgEl("text", {
+        "text-anchor": "middle",
+        "dominant-baseline": "central",
+        "font-size": String(Math.max(10, Math.round(r * 1.1))),
+        "user-select": "none",
+        "pointer-events": "none",
+        fill: "#fff",
+      });
+      _innerGlyph.textContent = _GLYPH[node.symbol];
+    } else {
+      // Regular cluster node — plain circle.
+      shape = svgEl("circle", {
+        r: r,
+        fill: node.color,
+        stroke: nodeStroke,
+        "stroke-width": "2",
+        class: "node-circle",
+      });
+    }
+
+    // Dim nodes not on highlighted path / not incident to selected edge / not connected to selected node
+    if (hasPath && !pathSet.has(String(node.id))) {
+      g.setAttribute("opacity", "0.25");
+    } else if (hasSelectedEdge && node.id !== selectedEdge.src && node.id !== selectedEdge.tgt) {
+      g.setAttribute("opacity", "0.25");
+    } else if (hasSelected && node.id !== selectedNodeId) {
+      const connected = data.edges.some(e =>
+        (e.src === selectedNodeId && e.tgt === node.id) ||
+        (e.tgt === selectedNodeId && e.src === node.id)
+      );
+      if (!connected) g.setAttribute("opacity", "0.3");
+    }
+
+    // Invisible hit-area circle (larger, for easier clicking)
+    const hit = svgEl("circle", { r: Math.max(r + 8, 18), fill: "transparent", class: "node-circle", cursor: "pointer" });
+
+    g.appendChild(shape);
+    if (_innerGlyph) g.appendChild(_innerGlyph);
+    g.appendChild(hit);
+
+    // Fold badge: a small +/- disc at the node's bottom-right, present on
+    // every non-terminal node (any branch point in the trajectory tree).
+    // "-" means it's currently showing its children — click to collapse
+    // that subtree. "+" means it's currently collapsed (either a manually-
+    // hidden subtree, or a "+N rare variants" summary node) — click to
+    // reveal it again. Both directions send the same encoded fold-toggle
+    // value (see FOLD_TOGGLE_OFFSET), reported separately from normal
+    // selection so toggling a branch never also pops open that node's video
+    // panel; the Python side figures out what the toggle means for this
+    // particular node.
+    if (node.fold_state === "collapsed" || node.fold_state === "expanded") {
+      const isCollapsed = node.fold_state === "collapsed";
+      const bx = r * 0.72, by = r * 0.72;
+      const badgeR = 7;
+      // "+" means something is hidden, so it stays at full strength. "−" is only
+      // an offer to collapse and every branch point has one, so it recedes until
+      // hovered — via opacity, not pointer-events, so it stays clickable.
+      const badge = svgEl("g", {
+        class: "fold-badge" + (isCollapsed ? "" : " fold-badge-quiet"),
+        transform: `translate(${bx},${by})`,
+        "pointer-events": "auto",
+        cursor: "pointer",
+      });
+      badge.appendChild(svgEl("circle", {
+        r: badgeR,
+        fill: theme === "light" ? "#ffffff" : "#1a1a1a",
+        stroke: node.color,
+        "stroke-width": "1.5",
+      }));
+      const sign = svgEl("text", {
+        "text-anchor": "middle",
+        "dominant-baseline": "central",
+        y: "0.5",
+        "font-size": "10",
+        "font-weight": "700",
+        "user-select": "none",
+        "pointer-events": "none",
+        fill: theme === "light" ? "#1a1a1a" : "#eee",
+      });
+      sign.textContent = isCollapsed ? "+" : "−";
+      badge.appendChild(sign);
+      badge.addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        // Same drag-suppression as the node's own click handler below: the
+        // badge sits right at the node's edge, so a drag that happens to
+        // start on it still fires a synthetic click on mouseup — without
+        // this check that would toggle the fold state as an unintended
+        // side effect of moving the node. stopPropagation() above means
+        // this click never reaches the node's own handler (which resets
+        // the flag), so this branch must reset it too, or the *next*
+        // legitimate node click would be silently swallowed as well.
+        if (dragMovedRecently) {
+          dragMovedRecently = false;
+          return;
+        }
+        sendValue([FOLD_TOGGLE_OFFSET - node.id, ++clickSeq]);
+      });
+      // Swap the tooltip to badge-specific text while hovering it, so it's
+      // clear this hit-target is distinct from the node itself — otherwise
+      // it just shows the same tooltip as the node body right up until the
+      // click lands on something else. Reverts to the node's own tooltip
+      // (not just hidden) on badge mouseleave, since the mouse is still
+      // over the node at that point.
+      badge.addEventListener("mouseenter", (e) => {
+        const tt = document.getElementById("tooltip");
+        tt.style.display = "block";
+        const textDiv = document.createElement("div");
+        textDiv.textContent = isCollapsed
+          ? "Click to expand this branch"
+          : "Click to collapse this branch";
+        tt.innerHTML = textDiv.outerHTML;
+        positionTooltip(e);
+      });
+      badge.addEventListener("mousemove", positionTooltip);
+      badge.addEventListener("mouseleave", showNodeTooltip);
+      g.appendChild(badge);
+    }
+
+    // Label. Terminal nodes (✓ SUCCESS, ✕ FAILURE, ■ END) get the
+    // reach-probability appended — `P(reach this terminal)` is one of the
+    // most useful numbers in the whole figure, and the symbol size alone
+    // doesn't make small differences readable.
+    //
+    // `node.label` arrives already shortened (short_node_label). An empty one
+    // draws no text and no chip — a VLM annotation can come back blank.
+    //
+    // Only the text is decided here; where it goes is decided once every node
+    // is drawn (see placeLabels).
+    let labelText = node.label || "";
+    const isTerminal = node.symbol === "star" || node.symbol === "x" || node.symbol === "square";
+    if (isTerminal && totalEpisodes > 0) {
+      const frac = node.num_episodes / totalEpisodes;
+      // Sub-1% terminals get an extra significant digit so they don't all
+      // collapse to "0%". Anything >= 1% rounds to integer for legibility.
+      const pct = frac >= 0.01 ? Math.round(frac * 100) + "%"
+                                : (frac * 100).toFixed(1) + "%";
+      labelText = `${labelText} ${pct}`.trim();
+    }
+    if (labelText) {
+      labelSpecs.push({ id: node.id, cx, cy, r, text: labelText, terminal: isTerminal });
+    }
+
+    // Click + tooltip. `showNodeTooltip` is a hoisted function declaration
+    // (not a const) so the fold-badge's mouseleave handler above can revert
+    // to it — the mouse is still over the node `g` at that point, so
+    // hiding the tooltip there would just make it flicker off and back on.
+    const tooltip = document.getElementById("tooltip");
+    function showNodeTooltip(e) {
+      tooltip.style.display = "block";
+      // Build inner HTML: optional thumbnail row + text stats
+      let html = "";
+      if (node.thumbnails && node.thumbnails.length > 0) {
+        html += '<div class="tt-thumbs">';
+        for (const src of node.thumbnails) {
+          // Only allow data URIs that start with our known prefix
+          if (src.startsWith("data:image/jpeg;base64,")) {
+            html += `<img src="${src}">`;
+          }
+        }
+        html += "</div>";
+      }
+      // Escape text content to prevent XSS (tooltip text is our own JSON, but be safe)
+      const textDiv = document.createElement("div");
+      textDiv.textContent = node.tooltip;
+      html += textDiv.outerHTML;
+      tooltip.innerHTML = html;
+      positionTooltip(e);
+    }
+    g.addEventListener("mouseenter", showNodeTooltip);
+    g.addEventListener("mousemove", positionTooltip);
+    g.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
+
+    // ── Drag: mousedown captures the node; mousemove updates pos; mouseup
+    // either fires the click (if no movement) or just ends the drag.
+    if (staticMode) { g.style.cursor = "default"; continue; }
+    g.style.cursor = "grab";
+    g.addEventListener("mousedown", (evt) => {
+      evt.preventDefault();
+      const pt = svgPoint(evt);
+      dragging = {
+        nodeId: node.id,
+        startMouse: { x: pt.x, y: pt.y },
+        startNode: [...pixPosMut[node.id]],
+        moved: false,
+        // Both groups resolved once here rather than looked up per mousemove:
+        // the label lives in the labels layer now, so a drag moved two
+        // attribute-selector queries onto a 60-per-second path.
+        nodeGroup: g,
+        labelGroup: svg.querySelector(`.node-label-group[data-node-id="${node.id}"]`),
+      };
+      g.style.cursor = "grabbing";
+      // Hide tooltip while dragging
+      document.getElementById("tooltip").style.display = "none";
+    });
+    g.addEventListener("click", (evt) => {
+      evt.stopPropagation();
+      // The mouseup handler clears `dragging` and sets dragMovedRecently
+      // if the drag actually moved. If so, suppress this click.
+      if (dragMovedRecently) {
+        dragMovedRecently = false;
+        return;
+      }
+      if (selectedNodeId === node.id) {
+        selectedNodeId = null;
+        sendValue([-1, ++clickSeq]);
+      } else {
+        selectedNodeId = node.id;
+        selectedEdge = null; // clear edge selection
+        sendValue([node.id, ++clickSeq]);
+      }
+      render(graphData, svgW, svgH);
+    });
+
+  }
+
+  // Labels last, in their own layer: appended after every node group, so no
+  // node can paint over a label however tall the graph gets. Both label
+  // classes are pointer-events:none, so lying over a node costs no clicks.
+  const labelLayer = svgEl("g", { class: "labels" });
+  svg.appendChild(labelLayer);
+  placeLabels(labelLayer, labelSpecs, svgW, svgH);
+
+  if (annotations.length) {
+    drawAnnotations(svg, pixPos, data, maxEpisodes, svgW, svgH);
+  }
+
+  // Background click → deselect everything (always fire so Python can also
+  // clear path selection, which lives only in Streamlit session state)
+  if (staticMode) return;
+  svg.onclick = function(evt) {
+    const hadSelection = selectedNodeId !== null || selectedEdge !== null;
+    selectedNodeId = null;
+    selectedEdge = null;
+    sendValue([-1, ++clickSeq]);
+    if (hadSelection) render(graphData, svgW, svgH);
+  };
+}
+
+function drawAnnotations(svg, pixPos, data, maxEpisodes, svgW, svgH) {
+  // Short leader lines from the thing being described to a label just beside
+  // it, placed by the caller as an offset in pixels. Offsets rather than
+  // margin-anchored labels: a line to the edge of the canvas crosses whatever
+  // is in between, and on a wide canvas it crosses the whole graph.
+  //
+  // Positions and radii come from the same values the nodes were drawn with,
+  // so a callout cannot end up pointing next to its node.
+  const layer = svgEl("g", { class: "annotations" });
+  const byId = {};
+  for (const n of data.nodes) byId[String(n.id)] = n;
+  // Near-black on white rather than the mid grey these were: the callouts
+  // are 11px and the text is the point of the figure, so they are read, not
+  // glanced at. The leader line stays lighter than the text it leads to.
+  const ink = theme === "light" ? "#16181b" : "#dde1e7";
+  const lead = theme === "light" ? "#6b7177" : "#8b93a1";
+  for (const a of annotations) {
+    let ax, ay, rim = 0;
+    if (Array.isArray(a.edge)) {
+      // Ask the drawn path where its middle is, rather than recomputing it.
+      // The band runs between the two nodes' *rims* offset by the arrowhead
+      // and a gap, then arcs (see edgePathD), so a midpoint derived from the
+      // node centres lands beside the band — by tens of pixels on the edges
+      // long enough to curve, which are exactly the ones worth a callout.
+      const band = svg.querySelector(
+        `path.edge[data-src="${a.edge[0]}"][data-tgt="${a.edge[1]}"]`);
+      if (!band) continue;
+      const mid = band.getPointAtLength(band.getTotalLength() / 2);
+      ax = mid.x; ay = mid.y;
+    } else {
+      const p = pixPos[a.node]; if (!p) continue;
+      ax = p[0]; ay = p[1];
+      rim = nodeRadius(byId[String(a.node)], maxEpisodes) + 3;
+    }
+    const dx = typeof a.dx === "number" ? a.dx : 0;
+    const dy = typeof a.dy === "number" ? a.dy : 0;
+    const lx = ax + dx, ly = ay + dy;
+    const anchorAttr = dx > 6 ? "start" : dx < -6 ? "end" : "middle";
+
+    const len = Math.hypot(dx, dy) || 1;
+    const gap = dy === 0 ? 6 : 12;
+    layer.appendChild(svgEl("line", {
+      x1: ax + (dx / len) * rim, y1: ay + (dy / len) * rim,
+      x2: lx - (dx / len) * gap, y2: ly - (dy / len) * gap,
+      stroke: lead, "stroke-width": 1, "stroke-dasharray": "3 3",
+    }));
+
+    // Baseline, not just anchor: an SVG text sits *on* its y, so a callout
+    // beside a node reads as sitting above the node's centre unless it is
+    // centred explicitly, and one below a node starts a line-height too low.
+    const baseline = dy === 0 ? "middle" : dy > 0 ? "hanging" : "auto";
+    const text = svgEl("text", {
+      x: lx, y: ly, "text-anchor": anchorAttr, "dominant-baseline": baseline,
+      "font-size": 12, fill: ink, "pointer-events": "none",
+    });
+    // Wrapped here because SVG text does not wrap, and a callout long enough
+    // to say what a feature means does not fit on one line. Lines grow away
+    // from the node (upwards for a callout above it) so the text never walks
+    // back over what it points at.
+    const words = String(a.text || "").split(/\s+/);
+    const lines = [];
+    let line = "";
+    const maxChars = typeof a.wrap === "number" ? a.wrap : 26;
+    for (const w of words) {
+      const candidate = line ? line + " " + w : w;
+      if (candidate.length > maxChars && line) { lines.push(line); line = w; } else { line = candidate; }
+    }
+    if (line) lines.push(line);
+    const up = dy < 0;
+    const ordered = up ? lines.slice().reverse() : lines;
+    ordered.forEach((ln, i) => {
+      const tspan = svgEl("tspan", { x: lx, dy: i === 0 ? 0 : (up ? -13 : 13) });
+      tspan.textContent = ln;
+      text.appendChild(tspan);
+    });
+    // A multi-line side label grows downwards from its first line, so centre
+    // the block on the node rather than its top line.
+    if (dy === 0 && lines.length > 1) {
+      text.setAttribute("transform", `translate(0,${-6.5 * (lines.length - 1)})`);
+    }
+    layer.appendChild(text);
+  }
+  svg.appendChild(layer);
+}
+
+function nodeRadius(node, maxEpisodes) {
+  if (!node) return 12;
+  // START stays a fixed visual anchor — it represents the entry point,
+  // not a "visited" cluster in any meaningful frequency sense. Every
+  // other node (clusters, ✓ SUCCESS, ✕ FAILURE, ■ END) scales linearly
+  // with its episode count so a dominant failure mode is bigger than a
+  // rare one — especially useful in the trajectory tree, where each
+  // terminal leaf has its own visit count.
+  if (node.symbol === "diamond") return 12;
+  const frac = Math.max(0, Math.min(1, node.num_episodes / Math.max(1, maxEpisodes)));
+  return Math.round(6 + nodeSizeSlope * frac);
+}
+
+// Visual extent of a node from its centre. Circle = r; the diamond
+// polygon extends ~1.3 r (corners at ±r·1.3); text glyphs (✓, ✕) at
+// font-size 2.0 r render with a glyph height ≈ 1.17 × font-size = 2.34 r,
+// so their effective radius is ~1.17 r. Edges land at this distance plus
+// a tiny gap so the arrow tip just touches the visible node.
+function visualRadius(node, maxEpisodes) {
+  // All nodes are circles; edge endpoints land at the circle rim.
+  return nodeRadius(node, maxEpisodes);
+}
+
+function svgEl(tag, attrs = {}) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function positionTooltip(e) {
+  const tt = document.getElementById("tooltip");
+  const x = e.clientX + 14, y = e.clientY - 10;
+  const right = x + tt.offsetWidth > window.innerWidth;
+  tt.style.left = (right ? e.clientX - tt.offsetWidth - 10 : x) + "px";
+  tt.style.top = Math.max(0, y) + "px";
+}
+
+// ── Drag plumbing ─────────────────────────────────────────────────────────
+let dragMovedRecently = false;
+function svgPoint(evt) {
+  const svg = document.getElementById("graph");
+  const pt = svg.createSVGPoint();
+  pt.x = evt.clientX;
+  pt.y = evt.clientY;
+  const ctm = svg.getScreenCTM();
+  return ctm ? pt.matrixTransform(ctm.inverse()) : { x: evt.clientX, y: evt.clientY };
+}
+
+window.addEventListener("mousemove", (evt) => {
+  if (!dragging) return;
+  const pt = svgPoint(evt);
+  const dx = pt.x - dragging.startMouse.x;
+  const dy = pt.y - dragging.startMouse.y;
+  if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragging.moved = true;
+  const nx = dragging.startNode[0] + dx;
+  const ny = dragging.startNode[1] + dy;
+  pixPosMut[dragging.nodeId] = [nx, ny];
+  // Re-resolve only if a render replaced the element under us mid-drag; the
+  // common case is a property read on a live node, not a subtree query.
+  const svg = document.getElementById("graph");
+  const live = (cached, selector) => {
+    if (cached && cached.isConnected) return cached;
+    return svg.querySelector(selector);
+  };
+  dragging.nodeGroup = live(
+    dragging.nodeGroup, `.node-group[data-node-id="${dragging.nodeId}"]`
+  );
+  if (dragging.nodeGroup) dragging.nodeGroup.setAttribute("transform", `translate(${nx},${ny})`);
+  // The label lives in the labels layer, not in the node's group, so it has to
+  // be moved too — otherwise dragging a node leaves its name behind.
+  dragging.labelGroup = live(
+    dragging.labelGroup, `.node-label-group[data-node-id="${dragging.nodeId}"]`
+  );
+  if (dragging.labelGroup) dragging.labelGroup.setAttribute("transform", `translate(${nx},${ny})`);
+  redrawEdgesFor(dragging.nodeId);
+});
+
+window.addEventListener("mouseup", (evt) => {
+  if (!dragging) return;
+  if (dragging.moved) {
+    userOverrides[dragging.nodeId] = [...pixPosMut[dragging.nodeId]];
+    dragMovedRecently = true;
+    document.getElementById("reset-btn").style.display = "inline-block";
+    // Don't call scheduleSvgPublish() here — publishing after drag sends
+    // {svg_export} to Python which triggers st.rerun() and reloads the page,
+    // discarding the user's drag positions. The SVG export will reflect the
+    // dragged layout on the next natural rerun (node/edge click).
+  }
+  const svg = document.getElementById("graph");
+  const ng = svg.querySelector(`.node-group[data-node-id="${dragging.nodeId}"]`);
+  if (ng) ng.style.cursor = "grab";
+  dragging = null;
+});
+
+document.getElementById("reset-btn").addEventListener("click", (evt) => {
+  evt.stopPropagation();
+  userOverrides = {};
+  document.getElementById("reset-btn").style.display = "none";
+  if (graphData && lastRenderArgs) {
+    render(graphData, lastRenderArgs.svgW, lastRenderArgs.svgH);
+    scheduleSvgPublish();
+  }
+});
+
+// ── SVG export ────────────────────────────────────────────────────────────
+// Build a self-contained SVG of the current view (separate from the live
+// view: hit-area paths/circles and the cyan selection halo are stripped,
+// the viewBox is fitted to the actual content bbox + 12 px padding so
+// labels survive, and a minimal CSS block is inlined so the file renders
+// identically outside this iframe's stylesheet).
+//
+// We auto-publish the result to Python after every render via sendValue,
+// deduped against the last-sent content so we don't loop. Python then
+// serves it through st.download_button — that anchor lives in the parent
+// window where the user's click is a real user gesture, so Chrome
+// actually downloads (unlike anchor.click() inside this iframe).
+let lastSentSvg = "";
+let svgCaptureScheduled = false;
+
+function buildExportXml() {
+  const live = document.getElementById("graph");
+  if (!live) return "";
+
+  let bbox;
+  try {
+    bbox = live.getBBox();
+  } catch (e) {
+    bbox = { x: 0, y: 0, width: live.clientWidth || 800, height: live.clientHeight || 600 };
+  }
+  if (!bbox.width || !bbox.height) return "";
+  const PAD = 12;
+  const vbX = Math.floor(bbox.x - PAD);
+  const vbY = Math.floor(bbox.y - PAD);
+  const vbW = Math.ceil(bbox.width + 2 * PAD);
+  const vbH = Math.ceil(bbox.height + 2 * PAD);
+
+  const clone = live.cloneNode(true);
+  clone.querySelectorAll('path[stroke="transparent"]').forEach(n => n.remove());
+  clone.querySelectorAll('circle[fill="transparent"]').forEach(n => n.remove());
+  clone.querySelectorAll('circle[stroke="rgba(80, 200, 255, 0.95)"]').forEach(n => n.remove());
+  // Fold badges are an affordance of this iframe, not part of the graph: the
+  // export is a paper figure, and it has no branches to expand. They also carry
+  // their dimming in this document's stylesheet, so a serialized clone would
+  // draw every one of them at full strength.
+  clone.querySelectorAll('.fold-badge').forEach(n => n.remove());
+
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  clone.setAttribute("viewBox", `${vbX} ${vbY} ${vbW} ${vbH}`);
+  clone.setAttribute("width", String(vbW));
+  clone.setAttribute("height", String(vbH));
+
+  const labelFill = theme === "light" ? "#1a1a1a" : "#cccccc";
+  const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  style.textContent = `
+    .node-label {
+      font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      text-anchor: middle;
+      dominant-baseline: auto;
+      fill: ${labelFill};
+    }
+  `;
+  clone.insertBefore(style, clone.firstChild);
+  clone.querySelectorAll(".node-label").forEach(t => {
+    t.setAttribute("fill", labelFill);
+  });
+
+  return '<?xml version="1.0" encoding="UTF-8"?>\n'
+       + new XMLSerializer().serializeToString(clone);
+}
+
+function scheduleSvgPublish() {
+  // Coalesce multiple render() calls in the same frame into one capture.
+  // rAF runs after layout so getBBox sees the just-rendered tree.
+  if (svgCaptureScheduled) return;
+  svgCaptureScheduled = true;
+  requestAnimationFrame(() => {
+    svgCaptureScheduled = false;
+    const xml = buildExportXml();
+    if (!xml || xml === lastSentSvg) return;
+    lastSentSvg = xml;
+    // Dict shape — Python's receiver distinguishes this from the
+    // list-shaped click protocol.
+    sendValue({ svg_export: xml });
+  });
+}
+
+// ── Message handling ───────────────────────────────────────────────────────
+window.addEventListener("message", (event) => {
+  const msg = event.data;
+  if (!msg || !msg.type) return;
+
+  if (msg.type === "streamlit:render") {
+    const args = msg.args || {};
+    const graphJson = args.graph_json;
+    const height = args.height || 600;
+    selectedNodeId = args.selected_node_id !== undefined ? args.selected_node_id : null;
+    selectedEdge = args.selected_edge ? {src: args.selected_edge[0], tgt: args.selected_edge[1]} : null;
+    highlightedPath = args.highlighted_path || null;  // list of node IDs
+
+    // New viz options (with safe defaults so older callers still work).
+    theme = args.theme === "light" ? "light" : "dark";
+    edgeStyle = args.edge_style === "arrows" ? "arrows" : "lines";
+    edgeWidthSlope = typeof args.edge_width_slope === "number" ? args.edge_width_slope : 5.0;
+    nodeSizeSlope = typeof args.node_size_slope === "number" ? args.node_size_slope : 16.0;
+    // A figure rather than a tool: callout lines naming what the drawing
+    // encodes, and no dragging, clicking or hover state to invite use of it.
+    annotations = Array.isArray(args.annotations) ? args.annotations : [];
+    staticMode = !!args.static_figure;
+    figurePadding = args.padding || null;
+    document.getElementById("instructions").style.display = staticMode ? "none" : "";
+    document.body.classList.toggle("theme-light", theme === "light");
+
+    // The graph is always exactly as wide as the frame it is in — never wider
+    // with the frame scrolling to it, which cost the overview that is the point
+    // of drawing a graph at all. When the labels need more room than the frame
+    // has, the room they get is redistributed instead (see _label_demand, which
+    // splits each level by what its labels need) and wrapping takes up the rest.
+    const graph = document.getElementById("graph");
+    const frameWidth = document.body.clientWidth || 700;
+
+    document.body.style.height = height + "px";
+    graph.style.height = height + "px";
+    setHeight(height);
+
+    if (graphJson) {
+      render(JSON.parse(graphJson), frameWidth, height);
+      // Publish a fresh SVG snapshot to Python (deduped) so its
+      // st.download_button always has the latest exportable content. Not for a
+      // static figure: the snapshot goes into one session-state slot, so an
+      // explanatory figure on the page would be what "download this graph"
+      // hands over.
+      if (!staticMode) scheduleSvgPublish();
+    }
+  }
+});
+
+// Signal ready
+sendReady();
+</script>
+</body>
+</html>

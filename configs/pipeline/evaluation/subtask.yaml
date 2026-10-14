@@ -1,0 +1,17 @@
+# The default evaluators plus the subtask-boundary read-out. Only usable on
+# rollout dirs that carry annotations/segments.json.
+#
+# The tolerance is frozen from the train half rather than auto-scaled per score
+# set, and is a fraction of the median segment rather than a borrowed constant:
+# 0.13 gives tau = 0.5s on ABC bottles (median segment 4.10s), which is the
+# value the CPU study used.
+evaluators:
+  - _target_: behavior_graphs.stages.evaluation.graph_stats.GraphStatsEvaluator
+  - _target_: behavior_graphs.stages.evaluation.cluster_quality.ClusterQualityEvaluator
+  - _target_: behavior_graphs.stages.evaluation.label_stats.LabelStatsEvaluator
+  - _target_: behavior_graphs.stages.evaluation.subtask_boundaries.SubtaskBoundaryEvaluator
+    # Frozen, not derived from the episodes being scored: deriving it per score
+    # set makes every CV fold a different metric (0.5062s on cv4 against 0.5410s
+    # on cv0 here). 0.5273 = 0.13 x the median ground-truth segment over the
+    # train half.
+    tolerance: 0.5273

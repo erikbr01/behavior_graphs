@@ -1,0 +1,8 @@
+# TOPReward reimplementation (teacher-forced P(yes) probe). GPU + a VLM; run in the
+# CUPID/transformers venv.
+_target_: behavior_graphs.progress_estimation.methods.TopRewardProbe
+name: topreward
+model_id: Qwen/Qwen3-VL-8B-Instruct
+device: cuda
+n_queries: 16
+n_ctx: 15

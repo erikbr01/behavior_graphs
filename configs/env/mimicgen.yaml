@@ -1,0 +1,7 @@
+# Generic MimicGen env — pick the task config + dataset at launch:
+#   env=mimicgen env.task=low_dim/stack_d0_mimicgen_lowdim/diffusion_policy_cnn \
+#   env.dataset_path=<.../mimicgen/core/stack_d0.hdf5>
+_target_: behavior_graphs.envs.mimicgen.MimicgenAdapter
+task: ???
+dataset_path: ???
+embedding_layer: bottleneck_plan_t0

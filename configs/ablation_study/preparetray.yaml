@@ -1,0 +1,63 @@
+# Prepare the tray: the prepare-tray baseline policy from the user study, scored against ground
+# truth the gripper wrote itself. One of three DROID deployments ablated the same
+# way; see configs/ablation_study/cooking.yaml for the shared reasoning.
+#
+# **The ground truth is machine-made, and on this task it is sparser than cooking's.**
+# `scripts/ablation_study/build_gripper_gt.py` cut each episode at every gripper state
+# change held 0.5 s, giving 58 usable episodes of 60 and 261 interior
+# boundaries -- 5.5 segments per episode against 10.9 on cooking.
+#
+# The same three caveats as cooking apply: `state` carries the gripper channel the
+# labels were derived from, so its score is an upper bound rather than a
+# measurement; `cond_proj` conditions on proprioception and has indirect access;
+# and every segment carries one name, so label-agreement metrics are degenerate
+# and only the boundary and segmental metrics mean anything.
+name: preparetray
+task: prepare_tray_baseline
+
+root: ${DATA_PATH}/rollouts/prepare_tray_baseline
+sweep_dir: ${DATA_PATH}/sweeps/abc_preparetray
+# 15 Hz, from the collector's own control_hz.
+rate: 15
+
+# The one policy tap this collector captured, proprioception, and frozen DINOv3
+# over both cameras the policy trained on.
+representations: [state, cond_proj, dinov3]
+
+# The limited grid: three reduction settings and the one K range shared by all
+# three DROID tasks, so a maximum here is no more optimistic than on the other
+# two. Nothing narrows it per task -- see k_floor below for why not.
+grid: ablation_droid
+
+split:
+  seed: 0
+  train: 0.6
+  val: 0.2
+  test: 0.2
+  annotated_only: true
+
+evaluation:
+  gt_set: task
+  criterion: segmental_f1@0.75
+  iou_thresholds: [0.10, 0.25, 0.50, 0.75, 0.90]
+  min_segments: [0.0, 0.5, 1.0, 1.5, 2.0]
+  # 0.2 s, as on every other task here, so a boundary F1 reads across them. At
+  # 15 Hz the coarsest geometry in the grid is stride 2, a 0.133 s grid, and a
+  # tolerance at or above half the grid is free -- so this does not measure the
+  # windowing. It only affects the boundary metric in any case; the criterion is
+  # IoU-based and takes no tolerance.
+  tolerance: 0.2
+  density_band: [0.8, 1.5]
+  # Inherited from the ABC tasks and not measured here. With 12 reported
+  # episodes the real across-fold spread is wider than this.
+  noise_floor: 0.027
+  # No floor, because the grid no longer needs one. `ablation_droid` sweeps
+  # K over 5 / 10 / 15 only, which brackets all three DROID tasks (5.5 segments
+  # an episode here, 10.9 on cooking) without including a level that cannot
+  # express any of them. A floor would also break the property the three-task
+  # table depends on: every task searching the identical three K values, so a
+  # maximum on one column is no more optimistic than on another.
+  #
+  # The mechanism is still the right one where a grid is wider -- cooking's own
+  # ablation_cooking grid sweeps K from 4 to 32 and sets k_floor: 10.
+  k_floor: 0

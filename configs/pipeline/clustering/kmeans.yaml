@@ -1,0 +1,4 @@
+_target_: behavior_graphs.stages.clustering.kmeans.KMeansClustering
+n_clusters: 10
+n_init: 10
+random_state: 0

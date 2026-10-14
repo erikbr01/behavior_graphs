@@ -1,0 +1,10 @@
+# Direct-regression MLP: regresses per-frame progress from the policy embedding
+# (CPU; no backbone). window_width=1 = pure per-frame (best on sim-bottles);
+# widen for tasks with more successful demos.
+_target_: behavior_graphs.progress_estimation.methods.MLPRegressorProgress
+name: mlp
+window_width: 1
+hidden_layer_sizes: [256]
+alpha: 1.0e-3
+max_iter: 400
+seed: 0

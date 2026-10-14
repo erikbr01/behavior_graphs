@@ -1,0 +1,5 @@
+# LIBERO benchmark datasets.
+libero_spatial:              ${oc.env:DATA_PATH}/rollouts/libero_spatial
+libero_object:               ${oc.env:DATA_PATH}/rollouts/libero_object
+libero_goal:                 ${oc.env:DATA_PATH}/rollouts/libero_goal
+libero_pro_spatial_with_mug: ${oc.env:DATA_PATH}/rollouts/libero_pro_spatial_with_mug

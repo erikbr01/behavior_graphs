@@ -1,0 +1,45 @@
+# Streamlit settings for the demo + study apps.
+#
+# Streamlit reads this from the working directory it is launched in, so it
+# applies to `streamlit run apps/demo/Home.py` from the repo root and to the
+# Docker image (WORKDIR /app, see deploy/Dockerfile). The deployed stack also
+# sets the same values via STREAMLIT_* env vars in deploy/docker-compose.yml
+# so they take effect without an image rebuild.
+
+[theme]
+# Pinned, not left to the browser's prefers-color-scheme. The behavior graph is
+# a custom SVG component that themes itself, and it draws dark unless the page's
+# own "Light mode" toggle says otherwise — so an unpinned base put a dark graph
+# (pale labels on #0e1117 backing chips) on a white canvas for every visitor
+# whose browser prefers light, and the chips read as a field of dark boxes.
+# #0e1117 is Streamlit's own dark canvas and exactly the chip colour the
+# component sizes behind each label, so on this base the chips disappear into
+# the page and only the label text is left.
+base = "dark"
+# Named so the light-mode CSS in graph_demo.py, which hardcodes this hex for the
+# active primary button, cannot drift from the runtime theme.
+primaryColor = "#ff4b4b"
+# A hairline between sidebar and canvas: with controls on one side and the graph
+# on the other, the split should be visible without a colour change loud enough
+# to compete with the graph.
+showSidebarBorder = true
+
+[server]
+headless = true
+# Compress the websocket frames that carry every rerun's element tree.
+enableWebsocketCompression = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+# Hide the dev toolbar (Rerun / Settings / Deploy) for viewers.
+toolbarMode = "minimal"
+
+[runner]
+# Start a new rerun as soon as one is requested rather than finishing the
+# in-flight script first, so a click during a slow render isn't queued behind
+# it. Already Streamlit's default; pinned because these apps mutate
+# session_state from callbacks, which is exactly what the option's own docs
+# call out as the risk, so a future default flip should be a deliberate choice.
+fastReruns = true

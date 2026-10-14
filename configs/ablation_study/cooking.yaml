@@ -1,0 +1,121 @@
+# A DROID cooking rollout collection, scored against ground truth the gripper
+# wrote itself. Not an ABC task, and deliberately here anyway: every other
+# dataset in this directory is scored against hand annotation, and this one asks
+# whether the ablation's *orderings* survive a change of robot, task, control
+# rate and label source.
+#
+# **The ground truth is machine-made.** `scripts/ablation_study/build_gripper_gt.py`
+# cut each episode at every gripper state change held 0.5 s, giving 60 episodes
+# and 592 interior boundaries (median 11 segments per episode, median segment
+# 4.1 s). `annotations/segments_provenance.json` records the settings. So:
+#
+# * `state` is proprioception exactly as recorded -- 14-d, gripper column
+#   included, the same definition build_dataset.py writes for the ABC tasks.
+#   That keeps the `state` row readable across the two studies, and it means
+#   this arm has *direct* access to the channel the labels came from. Its score
+#   is therefore an upper bound on what proprioception recovers, not a
+#   measurement of it. Stated rather than engineered around, deliberately.
+# * `cond_proj` is not clean either, for a weaker reason: the policy conditions
+#   on proprioception, gripper included, so its embedding has indirect access.
+# * So read the arms against each other and against the count-matched uniform
+#   null, not against an absolute scale. A gripper-free 13-d variant is
+#   available (`build_droid_state.py --no-gripper`) and an earlier pass of this
+#   grid ran on one; the difference is quoted in the writeup rather than being
+#   the headline.
+# * Label-agreement metrics are degenerate. Every segment carries the same name
+#   ("segment") because the gripper says where a boundary is and never what the
+#   subtask was, so purity and NMI have one ground-truth class and mean nothing.
+#   Only the boundary and segmental metrics are interpretable.
+#
+# **The reported set is small.** 60 annotated episodes at 60/20/20 leaves 36 to
+# fit on, 12 to select on and 12 to report. `noise_floor` below is inherited
+# from the ABC tasks, which report on 60 episodes and up -- it is certainly
+# optimistic here and should be re-measured before any number from this dataset
+# is quoted as a result rather than as a trend.
+name: cooking
+task: cooking_baseline_dit_200
+
+# The rollout dir itself, not a separate `_ds` build: the canonical layout is
+# already here (episodes/, media/, policy_embeddings/) and the annotations
+# belong inside the dataset they describe.
+root: ${DATA_PATH}/rollouts/cooking_baseline_dit_200
+# v2 because the first pass of this grid ran against a 13-d state array with
+# the gripper column removed. Replacing that array does not invalidate a sweep
+# on its own -- `data_fingerprint` reads episodes/metadata.yaml and
+# `embedding_fingerprint` reads policy_embeddings/, and neither covers
+# observations/ -- so the run moved to its own directory rather than risk a
+# reader pooling 13-d and 14-d cells that are indistinguishable from their
+# configs. The old directory is kept for the gripper-free comparison.
+sweep_dir: ${DATA_PATH}/sweeps/abc_cooking_v2
+# 15 Hz, from the collector's own `control_hz`, against 10 Hz for every ABC
+# task. The per-episode fps in segments.json is what the metrics actually read.
+rate: 15
+
+# What this collection has. The policy was captured with
+# `capture_layers: [cond_proj]`, so there is one policy tap rather than three --
+# no rgrl_dit equivalent.
+#
+# The dinov3 arms are the same frozen backbone the ABC tasks use
+# (dinov3-vitb16, 2x2 grid pooling, 3072-d a view) over the two cameras the
+# policy actually trained on. Three arms rather than one because a single-view
+# baseline against a two-view policy tap measures how much information each was
+# handed, not how good the representation is:
+#
+#   dinov3        both views concatenated (6144-d) -- the fair comparison
+#   dinov3_ext    exterior only (3072-d)
+#   dinov3_wrist  wrist only (3072-d)
+#
+# The wrist view is worth keeping separate on this task in particular: it sees
+# gripper-local texture, and the ground truth here *is* the gripper, so it has
+# the most direct route to the labels of any visual arm.
+representations: [state, cond_proj, dinov3, dinov3_ext, dinov3_wrist]
+
+# The balanced ablation, the same grid the eight ABC tasks ran: identical
+# nuisance search for every reported level, so the reduction rows are comparable
+# within this dataset and the representation rows are comparable to the ABC
+# tables cell for cell.
+grid: ablation
+
+split:
+  seed: 0
+  train: 0.6
+  val: 0.2
+  test: 0.2
+  annotated_only: true
+
+evaluation:
+  gt_set: task
+  # Nothing is labelled a non-task segment here, so `task` and `all` are the
+  # same view -- verified, both give 592 boundaries and 0 ignore regions.
+  criterion: segmental_f1@0.75
+  # 0.90 included to show that 0.75 is not leaving headroom. The best cell in
+  # the 864-cell grid averages 0.646 matched IoU (median 0.530), so 0.90 sits
+  # above everything the pipeline produces -- it reads as a floor, not a
+  # sharper criterion. The loose rungs are kept for the opposite reason: at
+  # 0.10 the count-matched uniform null is already ~0.70, so they carry
+  # almost no signal either. 0.75 is the only rung with room on both sides.
+  iou_thresholds: [0.10, 0.25, 0.50, 0.75, 0.90]
+  min_segments: [0.0, 0.5, 1.0, 1.5, 2.0]
+  # 0.2 s, as on the ABC tasks, so a boundary F1 reads across them. The ceiling
+  # argument is slacker here rather than tighter: at 15 Hz the coarsest geometry
+  # in `ablation` is stride 2, a 0.133 s grid, and a tolerance at or above
+  # half the grid is free. 0.2 s clears that with room, so this tolerance does
+  # not measure the windowing on any cell in the design.
+  #
+  # It only affects the boundary metric in any case. The criterion above is
+  # IoU-based and takes no tolerance.
+  tolerance: 0.2
+  density_band: [0.8, 1.5]
+  # Inherited from the ABC tasks and not measured here -- see the header. With
+  # 12 reported episodes the real across-fold spread is wider than this.
+  noise_floor: 0.027
+  # 592 boundaries over 60 episodes is 9.9 boundaries, so ~10.9 segments an
+  # episode. A partition into fewer than ~11 clusters cannot represent that, so
+  # K below 10 answers a different question -- and including it is not harmless:
+  # with K = 4, 6, 8 in the pool PCA beat UMAP on 67% of matched pairs and
+  # +0.019 mean; without them it is 56% and +0.004. The reduction ordering was
+  # being set by cells that cannot express the ground truth.
+  #
+  # 10 rather than 12 because it is the level closest to the 10.9 implied, and
+  # it holds the grid maximum (0.260, proprioception / PCA@10 / w3s2 / sticky).
+  k_floor: 10

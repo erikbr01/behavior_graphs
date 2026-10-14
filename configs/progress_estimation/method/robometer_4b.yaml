@@ -1,0 +1,5 @@
+# ROBOMETER general 4B checkpoint (zero-shot). GPU; robometer venv.
+_target_: behavior_graphs.progress_estimation.methods.Robometer
+name: robometer_4b
+ckpt: robometer/Robometer-4B
+device: cuda

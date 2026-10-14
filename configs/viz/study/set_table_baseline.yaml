@@ -1,0 +1,152 @@
+task: set_table_baseline
+title: 'Set Table Task: Data Collection Strategy Study'
+description: 'In this study, you will design a data collection strategy for a robot
+
+  arm learning to pick a toy pumpkin from a plate and place it into a metal bowl,
+
+  then pick a toy milk carton from a shelf and place it next to the plate. You can
+
+  view rollout videos from the base policy and optionally
+
+  explore a behavior graph showing how the policy''s behavior clusters into
+
+  distinct modes. Your goal is to allocate a data collection budget across
+
+  different collection strategies to improve the policy''s performance.
+
+  '
+budget:
+  total_demos: 500
+  min_per_strategy: 0
+  allocation_step: 25
+ranking:
+  top_n: 3
+mp4_index: null
+strategies:
+- id: s_milk_left
+  name: Milk Carton - Left
+  short: Milk Left
+  description: 'Collect demonstrations where the milk carton starts on the left side
+
+    of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_left
+  graph_nodes: []
+  color: '#4878d0'
+- id: s_milk_right
+  name: Milk Carton - Right
+  short: Milk Right
+  description: 'Collect demonstrations where the milk carton starts on the right side
+
+    of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_right
+  graph_nodes: []
+  color: '#ee854a'
+- id: s_milk_middle
+  name: Milk Carton - Middle
+  short: Milk Middle
+  description: 'Collect demonstrations where the milk carton starts in the middle
+
+    of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_middle
+  graph_nodes: []
+  color: '#6acc65'
+- id: s_perm_milkL_cokeM_cupR
+  name: Milk Left - Coke Middle - Cupcake Right
+  short: L/M/R
+  description: 'Collect demonstrations with the milk carton on the left, the coke
+
+    can in the middle, and the cupcake on the right of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_left_coke_middle_cupcake_right
+  graph_nodes: []
+  color: '#d65f5f'
+- id: s_perm_milkL_cokeR_cupM
+  name: Milk Left - Coke Right - Cupcake Middle
+  short: L/R/M
+  description: 'Collect demonstrations with the milk carton on the left, the coke
+
+    can on the right, and the cupcake in the middle of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_left_coke_right_cupcake_middle
+  graph_nodes: []
+  color: '#956cb4'
+- id: s_perm_milkM_cokeL_cupR
+  name: Milk Middle - Coke Left - Cupcake Right
+  short: M/L/R
+  description: 'Collect demonstrations with the milk carton in the middle, the coke
+
+    can on the left, and the cupcake on the right of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_middle_coke_left_cupcake_right
+  graph_nodes: []
+  color: '#8c613c'
+- id: s_perm_milkM_cokeR_cupL
+  name: Milk Middle - Coke Right - Cupcake Left
+  short: M/R/L
+  description: 'Collect demonstrations with the milk carton in the middle, the coke
+
+    can on the right, and the cupcake on the left of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_middle_coke_right_cupcake_left
+  graph_nodes: []
+  color: '#dc7ec0'
+- id: s_perm_milkR_cokeL_cupM
+  name: Milk Right - Coke Left - Cupcake Middle
+  short: R/L/M
+  description: 'Collect demonstrations with the milk carton on the right, the coke
+
+    can on the left, and the cupcake in the middle of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_right_coke_left_cupcake_middle
+  graph_nodes: []
+  color: '#797979'
+- id: s_perm_milkR_cokeM_cupL
+  name: Milk Right - Coke Middle - Cupcake Left
+  short: R/M/L
+  description: 'Collect demonstrations with the milk carton on the right, the coke
+
+    can in the middle, and the cupcake on the left of the workspace.
+
+    '
+  trajectory_constraint: null
+  initial_condition: milk_right_coke_middle_cupcake_left
+  graph_nodes: []
+  color: '#d5bb67'
+task_description: The robot arm picks up a toy pumpkin from a plate and places it
+  into a metal bowl, then picks up a toy milk carton from a shelf and places it next
+  to the plate. Data collection strategies vary where the milk carton starts (left,
+  right, or middle of the workspace).
+label: Set Table Baseline
+run_dir: ${oc.env:DATA_PATH}/sweeps/sweep_all/set_table_baseline_v2_sync/c8acfd464f75  # K=5, W=3, S=2
+rollout_dir: ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_sync
+demo_videos_dir: null
+rollout_time_limit_seconds: 600
+shuffle: true
+hide_episode_index: true
+# Fixed behavior-graph display settings for Group B -- participants see one
+# preset trajectory-tree view, not a viz-type/color-mode/branch-threshold
+# picker.
+graph:
+  view_mode: native_svg   # one of: native_svg, sunburst, icicle
+  min_branch: 2           # hide branches with fewer than this many episodes
+  color_mode: outcome     # one of: outcome, id
+  video_panel: below      # clips for the clicked node/path: right | below

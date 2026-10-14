@@ -1,0 +1,4 @@
+_target_: behavior_graphs.envs.droid.DroidAdapter
+task: image/droid/diffusion_policy_cnn
+dataset_path: ???
+embedding_layer: bottleneck_plan_t0

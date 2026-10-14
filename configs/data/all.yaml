@@ -1,0 +1,11 @@
+# All datasets — composes every supported env/policy group.
+# Hydra merges the mappings from each included config.
+defaults:
+  - robomimic
+  - mimicgen
+  - libero
+  - droid
+  - vla_foundry
+  - prepare_tray
+  - safe
+  - _self_

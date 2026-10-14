@@ -1,0 +1,141 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "behavior_graphs"
+version = "0.1.0"
+description = "Interpretability of robot policies via behavior graphs"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+    "scikit-learn>=1.3",
+    "pyyaml>=6.0",
+    "hydra-core>=1.3",
+    "omegaconf>=2.3",
+    "umap-learn>=0.5",
+]
+
+[project.optional-dependencies]
+viz = [
+    "plotly>=5.18",
+    # Stateful expanders (`st.expander(on_change=...)` + `.open`), which
+    # graph_demo.py reads to skip expensive collapsed panels. Floored at the
+    # version we test and lock against rather than the one that introduced it.
+    "streamlit>=1.58",
+    "pandas>=2.0",
+    "matplotlib>=3.8",
+    "networkx>=3",
+    "imageio[pyav]>=2.31",
+    "imageio-ffmpeg>=0.4.9",
+    "pillow>=9.0",
+    "fpdf2>=2.7",
+    # The gripper ground truth reads the DROID collector's raw per-episode
+    # `recordings/<capture>/trajectory.h5` (behavior_graphs.annotations.gripper).
+    # Lazily imported, so a build without it just offers no skeleton.
+    "h5py>=3.0",
+]
+# Bayesian mixed models used only to estimate the paper's adjusted user-study
+# effects. Keeping this optional leaves the deployed study collector lightweight.
+analysis = [
+    "pandas>=2.0",
+    "bambi>=0.15",
+    "arviz>=0.17",
+]
+# google-genai 2.0: ThinkingConfig.thinking_level, which GeminiVLMClient
+# sets on every call (verified absent in 1.38 and present in 2.0).
+vlm = ["anthropic>=0.40", "google-genai>=2.0"]
+# Optional off-machine copy of the study responses (SURVEY_GCS_BUCKET /
+# STUDY_BACKUP_BUCKET). Imported lazily, so the apps run without it.
+gcs = ["google-cloud-storage>=2.0"]
+nn = ["torch>=2.0"]
+# Frame embedding with a frozen vision backbone
+# (stages/features/vision_backbone.py): a behavior graph from recorded video
+# alone, with no policy checkpoint. transformers 4.40 has Dinov2Model; DINOv3
+# (gated on the hub) needs >=4.56.
+dino = [
+    "torch>=2.0",
+    "transformers>=4.40",
+    "imageio[pyav]>=2.31",
+    "pillow>=9.0",
+    # Frame decode, several times faster than the imageio/PyAV sequential read
+    # (same frames out) because it fetches an arbitrary index list in one call
+    # instead of decoding frames the stage discards. Same decoder
+    # robo_dataset's VideoStore reads with. Needs FFmpeg's shared libraries on
+    # the system (PyAV's bundled build does not expose them); when it is
+    # missing OR installed-but-unusable the stage falls back to PyAV, so this
+    # is a speed dependency, not a correctness one.
+    "torchcodec>=0.1",
+]
+# xdist: ~1800 mostly-independent tests, so the
+# suite is embarrassingly parallel and `-n 8 --dist loadfile` is in addopts below.
+dev = ["pytest>=8.0", "pytest-xdist>=3.6", "ruff>=0.4"]
+all = ["behavior_graphs[viz,analysis,vlm,nn,dino,dev]"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/behavior_graphs"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# A hang used to be silent and unbounded: one full-suite run sat for two days at
+# 0% CPU, having stopped at 82% with no output and no diagnostic, and the only
+# way to find out where was to read /proc. `faulthandler_timeout` dumps every
+# thread's stack after this many seconds in a single test and then *lets the
+# test carry on* -- pytest does not abort on it, so a legitimately slow test
+# only gets a noisy traceback, never a failure. Nothing in the default suite
+# comes close, so 300 s means "something is wrong" rather than "this box is
+# busy". `-m integration` trains policies and may trip
+# it harmlessly.
+faulthandler_timeout = 300
+markers = [
+    "integration: slow end-to-end tests that train policies and run simulators",
+    "browser: end-to-end tests that drive the real app in headless Chrome over CDP",
+]
+# `-n 8`, not `-n auto`. Nothing here shares mutable state between tests -- every
+# fixture is tmp_path or in-process -- so the suite is embarrassingly parallel,
+# but more workers stopped paying off well below one-per-core. With the thread
+# cap in tests/conftest.py, measured back to back on 32 cores:
+#
+#   -n 8    18.8 s, 19.6 s    peak RSS  7.1 GiB
+#   -n 32   24.1 s, 27.1 s    peak RSS 21.3 GiB
+#
+# so 8 is faster *and* uses a third of the memory, which matters because this is
+# a shared box where several suites run at once. Raise it if you have cores and
+# RAM going spare -- `pytest -n auto` still works and overrides this.
+#
+# `--dist loadfile` keeps a whole file on one worker, so a module- or
+# class-scoped fit is paid once rather than once per worker.
+#
+# `--dist load` was measured and is slower: it scatters tests round-robin, so
+# per-process warm-up is paid on more workers. Same box, back to back, 32 cores:
+# `loadfile` 51s vs `load` 69s. `load` also reports 14 warnings where `loadfile`
+# reports 12 -- the umap and numba-TBB init warnings show up once per worker
+# that lands a UMAP test, which is the duplicated work made visible.
+#
+#   pytest             # ~1790 tests, ~24s
+#
+# Do not trust a per-test duration read off a filtered run -- see the
+# "why the timings mislead" section of docs/testing.md. `import torch` (~4s)
+# and UMAP's numba JIT (~25s) are per-process one-time costs, and pytest bills
+# each to whichever test reaches it first, which depends on what else was
+# selected.
+#
+# The `-m` here is replaced wholesale by any `-m` on the command line, so to
+# run the whole non-browser, non-integration suite ask for it explicitly:
+#
+#   pytest -m 'not integration and not browser'
+addopts = "-m 'not integration and not browser' -n 8 --dist loadfile"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+exclude = ["third_party"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["behavior_graphs"]

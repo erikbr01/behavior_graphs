@@ -1,0 +1,6 @@
+_target_: behavior_graphs.envs.vla_foundry.VlaFoundryAdapter
+task: PutMugOnSaucer
+checkpoint: TRI-ML/Foundry-VLA-1.7B-sim
+port: 50051
+num_flow_steps: 8
+open_loop_steps: 8

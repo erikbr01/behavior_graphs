@@ -1,0 +1,3 @@
+_target_: behavior_graphs.stages.features.state_action.StateActionFeatures
+key: state
+action_weight: 1.0

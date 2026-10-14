@@ -1,0 +1,127 @@
+# The two Streamlit apps the paper describes, run locally.
+#
+#     http://localhost:8501   demo      — browse behavior graphs for any run dir
+#     http://localhost:8502   study     — the user study exactly as participants saw it
+#     http://localhost:8503   reviewer  — the one-page site the paper's abstract links to
+#
+# Usage:
+#   cd deploy/
+#   cp .env.example .env          # point DATA_PATH at your data root
+#   docker compose build
+#   docker compose up -d
+#
+# All three share one image and one bind-mounted data root. Only `demo` needs
+# write access (it caches video proxies); the study writes its responses to a
+# named volume so a container restart does not lose an attempt.
+services:
+  demo:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: behavior-graphs
+    restart: unless-stopped
+    # Run as the host user that owns the bind-mounted data, not root: root-owned
+    # 0600 files under a shared data root are unreadable from the host. Set
+    # APP_UID / APP_GID in .env to `id -u` / `id -g`.
+    user: "${APP_UID:-0}:${APP_GID:-0}"
+    ports:
+      - "8501:8501"
+    environment:
+      HOME: /tmp
+      # Blank = open access. Set to the SHA-256 of a password to gate the app.
+      APP_PASSWORD_SHA256: "${APP_PASSWORD_SHA256:-}"
+      DATA_PATH: /data
+      BEHAVIOR_GRAPHS_RUNS_ROOT: "${BEHAVIOR_GRAPHS_RUNS_ROOT:-/data/runs:/data/sweeps}"
+      BEHAVIOR_GRAPHS_RUN_DIR: "${BEHAVIOR_GRAPHS_RUN_DIR:-}"
+      # configs/data/ group naming the datasets the selector lists.
+      # Empty = list every run that is discovered.
+      BEHAVIOR_GRAPHS_DISPLAY_DATA: "${BEHAVIOR_GRAPHS_DISPLAY_DATA:-visualize}"
+      PYTHONPATH: /app/src
+      # Web-sized video proxies (behavior_graphs.viz.media) — a shared volume so
+      # transcodes survive restarts and both apps reuse each other's work.
+      BEHAVIOR_GRAPHS_MEDIA_CACHE: /media-cache
+      BEHAVIOR_GRAPHS_PROXY_HEIGHT: "${BEHAVIOR_GRAPHS_PROXY_HEIGHT:-360}"
+      STREAMLIT_CLIENT_TOOLBAR_MODE: minimal
+      STREAMLIT_SERVER_ENABLE_WEBSOCKET_COMPRESSION: "true"
+      # Without a pinned base the browser's prefers-color-scheme decides, and
+      # the self-themed graph component does not follow it — see [theme] in
+      # .streamlit/config.toml.
+      STREAMLIT_THEME_BASE: dark
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
+      - media-cache:/media-cache
+    command:
+      - streamlit
+      - run
+      - apps/demo/Home.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+
+  study:
+    image: behavior-graphs
+    depends_on:
+      - demo
+    restart: unless-stopped
+    user: "${APP_UID:-0}:${APP_GID:-0}"
+    ports:
+      - "8502:8501"
+    environment:
+      HOME: /tmp
+      APP_PASSWORD_SHA256: "${SURVEY_PASSWORD_SHA256:-}"
+      DATA_PATH: /data
+      PYTHONPATH: /app/src
+      # The design the paper reports. Other variants live in
+      # configs/viz/study_variants/.
+      STUDY_VARIANT: "${STUDY_VARIANT:-three_stage_v1}"
+      # The participant route is closed unless this is exactly "1", so a running
+      # container cannot start collecting responses by accident.
+      STUDY_ACCEPTING_RESPONSES: "${STUDY_ACCEPTING_RESPONSES:-0}"
+      STUDY_RESULTS_DIR: /study_results
+      BEHAVIOR_GRAPHS_MEDIA_CACHE: /media-cache
+      BEHAVIOR_GRAPHS_PROXY_HEIGHT: "${BEHAVIOR_GRAPHS_PROXY_HEIGHT:-360}"
+      STREAMLIT_CLIENT_TOOLBAR_MODE: minimal
+      STREAMLIT_SERVER_ENABLE_WEBSOCKET_COMPRESSION: "true"
+      STREAMLIT_THEME_BASE: dark
+    volumes:
+      - "${DATA_PATH:-./data}:/data:ro"
+      - media-cache:/media-cache
+      - study-results:/study_results
+    command:
+      - streamlit
+      - run
+      - apps/study/Home.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+
+  reviewer:
+    image: behavior-graphs
+    depends_on:
+      - demo
+    restart: unless-stopped
+    user: "${APP_UID:-0}:${APP_GID:-0}"
+    ports:
+      - "8503:8501"
+    environment:
+      HOME: /tmp
+      APP_PASSWORD_SHA256: "${REVIEWER_PASSWORD_SHA256:-}"
+      DATA_PATH: /data
+      BEHAVIOR_GRAPHS_RUNS_ROOT: "${BEHAVIOR_GRAPHS_RUNS_ROOT:-/data/runs:/data/sweeps}"
+      PYTHONPATH: /app/src
+      BEHAVIOR_GRAPHS_MEDIA_CACHE: /media-cache
+      BEHAVIOR_GRAPHS_PROXY_HEIGHT: "${BEHAVIOR_GRAPHS_PROXY_HEIGHT:-360}"
+      STREAMLIT_CLIENT_TOOLBAR_MODE: minimal
+      STREAMLIT_SERVER_ENABLE_WEBSOCKET_COMPRESSION: "true"
+      STREAMLIT_THEME_BASE: dark
+    volumes:
+      - "${DATA_PATH:-./data}:/data:ro"
+      - media-cache:/media-cache
+    command:
+      - streamlit
+      - run
+      - apps/reviewer/Home.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+
+volumes:
+  media-cache:
+  study-results:

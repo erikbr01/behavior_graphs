@@ -1,0 +1,33 @@
+# Datasets to show in the demo app, and to sweep so they exist to be shown.
+#
+# Currently `all` exactly: every superseded DROID collection that predates the
+# canonical flow-based rgrl experiments in `droid` is commented out below.
+#
+# BEHAVIOR_GRAPHS_DISPLAY_DATA=visualize points the app's dataset selector here.
+# Names must match the sweep task dir, which is the dataset key below.
+#
+# To drop a dataset from the app, comment it out here (or point the variable at
+# a narrower group, e.g. `droid`); no sweep output has to move. The allowlist is
+# read fresh per rerun and is part of the run-index cache key, so an edit takes
+# effect without restarting the app.
+defaults:
+  - all
+  - _self_
+
+# Hidden, not deleted: all of these are still on disk and still swept via
+# `all`, so uncommenting brings one straight back with no re-sweep.
+#
+# bottleneck_plan_t0 diffusion policies, superseded by the pretrained_dit
+# set_table runs in `droid`.
+# set_table_baseline:                    ${oc.env:DATA_PATH}/rollouts/set_table_baseline
+# set_table_baseline_v2_clippingv4:      ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_clippingv4
+# set_table_baseline_v2_plusleft:        ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusleft
+# set_table_baseline_v2_plusleft_sync:   ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusleft_sync
+# set_table_baseline_v2_plusmiddle_sync: ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusmiddle_sync
+# set_table_baseline_v2_plusright_sync:  ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusright_sync
+# set_table_baseline_v2_sync:            ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_sync
+# prepare_tray_baseline_dp:              ${oc.env:DATA_PATH}/rollouts/prepare_tray_baseline_dp
+
+# earlier rgrl runs superseded by the canonical entries in `droid`
+# prepare_tray_baseline_rgrl:            ${oc.env:DATA_PATH}/rollouts/prepare_tray_baseline_rgrl
+# cooking_baseline:                      ${oc.env:DATA_PATH}/rollouts/cooking_baseline

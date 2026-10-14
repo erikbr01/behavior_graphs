@@ -1,0 +1,59 @@
+# The limited ablation for the DROID study tasks: 3 reductions, wide K range.
+#
+# Three reduction settings rather than five -- UMAP at 10 components, PCA at 10,
+# and none -- because the paper's table has three reduction rows and pinning the
+# component count is what keeps them balanced: identity takes no component
+# count, so sweeping 10 and 100 for the other two would search them over twice
+# as many cells as identity and a best-per-level maximum would favour whichever
+# level was searched hardest.
+#
+# 10 components rather than 100 because at 100 PCA is not a reduction. Measured
+# on cooking's 512-d policy tap, the first 100 principal components carry 99.95%
+# of the variance and the reconstruction error is 1.5% of the distance between
+# two random windows, so k-means cannot tell the projection from the original
+# and pca@100 returns identity's partition exactly.
+#
+# **Three K values, the same three for every task.** Gripper-derived ground truth
+# gives 10.9 segments per episode on cooking, 5.5 on prepare_tray and 2.9 on
+# set_table, and 5 / 10 / 15 brackets that whole range: each task's optimum lands
+# inside it and none of the three needs a level the others lack. That matters more
+# than tailoring per task -- a maximum over five levels is more optimistic than
+# one over three, so per-task K ranges would make the three columns of a
+# three-task table incomparable in a way no caption can repair. K is searched and
+# never reported; its optimum is a property of the task, not of the design.
+#
+# Capped at 15 deliberately. Above it the cells are in over-segmentation for all
+# three tasks (K=24 against 2.9 segments an episode is eight times too fine), and
+# they cost a third of the grid to compute and then discard.
+#
+# 4 x 2 x 3 x 3 x 2 = 144 cells per representation, 432 for the three arms of one
+# task. Only 4 x 2 x 3 = 24 of them are expensive: K and smoothing reuse a fitted
+# reduction through the shared stage store.
+stages:
+  windowing:
+    sliding:
+      width: [1, 3, 5, 8]
+      stride: [1, 2]
+  reduction:
+    cuml_umap:
+      n_components: [10]
+      normalize: standard
+    pca:
+      n_components: [10]
+    identity: {}
+  clustering:
+    kmeans:
+      n_clusters: [5, 10, 15]
+  graph:
+    transition:
+      smoothing: [none, sticky]
+      sticky_lambda: 1.0
+      degree_one_prune: false
+
+base_overrides:
+  - pipeline/evaluation@evaluation=subtask
+  - viz/viz_reduction@viz_reduction=pca_2d
+
+selection:
+  weights:
+    boundary_gain: 1.0

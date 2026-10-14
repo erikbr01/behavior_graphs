@@ -1,0 +1,97 @@
+# Behavior-graph pipeline configuration.
+#
+# Pipeline stage config groups live under configs/pipeline/; viz configs under
+# configs/viz/. The @<key> package override keeps cfg.<key> stable in Python
+# but means the CLI override path for swapping which config is SELECTED must
+# include it too (bare `pipeline/clustering=hdbscan`, or worse `clustering=hdbscan`,
+# silently sets a literal string instead of erroring or swapping the config):
+#
+#   pipeline/clustering@clustering=hdbscan   # switch implementation
+#   clustering.n_clusters=5,10,20 -m         # sweep a parameter (plain value, no @ needed)
+defaults:
+  - pipeline/features@features: policy_embedding
+  - pipeline/windowing@windowing: sliding
+  - pipeline/reduction@reduction: umap
+  - pipeline/clustering@clustering: kmeans
+  - pipeline/graph@graph: transition
+  - pipeline/subclustering@subclustering: null
+  - pipeline/evaluation@evaluation: default
+  - pipeline/labeling@labeling: null
+  - viz/viz_reduction@viz_reduction: umap_2d
+  - preset: null
+  - _self_
+
+# Repo-wide data root. Recorded provenance paths (metrics.json rollout_dir)
+# are stored relative to it so runs stay portable across machines.
+data_path: ${oc.env:DATA_PATH,null}
+
+# Directory with collected rollouts in the canonical layout
+# (see behavior_graphs.envs.trajectory_dir).
+rollout_dir: ???
+
+# Remove each episode's own statistics from the per-timestep features, before
+# windowing: one of none, episode_center, episode_zscore, episode_rank.
+#
+# Needed when a point's nearest neighbours are dominated by its own episode,
+# which is a property of episode *density* rather than of the task: UMAP's
+# `n_neighbors` is an absolute count, so its reach across episodes shrinks as
+# episodes get longer. Measured on ABC bottles dinov3, two thirds of a point's
+# 15 nearest neighbours are same-episode, and the clustering collapses to one
+# label per episode (biggest segment 83% of the episode on average). The older
+# DROID sweeps ran at a third of that density and never hit it.
+#
+# Uses only the episode's own frames, so it leaks nothing across a split.
+# See behavior_graphs.stages.features.episode_norm.
+episode_norm: none
+
+# Persist per-timestep features in the run dir (large; windows always saved).
+save_features: false
+
+# Content-addressed cache for intermediate stage outputs (features, windows,
+# reduced, labels). Sweep jobs sharing upstream config reuse each other's
+# work. Set to null to disable.
+#
+# Hangs off DATA_PATH so every worktree shares one cache on the data volume.
+# A bare relative `cache` resolved against the launch directory (sweeps run
+# with hydra.job.chdir=false), so each worktree silently grew its own
+# duplicate copy wherever the repo happened to live -- typically a boot disk
+# with far less headroom than the data volume. Falls back to ./cache when
+# DATA_PATH is unset, preserving the old behavior outside this setup.
+cache_dir: ${oc.env:DATA_PATH,.}/cache
+
+# Optional fit/score episode split. null = fit and score the same episodes (the
+# original behaviour). Set `split.file` to a splits.json and `split.fold` to
+# `cv<N>`, `inner` or `val` to make every fitted stage -- reduction, clustering,
+# graph -- learn from the fit episodes only, and evaluators score the held-out
+# ones. See behavior_graphs.pipeline.folds.
+split:
+  file: null      # path to a splits.json
+  fold: null      # cv<N> | inner | val
+  fit: null       # or give the episode lists directly
+  score: null
+
+# Optional scalar objective: a linear combination of metrics, computed
+# after evaluation and returned by the hydra entry point (so optuna/basic
+# sweepers can optimize it directly). Constraints only flag the run as
+# infeasible in metrics.json — the score stays the plain weighted sum.
+# Metrics are referenced as "<evaluator>.<key>" paths into metrics.json.
+# Instantiated via _target_, like every other component. Example:
+#   objective:
+#     _target_: behavior_graphs.model_selection.scoring.Objective
+#     weights:
+#       cluster_quality.silhouette: 1.0
+#       cluster_quality.davies_bouldin: -0.25
+#     constraints:
+#       cluster_quality.silhouette: {min: 0.05}
+objective: null
+
+seed: 0
+
+hydra:
+  run:
+    dir: runs/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${hydra:job.num}
+  job:
+    chdir: false

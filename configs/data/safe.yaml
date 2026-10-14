@@ -1,0 +1,28 @@
+# SAFE's public WidowX/OpenVLA release (Gu et al., NeurIPS 2025, arXiv:2506.09937).
+# Real robot rollouts, real labels, imported via
+# scripts/utils/import_safe_widowx.py -- see that script's docstring for
+# provenance and how sessions were merged into these 8 tasks.
+safe_widowx_lift_aaa_battery:              ${oc.env:DATA_PATH}/rollouts/safe_widowx_lift_aaa_battery
+safe_widowx_lift_eggplant:                 ${oc.env:DATA_PATH}/rollouts/safe_widowx_lift_eggplant
+safe_widowx_lift_red_bottle:               ${oc.env:DATA_PATH}/rollouts/safe_widowx_lift_red_bottle
+safe_widowx_lift_blue_cup:                 ${oc.env:DATA_PATH}/rollouts/safe_widowx_lift_blue_cup
+safe_widowx_put_blue_cup_on_plate:         ${oc.env:DATA_PATH}/rollouts/safe_widowx_put_blue_cup_on_plate
+safe_widowx_put_the_red_bottle_into_pot:   ${oc.env:DATA_PATH}/rollouts/safe_widowx_put_the_red_bottle_into_pot
+safe_widowx_put_the_carrot_on_plate:       ${oc.env:DATA_PATH}/rollouts/safe_widowx_put_the_carrot_on_plate
+safe_widowx_put_the_red_block_into_the_pot: ${oc.env:DATA_PATH}/rollouts/safe_widowx_put_the_red_block_into_the_pot
+
+# SAFE's public Franka/pi0-FAST-DROID release. Imported via
+# scripts/utils/import_safe_franka.py.
+safe_franka_pick_up_the_lid_and_place_it_on_the_pot:               ${oc.env:DATA_PATH}/rollouts/safe_franka_pick_up_the_lid_and_place_it_on_the_pot
+safe_franka_pick_up_the_lid_from_the_pot_and_place_it_on_the_table: ${oc.env:DATA_PATH}/rollouts/safe_franka_pick_up_the_lid_from_the_pot_and_place_it_on_the_table
+safe_franka_pick_up_the_marker_and_place_it_in_the_cup:            ${oc.env:DATA_PATH}/rollouts/safe_franka_pick_up_the_marker_and_place_it_in_the_cup
+safe_franka_close_the_door:                                        ${oc.env:DATA_PATH}/rollouts/safe_franka_close_the_door
+safe_franka_put_the_cup_to_the_upright_position:                   ${oc.env:DATA_PATH}/rollouts/safe_franka_put_the_cup_to_the_upright_position
+safe_franka_pick_up_the_ball_and_place_it_in_the_bowl:             ${oc.env:DATA_PATH}/rollouts/safe_franka_pick_up_the_ball_and_place_it_in_the_bowl
+safe_franka_pick_up_the_knife_and_put_it_on_the_plate:             ${oc.env:DATA_PATH}/rollouts/safe_franka_pick_up_the_knife_and_put_it_on_the_plate
+safe_franka_put_both_the_carrot_and_the_ball_in_the_bowl:          ${oc.env:DATA_PATH}/rollouts/safe_franka_put_both_the_carrot_and_the_ball_in_the_bowl
+safe_franka_unfold_the_cloth:                                      ${oc.env:DATA_PATH}/rollouts/safe_franka_unfold_the_cloth
+safe_franka_press_the_button:                                      ${oc.env:DATA_PATH}/rollouts/safe_franka_press_the_button
+safe_franka_close_the_drawer:                                      ${oc.env:DATA_PATH}/rollouts/safe_franka_close_the_drawer
+safe_franka_place_the_green_block_on_the_yellow_block:             ${oc.env:DATA_PATH}/rollouts/safe_franka_place_the_green_block_on_the_yellow_block
+safe_franka_place_the_pink_cup_to_the_right_of_the_blue_cup:       ${oc.env:DATA_PATH}/rollouts/safe_franka_place_the_pink_cup_to_the_right_of_the_blue_cup

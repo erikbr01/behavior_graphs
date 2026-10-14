@@ -1,0 +1,4 @@
+_target_: behavior_graphs.stages.windowing.sliding.SlidingWindow
+width: 1
+stride: 1
+aggregation: mean

@@ -1,0 +1,37 @@
+# Terminal-leaf sub-clustering: split each terminal leaf of the trajectory
+# tree (the episodes sharing one full run-length-collapsed cluster path) into
+# feature-space sub-clusters, to surface e.g. distinct failure modes that the
+# main clustering collapsed into one FAILURE leaf.
+#
+# Off by default (`pipeline/subclustering@subclustering: null` in config.yaml).
+# Enable per run:
+#
+#   python -m behavior_graphs.pipeline.run rollout_dir=... \
+#       pipeline/subclustering@subclustering=terminal
+#
+# and tune like any other stage:
+#
+#   subclustering.k=6 subclustering.algorithm=gmm subclustering.min_episodes=8
+#
+# Writes subclusters.json to the run dir; the demo app serves it when a user
+# expands a terminal leaf, and recomputes on demand only if the app's own
+# sub-cluster settings differ from the `params` recorded here.
+#
+# `algorithm` names an entry of configs/pipeline/subclustering/algo/ and
+# `reduction` an entry of configs/pipeline/reduction/ (refit locally per
+# leaf, not the run's global reduction — see core.subclusters). Set
+# `reduction: null` to cluster the raw window features.
+_target_: behavior_graphs.stages.subclustering.terminal.TerminalSubClustering
+algorithm: kmeans
+k: 4
+reduction: umap
+n_components: 10
+# A leaf needs at least this many episodes for a split to mean anything.
+# Also the cost control: each leaf refits its own reducer, and a long-tailed
+# tree has many one-or-two-episode leaves.
+min_episodes: 4
+# Cap on leaves split (largest first); null for no cap.
+max_leaves: 50
+# Persist per-window sub-labels, not just the per-episode majority vote.
+# Needed for the app's per-window timeline over video playback.
+keep_window_detail: true

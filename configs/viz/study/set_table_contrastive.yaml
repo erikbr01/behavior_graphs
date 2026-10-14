@@ -1,0 +1,34 @@
+task: set_table_contrastive
+title: 'Set Table Task: Contrastive Study'
+task_description: >-
+  The robot should place the yellow pumpkin from the metal bowl on top of the plate. Then, it
+  should pick up the chocolate milk carton from the top of the shelf and place it next to the
+  plate.
+strategies: []
+ranking:
+  top_n: 3
+label: Set Table Contrastive
+run_dir: ${oc.env:DATA_PATH}/sweeps/sweep_all/set_table_baseline_pretrained_dit/17b0e615f5d5
+rollout_dir: ${oc.env:DATA_PATH}/rollouts/set_table_baseline_pretrained_dit
+demo_videos_dir: ${oc.env:DATA_PATH}/droid_data_collection_examples
+shuffle: true
+hide_episode_index: true
+graph:
+  view_mode: native_svg
+  min_branch: 2
+  color_mode: outcome
+  video_panel: below
+  # Hidden for now: the path list is a second reading of the same graph.
+  show_paths: false
+  # The videos are watched, not read: no behavior badges or timeline bars
+  # over them and no camera names. Every clip opens near its end, where
+  # the outcome is, so the grid is quick to browse.
+  show_behavior_annotations: false
+  show_camera_labels: false
+  video_lead_seconds: 6
+  # Numbers drawn from a permutation, so a clip's number says nothing
+  # about which clips were recorded next to it.
+  shuffle_rollout_indices: true
+  # Room on top of what the tree's depth needs, so the graph is not
+  # drawn to the edge of its frame.
+  graph_height_extra: 90

@@ -1,0 +1,3 @@
+# SARM-style stage progress off the shared graph backbone (injected by the runner).
+_target_: behavior_graphs.progress_estimation.methods.GraphStage
+name: graph_stage

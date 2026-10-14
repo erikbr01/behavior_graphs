@@ -1,0 +1,89 @@
+# Canonical DROID experiments: flow-based rgrl policies, three task families,
+# 60 rollouts each. set_table_baseline_pretrained_dit has 55: 9 episodes were
+# written as 0-byte files at collection time and 4 later arrived from the run's
+# rollouts_test dir. Uniformly layer `cond_proj`, so `data=droid` auto-detects
+# it and needs no `layers=` override.
+
+# Display geometry per camera view, for the whole group: the DROID wrist camera
+# hangs upside down on the gripper, so its recorded frames are 180° off. The
+# rotation is baked into that view's web proxy and poster (it keys the media
+# cache), never into the recorded clips — so correcting or reverting this costs a
+# re-transcode of the cache and nothing else. `mirror: true` is available the same way, and a
+# single dataset can override one camera with its own `cameras:` block.
+#
+# Both spellings are listed because the collections disagree: the
+# bottleneck_plan_t0 sessions wrote `wrist_image`, the pretrained_dit ones
+# `wrist_image_left`. A name no dataset has costs nothing.
+cameras:
+  # `default: true` is the view shown first: leftmost of the side-by-side
+  # players, first in the sidebar picker, and the single clip anything that shows
+  # one shows (thumbnail strips). The exterior camera frames the whole task; the
+  # wrist view is a close-up that only reads next to it. Declared rather than
+  # left to the layout's alphabetical fallback, which lands here only by luck.
+  exterior_image_1_left:
+    default: true
+  # The wrist camera hangs upside down on the gripper, under either of the two
+  # obs-key names collections have used.
+  wrist_image_left:
+    rotate: 180
+  wrist_image:
+    rotate: 180
+
+# `display_name` relabels a dataset in the app without renaming the swept dirs.
+# A new dataset does not need it — the key is already the label. It is for one
+# already swept under an outgrown name, here "pretrained" (a collection-time
+# checkpoint-naming artifact). See docs/droid_workflow.md, "Relabelling a
+# dataset in the app", for why the key itself can't just be edited.
+set_table_baseline_pretrained_dit:
+  path: ${oc.env:DATA_PATH}/rollouts/set_table_baseline_pretrained_dit
+  display_name: set_table_baseline_dit
+set_table_plusleft_pretrained_dit:
+  path: ${oc.env:DATA_PATH}/rollouts/set_table_plusleft_pretrained_dit
+  display_name: set_table_plusleft_dit
+set_table_plusmiddle_pretrained_dit:
+  path: ${oc.env:DATA_PATH}/rollouts/set_table_plusmiddle_pretrained_dit
+  display_name: set_table_plusmiddle_dit
+set_table_plusright_pretrained_dit:
+  path: ${oc.env:DATA_PATH}/rollouts/set_table_plusright_pretrained_dit
+  display_name: set_table_plusright_dit
+
+prepare_tray_baseline:    ${oc.env:DATA_PATH}/rollouts/prepare_tray_baseline
+prepare_tray_plustop:     ${oc.env:DATA_PATH}/rollouts/prepare_tray_plustop
+prepare_tray_plusbottom:  ${oc.env:DATA_PATH}/rollouts/prepare_tray_plusbottom
+
+cooking_baseline_dit_200:    ${oc.env:DATA_PATH}/rollouts/cooking_baseline_dit_200
+cooking_baseline_carrot_dit: ${oc.env:DATA_PATH}/rollouts/cooking_baseline_carrot_dit
+cooking_baseline_corn_dit:   ${oc.env:DATA_PATH}/rollouts/cooking_baseline_corn_dit
+cooking_baseline_lid_dit:    ${oc.env:DATA_PATH}/rollouts/cooking_baseline_lid_dit
+
+# The same rollouts again under the ABC study's own key for them. A sweep files
+# its jobs under `DatasetConfig.key`, which is the config name -- so
+# `configs/ablation_study/cooking.yaml` writes `sweeps/abc_cooking_v2/cooking/...`
+# while every other cooking sweep writes `.../cooking_baseline_dit_200/...`.
+# The allowlist is keyed on that subdirectory name, so without this entry the
+# study's 1,440 cells are served but invisible in the picker, which is the
+# failure `visualize.yaml` records costing 12,414 ABC runs.
+#
+# Not a duplicate dataset: both keys resolve to one rollout dir, and which one
+# a run appears under says which grid produced it -- `cooking` is the balanced
+# ablation, `cooking_baseline_dit_200` is sweep_all. That distinction is worth
+# keeping in the picker rather than merging away, because only the former is
+# scored against ground truth.
+cooking:                     ${oc.env:DATA_PATH}/rollouts/cooking_baseline_dit_200
+
+# Non-canonical, still swept and visible in the app. Data on disk.
+# bottleneck_plan_t0 = superseded diffusion policies:
+# set_table_baseline:                    ${oc.env:DATA_PATH}/rollouts/set_table_baseline
+# set_table_baseline_v2_clippingv4:      ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_clippingv4
+# set_table_baseline_v2_plusleft:        ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusleft
+# set_table_baseline_v2_plusleft_sync:   ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusleft_sync
+# set_table_baseline_v2_plusmiddle_sync: ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusmiddle_sync
+# set_table_baseline_v2_plusright_sync:  ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_plusright_sync
+# set_table_baseline_v2_sync:            ${oc.env:DATA_PATH}/rollouts/set_table_baseline_v2_sync
+# prepare_tray_baseline_dp:              ${oc.env:DATA_PATH}/rollouts/prepare_tray_baseline_dp
+# earlier rgrl runs, superseded by the entries above:
+# prepare_tray_baseline_rgrl:            ${oc.env:DATA_PATH}/rollouts/prepare_tray_baseline_rgrl  # 43 eps
+# cooking_baseline:                      ${oc.env:DATA_PATH}/rollouts/cooking_baseline
+# deleted:
+# kendama_baseline250: ${oc.env:DATA_PATH}/rollouts/kendama_baseline250
+# set_table_trimmed:   ${oc.env:DATA_PATH}/rollouts/set_table_trimmed

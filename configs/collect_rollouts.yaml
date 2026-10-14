@@ -1,0 +1,17 @@
+# Entry config for scripts/collect_rollouts.py.
+defaults:
+  - env: ???
+  - _self_
+
+checkpoint: ???
+num_episodes: 50
+seed: 0
+
+# Forwarded verbatim to the adapter's collect_rollouts (e.g. {n_envs: 10}).
+rollout_kwargs: {}
+
+hydra:
+  run:
+    dir: runs/rollouts/${now:%Y-%m-%d_%H-%M-%S}
+  job:
+    chdir: false

@@ -1,0 +1,33 @@
+# BuildKit per-Dockerfile ignore (context = repo root, -f deploy/Dockerfile).
+# Trims the docker build context — these are not needed at runtime.
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.git
+**/.gitignore
+**/.DS_Store
+**/.idea
+**/.vscode
+**/node_modules
+
+# Heavy trees that never go into the image.
+third_party
+tests
+scripts
+runs
+multirun
+study_results
+**/wandb
+**/checkpoints
+**/*.ckpt
+**/*.zarr
+
+# Local-only worktree state.
+**/.claude
+deploy/.env
+deploy/.app_password
+
+# …but the media pre-warm CLI is copied into the image.
+!scripts/prewarm_media.py

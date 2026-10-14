@@ -1,0 +1,15 @@
+# The image-level baseline for dino_patch: the same backbone and frames,
+# averaged over every patch token (768 dims), which is what the spatial
+# layout in dino_patch is meant to beat. Sweep the pair to find out whether
+# it does: `pipeline/features@features=dino_patch,dino_pooled`.
+_target_: behavior_graphs.stages.features.vision_backbone.VisionBackboneFeatures
+model_name: facebook/dinov2-base
+pooling: mean
+cameras: null
+image_size: 224
+frame_in_step: first
+batch_size: 64
+# Clips decoded in parallel; decode is ~95% of the wall clock, not the GPU.
+decode_workers: 8
+device: null
+l2_normalize: false

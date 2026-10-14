@@ -1,0 +1,7 @@
+# Worked example: raw state concatenated with policy embeddings.
+_target_: behavior_graphs.stages.features.concat.ConcatFeatures
+extractors:
+  - _target_: behavior_graphs.stages.features.state.StateFeatures
+    key: state
+  - _target_: behavior_graphs.stages.features.policy_embedding.PolicyEmbeddings
+    layer: pi05

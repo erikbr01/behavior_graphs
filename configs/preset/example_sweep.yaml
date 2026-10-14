@@ -1,0 +1,16 @@
+# @package _global_
+# Example preset: pin the data and fix non-swept stages, then sweep
+# the rest from the CLI:
+#
+#   python -m behavior_graphs.pipeline.run -m preset=example_sweep \
+#       rollout_dir=<...> clustering.n_clusters=5,10,15,20 windowing.width=3,5,8
+defaults:
+  - override /pipeline/reduction@reduction: pca
+  - override /pipeline/clustering@clustering: kmeans
+
+reduction:
+  n_components: 32
+
+windowing:
+  width: 5
+  stride: 2

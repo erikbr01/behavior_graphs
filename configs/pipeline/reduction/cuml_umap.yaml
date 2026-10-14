@@ -1,0 +1,14 @@
+# GPU UMAP via RAPIDS cuML. Same knobs as reduction/umap.yaml so a grid can
+# swap one for the other, but NOT numerically equivalent: measured on ABC
+# bottles rgrl_dit, KMeans ARI 0.950 against a 0.977 same-backend-different-seed
+# control, and kNN@15 overlap 0.601 against 0.788. Keep a umap arm as a bridge.
+#
+# Worth it for the cost: 110,360 x 512 fits in 2.7s at 10 components against
+# ~1,114s on CPU, because random_state forces umap-learn single-threaded.
+_target_: behavior_graphs.stages.reduction.cuml_umap.CuMLUMAPReduction
+n_components: 2
+n_neighbors: 15
+min_dist: 0.1
+metric: euclidean
+normalize: none
+random_state: 42

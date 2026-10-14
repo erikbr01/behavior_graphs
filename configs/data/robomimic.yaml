@@ -1,0 +1,14 @@
+# RoboMimic benchmark datasets — human (mh) and proficient-human (ph) variants.
+# User-study collection runs (same env/policy family) are included at the bottom.
+robomimic_lift_mh:      ${oc.env:DATA_PATH}/rollouts/robomimic_lift_mh
+robomimic_lift_ph:      ${oc.env:DATA_PATH}/rollouts/robomimic_lift_ph
+robomimic_can_mh:       ${oc.env:DATA_PATH}/rollouts/robomimic_can_mh
+robomimic_can_ph:       ${oc.env:DATA_PATH}/rollouts/robomimic_can_ph
+robomimic_square_mh:    ${oc.env:DATA_PATH}/rollouts/robomimic_square_mh
+robomimic_square_ph:    ${oc.env:DATA_PATH}/rollouts/robomimic_square_ph
+robomimic_transport_mh: ${oc.env:DATA_PATH}/rollouts/robomimic_transport_mh
+robomimic_transport_ph: ${oc.env:DATA_PATH}/rollouts/robomimic_transport_ph
+robomimic_tool_hang_ph: ${oc.env:DATA_PATH}/rollouts/robomimic_tool_hang_ph
+lift_mh_jan26:          ${oc.env:DATA_PATH}/rollouts/lift_mh_jan26
+square_mh_feb5:         ${oc.env:DATA_PATH}/rollouts/square_mh_feb5
+transport_mh_jan28:     ${oc.env:DATA_PATH}/rollouts/transport_mh_jan28

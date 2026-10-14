@@ -1,0 +1,48 @@
+# Hydra entry point for sweeps — run with scripts/run_sweep.py.
+#
+# Pick a grid with the `grid` config group and point at data; everything is
+# a plain hydra override:
+#
+#   python scripts/run_sweep.py data=robomimic
+#   python scripts/run_sweep.py data=mimicgen grid=quick
+#   python scripts/run_sweep.py data=all layers=[bottleneck_plan_t0,obs_encoder]
+#   python scripts/run_sweep.py 'datasets={lift: /data/rollouts/lift_mh}'
+#   python scripts/run_sweep.py 'datasets={lift: /data/lift}' dry_run=true
+#
+# The chosen grid config (stages + selection rule) is saved to
+# <sweep_dir>/spec.yaml for reproducibility.
+defaults:
+  - grid: full           # configs/grid/{quick,full,standard}.yaml — the grid + selection
+  - data: null           # configs/data/{robomimic,mimicgen,study,all}.yaml — dataset map
+  - _self_
+
+# Inline dataset map (overrides data:). Named map of rollout directories
+# (policy embeddings + episode metadata). Each name becomes a subdirectory:
+# sweep_dir/<name>/<hash>/
+# e.g. {lift: /data/rollouts/lift_mh, square: /data/rollouts/square_mh}
+datasets: null
+
+# Embedding layer for feature extraction; null = auto-detect from the data —
+# the layer present in every dataset, or one pass per layer when they share
+# none. Forwarded as features.layer=<...>.
+layer: null
+# Sweep multiple layers in one command — runs the full grid once per layer.
+# Overrides `layer` when set. e.g. [bottleneck_plan_t0, cond_proj]
+layers: null
+
+sweep_dir: null          # default: multirun/<dataset-scope>_<YYYY-MM-DD>
+limit: null              # run only the first N jobs per dataset (smoke test)
+dry_run: false           # validate + print the job list, run nothing
+# A job is keyed by (overrides, dataset path) and skipped once it has a
+# metrics.json, so re-collected data would otherwise be silently ignored.
+# Sweeping a dataset whose episodes changed is refused; set true to proceed
+# and keep the existing results.
+allow_stale_data: false
+extra_overrides: []      # extra hydra overrides applied to every job
+
+hydra:
+  output_subdir: null    # no .hydra/ dir for the orchestrator run
+  run:
+    dir: .
+  job:
+    chdir: false

@@ -1,0 +1,3 @@
+# Normalized window-index baseline (uses backbone geometry only; no graph fit).
+_target_: behavior_graphs.progress_estimation.methods.FrameIndex
+name: frame_index

@@ -1,0 +1,4 @@
+_target_: behavior_graphs.envs.robomimic.RobomimicAdapter
+task: low_dim/lift_mh/diffusion_policy_cnn
+dataset_path: ???
+embedding_layer: bottleneck_plan_t0

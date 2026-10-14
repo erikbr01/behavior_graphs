@@ -1,0 +1,12 @@
+# The VLM models the node-labeling UI offers, and which one it preselects.
+#
+# Presentation only: the labeler itself takes its model as an argument, and the
+# pipeline stage's own default is `model:` in configs/pipeline/labeling/vlm.yaml.
+# Read through behavior_graphs.viz.streamlit.models, which falls back to its own
+# defaults if this file is missing or malformed.
+default: gemini-3.5-flash
+options:
+  - gemini-3.5-flash
+  - gemini-3.1-pro-preview
+  - claude-opus-4-8
+  - claude-sonnet-5

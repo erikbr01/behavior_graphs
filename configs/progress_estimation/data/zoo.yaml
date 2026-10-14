@@ -1,0 +1,99 @@
+# Cross-dataset sweep zoo for scripts/sweep_progress_allds.py: the curated set of
+# feasible behavior_graphs rollout datasets, grouped by family. Family labels are used
+# only for grouping/reporting in the combined cross-dataset table; rollout paths are
+# resolved from --rollouts-root + name at runtime (this file is names only).
+#
+# Datasets with <2 successful episodes have no progress GT and are skipped at
+# runtime; nut_assembly_d0 (0 successes) is omitted here for that reason.
+#
+# The real-robot set_table/prepare_tray/cooking families and the two LIBERO
+# perturbation sets were absent from earlier versions of this list with no
+# recorded reason -- an omission, not a judgement, and one that left the tasks
+# the demo is built around out of the cross-dataset claim.
+#
+#   python scripts/sweep_progress_allds.py               # full zoo
+#   python scripts/sweep_progress_allds.py --only libero_goal,robomimic_square_mh
+libero:
+  - libero_goal
+  - libero_object
+  - libero_spatial
+  - libero_pro_spatial_with_mug
+  - libero_plus_perturbations
+  - libero_pro_perturbations
+robomimic:
+  - robomimic_can_mh
+  - robomimic_can_ph
+  - robomimic_lift_mh
+  - robomimic_lift_ph
+  - robomimic_square_mh
+  - robomimic_square_ph
+  - robomimic_tool_hang_ph
+  - robomimic_transport_mh
+  - robomimic_transport_ph
+mimicgen:
+  - mimicgen_coffee_d0
+  - mimicgen_hammer_cleanup_d0
+  - mimicgen_mug_cleanup_d0
+  - mimicgen_square_d0
+  - mimicgen_stack_d0
+  - mimicgen_stack_three_d0
+  - mimicgen_threading_d0
+  - mimicgen_three_piece_assembly_d0
+long_horizon:
+  - set_table_baseline
+  - set_table_baseline_v2_sync
+  - set_table_baseline_v2_plusleft_sync
+  - set_table_baseline_v2_plusmiddle_sync
+  - set_table_baseline_v2_plusright_sync
+  - prepare_tray_baseline_dp
+  - transport_mh_salvage250
+
+# The DROID real-robot tasks, grouped by the representation they are actually
+# read from rather than by task name: every one of these resolves to
+# `cond_proj`, and no dataset outside this family does. That makes the family a
+# clean contrast -- one embedding, one robot, three task suites -- against the
+# sim families on `bottleneck_plan_t0` and the generalist-VLA families on
+# mean-pooled hidden states.
+#
+# Membership follows the layer on disk, not the name: `prepare_tray_baseline_rgrl`
+# is cond_proj and belongs here, while `prepare_tray_baseline_dp` and
+# `set_table_baseline` are bottleneck_plan_t0 and stay in long_horizon.
+#
+# The cooking runs are the weak corner of it: 4-16 successes out of 60, and the
+# stage schedule is fit on successful episodes only, so they carry far less
+# signal per dataset than the rest of the zoo. `cooking_baseline` at 4/60 is
+# thin however it is scored.
+droid_real_world:
+  - set_table_baseline_pretrained_dit
+  - set_table_plusleft_pretrained_dit
+  - set_table_plusmiddle_pretrained_dit
+  - set_table_plusright_pretrained_dit
+  - prepare_tray_baseline
+  - prepare_tray_baseline_rgrl
+  - prepare_tray_plusbottom
+  - prepare_tray_plustop
+  - cooking_baseline
+  - cooking_baseline_carrot_dit
+  - cooking_baseline_corn_dit
+  - cooking_baseline_dit_200
+  - cooking_baseline_lid_dit
+# The generalist-VLA graphs the paper shows qualitatively. Outside the 43
+# datasets the progress table reports: they read mean-pooled hidden states
+# rather than a policy trained on the task, which is a different representation
+# than every other family here.
+other_sim:
+  - vla_foundry_mug
+  - vla_foundry_qwen3_mug
+# The SAFE real-robot families (13 franka + 8 widowx) are deliberately OUT of
+# the 43.
+#
+# They carry no video -- only `episodes/` and `policy_embeddings/`, since
+# import_safe_{franka,widowx}.py brought over embeddings and labels but never
+# clips -- so no VLM baseline can run on them and they cannot take part in the
+# comparison this zoo exists to make. Their embeddings are also the odd ones
+# out: mean-pooled hidden states from generalist VLAs (pi0fast prelogits,
+# openvla), where every other family reads a policy trained on the task, which
+# is the likeliest reason they scored 0.53 / 0.90 against 0.91-0.98 elsewhere.
+#
+# Re-add them if the source clips are ever imported; the graph and MLP numbers
+# for them are still in analysis/progress_allmethods.

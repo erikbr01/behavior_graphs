@@ -1,0 +1,5 @@
+# Single split: eval the first N episodes of each task block, fit on the rest.
+# The same eval set the VLM baselines score (per-task stratified subsample).
+_target_: behavior_graphs.progress_estimation.runner.AlignedSplit
+eval_per_task: 50
+n_tasks: 10

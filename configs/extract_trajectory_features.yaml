@@ -1,0 +1,20 @@
+# Entry config for scripts/utils/extract_trajectory_features.py.
+defaults:
+  - env: ???
+  - _self_
+
+checkpoint: ???
+
+# Set to extract features from existing rollouts (observations replayed
+# through the policy). Leave null to extract from the demo dataset instead.
+rollout_dir: null
+
+# Forwarded verbatim to the adapter's extract_demo_features /
+# extract_rollout_features (e.g. {batch_size: 256, include_holdout: true}).
+extract_kwargs: {}
+
+hydra:
+  run:
+    dir: runs/trajectory_features/${now:%Y-%m-%d_%H-%M-%S}
+  job:
+    chdir: false

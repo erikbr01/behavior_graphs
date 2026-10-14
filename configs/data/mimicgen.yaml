@@ -1,0 +1,10 @@
+# MimicGen augmented datasets (D0 = base difficulty).
+mimicgen_coffee_d0:               ${oc.env:DATA_PATH}/rollouts/mimicgen_coffee_d0
+mimicgen_hammer_cleanup_d0:       ${oc.env:DATA_PATH}/rollouts/mimicgen_hammer_cleanup_d0
+mimicgen_mug_cleanup_d0:          ${oc.env:DATA_PATH}/rollouts/mimicgen_mug_cleanup_d0
+mimicgen_nut_assembly_d0:         ${oc.env:DATA_PATH}/rollouts/mimicgen_nut_assembly_d0
+mimicgen_square_d0:               ${oc.env:DATA_PATH}/rollouts/mimicgen_square_d0
+mimicgen_stack_d0:                ${oc.env:DATA_PATH}/rollouts/mimicgen_stack_d0
+mimicgen_stack_three_d0:          ${oc.env:DATA_PATH}/rollouts/mimicgen_stack_three_d0
+mimicgen_threading_d0:            ${oc.env:DATA_PATH}/rollouts/mimicgen_threading_d0
+mimicgen_three_piece_assembly_d0: ${oc.env:DATA_PATH}/rollouts/mimicgen_three_piece_assembly_d0

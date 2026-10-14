@@ -1,0 +1,13 @@
+# Generic dataset selector — reuses the existing configs/data name->path map as the
+# single source of truth for rollout paths (pulled in by bench.yaml as `rollouts`).
+# `suite` defaults to the dataset name; LIBERO suites and the single-task instruction
+# map are keyed by name, so per-task / single-task instructions resolve automatically.
+#
+#   python scripts/run_progress_bench.py data.name=libero_goal
+#   python scripts/run_progress_bench.py data.name=robomimic_square_mh
+name: ???
+rollout_dir: ${rollouts.${data.name}}
+layer: auto
+suite: ${data.name}
+instruction: ""
+instructions_json: null

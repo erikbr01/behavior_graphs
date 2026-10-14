@@ -1,0 +1,4 @@
+_target_: behavior_graphs.envs.mimicgen.MimicgenAdapter
+task: low_dim/square_mimicgen_lowdim/diffusion_policy_cnn
+dataset_path: ???
+embedding_layer: bottleneck_plan_t0

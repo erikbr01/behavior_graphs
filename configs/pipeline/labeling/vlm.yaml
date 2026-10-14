@@ -1,0 +1,22 @@
+_target_: behavior_graphs.stages.labeling.vlm_labeler.VLMLabeler
+model: gemini-3.5-flash
+frames_per_episode: 5
+max_episodes_per_node: 4
+# Shorter side of each contact-sheet tile; the longer side follows the
+# source aspect ratio (640x360 -> 398x224). Sources: libero 224, mimicgen
+# 128, cooking 640x360, some sim footage 1280x720 -- raising this only helps the
+# ones above 224.
+tile_px: 224
+# Camera views every contact sheet is built from, e.g.
+# `[exterior_image_1_left, wrist_image_left]` for a DROID collection. null is one
+# view per episode -- which is all a single-camera dataset has, and the cheap
+# default for one that has more: each extra view adds a row group per episode
+# to every node's sheet, and the sheets are re-sent in both labeling passes.
+# The names are the dataset's own (`media/<camera>/`), so a value here only
+# fits the datasets that carry those views; the graph demo's annotation modal
+# and `scripts/label_nodes.py --camera` pick them per run instead.
+cameras: null
+# Gemini only: minimal | low | medium | high (see GeminiVLMClient).
+thinking_level: high
+task_description: ""
+data_path: ${oc.env:DATA_PATH,null}

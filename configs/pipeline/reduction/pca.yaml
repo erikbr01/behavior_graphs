@@ -1,0 +1,5 @@
+_target_: behavior_graphs.stages.reduction.pca.PCAReduction
+n_components: 32
+normalize: none
+whiten: false
+random_state: 0

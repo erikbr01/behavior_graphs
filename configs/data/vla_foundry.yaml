@@ -1,0 +1,3 @@
+# VLA Foundry mug-task rollouts — base and Qwen3 variants.
+vla_foundry_mug:       ${oc.env:DATA_PATH}/rollouts/vla_foundry_mug
+vla_foundry_qwen3_mug: ${oc.env:DATA_PATH}/rollouts/vla_foundry_qwen3_mug

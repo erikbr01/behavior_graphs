@@ -1,0 +1,3 @@
+# DROID prepare-tray task — diffusion-policy and RGRL policy variants.
+prepare_tray_baseline_dp:   ${oc.env:DATA_PATH}/rollouts/prepare_tray_baseline_dp
+prepare_tray_baseline_rgrl: ${oc.env:DATA_PATH}/rollouts/prepare_tray_baseline_rgrl

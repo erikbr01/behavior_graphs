@@ -1,0 +1,3803 @@
+{
+ "adjusted": {
+  "rows": [
+   {
+    "better": "down",
+    "difference": -26.123,
+    "label": "Temporal demand",
+    "lower": -38.444,
+    "mean_graph": 38.70712438717688,
+    "mean_videos": 64.83044575517744,
+    "outcome": "temporal_demand",
+    "r_hat": 1.0,
+    "relative": -40.294339635808825,
+    "upper": -14.005
+   },
+   {
+    "better": "down",
+    "difference": -22.943,
+    "label": "Effort",
+    "lower": -37.74,
+    "mean_graph": 38.102606098768355,
+    "mean_videos": 61.045249358407254,
+    "outcome": "effort",
+    "r_hat": 1.0,
+    "relative": -37.58359617027308,
+    "upper": -7.768
+   },
+   {
+    "better": "up",
+    "difference": 2.458,
+    "label": "Confidence",
+    "lower": -9.772,
+    "mean_graph": 61.29950661044448,
+    "mean_videos": 58.841686883321806,
+    "outcome": "confidence",
+    "r_hat": 1.0,
+    "relative": 4.177310560239394,
+    "upper": 15.464
+   },
+   {
+    "better": "down",
+    "difference": 0.921,
+    "label": "Success rate regret",
+    "lower": -6.091,
+    "mean_graph": 7.937859740399216,
+    "mean_videos": 7.017112859673029,
+    "outcome": "regret",
+    "r_hat": 1.0,
+    "relative": 13.125056108088808,
+    "upper": 8.496
+   }
+  ]
+ },
+ "policies": {
+  "alpha": 0.05,
+  "correction": "bonferroni",
+  "credible_level": 0.95,
+  "prior": [
+   1.0,
+   1.0
+  ],
+  "tasks": [
+   {
+    "arms": [
+     {
+      "baseline": true,
+      "dataset": "set_table_baseline_pretrained_dit",
+      "label": "baseline",
+      "letters": "b",
+      "successes": 32,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "set_table_plusleft_pretrained_dit",
+      "label": "plus milk left",
+      "letters": "a",
+      "successes": 46,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "set_table_plusmiddle_pretrained_dit",
+      "label": "plus milk middle",
+      "letters": "b",
+      "successes": 28,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "set_table_plusright_pretrained_dit",
+      "label": "plus milk right",
+      "letters": "b",
+      "successes": 26,
+      "trials": 60
+     }
+    ],
+    "label": "Set table",
+    "pvalues": [
+     [
+      null,
+      0.023553333182888863,
+      1.0,
+      0.9208489366800258
+     ],
+     [
+      0.023553333182888863,
+      null,
+      0.002141036189756745,
+      0.0005534534974483372
+     ],
+     [
+      1.0,
+      0.002141036189756745,
+      null,
+      1.0
+     ],
+     [
+      0.9208489366800258,
+      0.0005534534974483372,
+      1.0,
+      null
+     ]
+    ]
+   },
+   {
+    "arms": [
+     {
+      "baseline": true,
+      "dataset": "prepare_tray_baseline",
+      "label": "baseline",
+      "letters": "b",
+      "successes": 37,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "prepare_tray_plusbottom",
+      "label": "plus bowl bottom",
+      "letters": "a",
+      "successes": 54,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "prepare_tray_plustop",
+      "label": "plus bowl top",
+      "letters": "ab",
+      "successes": 47,
+      "trials": 60
+     }
+    ],
+    "label": "Prepare tray",
+    "pvalues": [
+     [
+      null,
+      0.0004958309064224417,
+      0.08217034411640985
+     ],
+     [
+      0.0004958309064224417,
+      null,
+      0.13962529393498302
+     ],
+     [
+      0.08217034411640985,
+      0.13962529393498302,
+      null
+     ]
+    ]
+   },
+   {
+    "arms": [
+     {
+      "baseline": true,
+      "dataset": "cooking_baseline_dit_200",
+      "label": "baseline",
+      "letters": "a",
+      "successes": 14,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "cooking_baseline_lid_dit",
+      "label": "plus lid",
+      "letters": "a",
+      "successes": 16,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "cooking_baseline_carrot_dit",
+      "label": "plus carrot",
+      "letters": "a",
+      "successes": 12,
+      "trials": 60
+     },
+     {
+      "baseline": false,
+      "dataset": "cooking_baseline_corn_dit",
+      "label": "plus corn",
+      "letters": "a",
+      "successes": 11,
+      "trials": 60
+     }
+    ],
+    "label": "Cooking",
+    "pvalues": [
+     [
+      null,
+      1.0,
+      1.0,
+      1.0
+     ],
+     [
+      1.0,
+      null,
+      1.0,
+      0.9459099029983642
+     ],
+     [
+      1.0,
+      1.0,
+      null,
+      1.0
+     ],
+     [
+      1.0,
+      0.9459099029983642,
+      1.0,
+      null
+     ]
+    ]
+   }
+  ],
+  "test": "barnard"
+ },
+ "progress": {
+  "datasets": 43,
+  "domains": [
+   {
+    "datasets": 6,
+    "label": "LIBERO"
+   },
+   {
+    "datasets": 19,
+    "label": "Real-world"
+   },
+   {
+    "datasets": 10,
+    "label": "Robomimic"
+   },
+   {
+    "datasets": 8,
+    "label": "MimicGen"
+   }
+  ],
+  "means": [
+   {
+    "auroc": 0.80707549256358,
+    "auroc_datasets": 6,
+    "datasets": 6,
+    "domain": "LIBERO",
+    "kendall": 0.8643383281770368,
+    "kendall_datasets": 6,
+    "mae": 0.08224446173176246,
+    "mae_datasets": 6,
+    "method": "graph_stage",
+    "voc": 0.9118009791781629,
+    "voc_datasets": 6
+   },
+   {
+    "auroc": 0.8636349098737002,
+    "auroc_datasets": 6,
+    "datasets": 6,
+    "domain": "LIBERO",
+    "kendall": 0.8614792863269485,
+    "kendall_datasets": 6,
+    "mae": 0.06762440101739013,
+    "mae_datasets": 6,
+    "method": "mlp",
+    "voc": 0.9397995323250906,
+    "voc_datasets": 6
+   },
+   {
+    "auroc": 0.8601040131769232,
+    "auroc_datasets": 6,
+    "datasets": 6,
+    "domain": "LIBERO",
+    "kendall": 0.6498211372310757,
+    "kendall_datasets": 6,
+    "mae": 0.15359947413364225,
+    "mae_datasets": 6,
+    "method": "robometer_4b",
+    "voc": 0.799497529534578,
+    "voc_datasets": 6
+   },
+   {
+    "auroc": 0.6638552990456427,
+    "auroc_datasets": 6,
+    "datasets": 6,
+    "domain": "LIBERO",
+    "kendall": 0.3286997080042011,
+    "kendall_datasets": 6,
+    "mae": 0.25929002269298307,
+    "mae_datasets": 6,
+    "method": "topreward_ll",
+    "voc": 0.4331228058093035,
+    "voc_datasets": 6
+   },
+   {
+    "auroc": 0.9037095217929706,
+    "auroc_datasets": 19,
+    "datasets": 19,
+    "domain": "Real-world",
+    "kendall": 0.9304484482895248,
+    "kendall_datasets": 19,
+    "mae": 0.04709736407599864,
+    "mae_datasets": 19,
+    "method": "graph_stage",
+    "voc": 0.948206724230889,
+    "voc_datasets": 19
+   },
+   {
+    "auroc": 0.7822560400991604,
+    "auroc_datasets": 19,
+    "datasets": 19,
+    "domain": "Real-world",
+    "kendall": 0.5643324835989618,
+    "kendall_datasets": 19,
+    "mae": 0.17282239343103484,
+    "mae_datasets": 19,
+    "method": "mlp",
+    "voc": 0.7307522895006047,
+    "voc_datasets": 19
+   },
+   {
+    "auroc": 0.858710795377462,
+    "auroc_datasets": 19,
+    "datasets": 19,
+    "domain": "Real-world",
+    "kendall": 0.4960183357158869,
+    "kendall_datasets": 19,
+    "mae": 0.18064402296482232,
+    "mae_datasets": 19,
+    "method": "robometer_4b",
+    "voc": 0.6636398785529424,
+    "voc_datasets": 19
+   },
+   {
+    "auroc": 0.6739420337504024,
+    "auroc_datasets": 19,
+    "datasets": 19,
+    "domain": "Real-world",
+    "kendall": 0.5721454418210606,
+    "kendall_datasets": 19,
+    "mae": 0.1919341305546464,
+    "mae_datasets": 19,
+    "method": "topreward_ll",
+    "voc": 0.7364490276639114,
+    "voc_datasets": 19
+   },
+   {
+    "auroc": 0.7629290929682275,
+    "auroc_datasets": 8,
+    "datasets": 10,
+    "domain": "Robomimic",
+    "kendall": 0.9579945671031791,
+    "kendall_datasets": 10,
+    "mae": 0.10831608565389259,
+    "mae_datasets": 10,
+    "method": "graph_stage",
+    "voc": 0.9654331674171022,
+    "voc_datasets": 10
+   },
+   {
+    "auroc": 0.8705828154171821,
+    "auroc_datasets": 8,
+    "datasets": 10,
+    "domain": "Robomimic",
+    "kendall": 0.5650424277526566,
+    "kendall_datasets": 10,
+    "mae": 0.1977865301051968,
+    "mae_datasets": 10,
+    "method": "mlp",
+    "voc": 0.681737089900866,
+    "voc_datasets": 10
+   },
+   {
+    "auroc": 0.7506880201528182,
+    "auroc_datasets": 8,
+    "datasets": 10,
+    "domain": "Robomimic",
+    "kendall": 0.3420199508774009,
+    "kendall_datasets": 10,
+    "mae": 0.23391852473320096,
+    "mae_datasets": 10,
+    "method": "robometer_4b",
+    "voc": 0.4305281600773167,
+    "voc_datasets": 10
+   },
+   {
+    "auroc": 0.7672478396976885,
+    "auroc_datasets": 8,
+    "datasets": 10,
+    "domain": "Robomimic",
+    "kendall": 0.35946651420901127,
+    "kendall_datasets": 10,
+    "mae": 0.3081994830719544,
+    "mae_datasets": 10,
+    "method": "topreward_ll",
+    "voc": 0.47795762665175767,
+    "voc_datasets": 10
+   },
+   {
+    "auroc": 0.5946874884374884,
+    "auroc_datasets": 8,
+    "datasets": 8,
+    "domain": "MimicGen",
+    "kendall": 0.9068304127245499,
+    "kendall_datasets": 8,
+    "mae": 0.0779542167781856,
+    "mae_datasets": 8,
+    "method": "graph_stage",
+    "voc": 0.9360341587497714,
+    "voc_datasets": 8
+   },
+   {
+    "auroc": 0.7421238483738484,
+    "auroc_datasets": 8,
+    "datasets": 8,
+    "domain": "MimicGen",
+    "kendall": 0.688156547878392,
+    "kendall_datasets": 8,
+    "mae": 0.12546122372476035,
+    "mae_datasets": 8,
+    "method": "mlp",
+    "voc": 0.8405111780199638,
+    "voc_datasets": 8
+   },
+   {
+    "auroc": 0.788595547970548,
+    "auroc_datasets": 8,
+    "datasets": 8,
+    "domain": "MimicGen",
+    "kendall": 0.4954466265324448,
+    "kendall_datasets": 8,
+    "mae": 0.22426201616556923,
+    "mae_datasets": 8,
+    "method": "robometer_4b",
+    "voc": 0.6456970482962007,
+    "voc_datasets": 8
+   },
+   {
+    "auroc": 0.724271793021793,
+    "auroc_datasets": 8,
+    "datasets": 8,
+    "domain": "MimicGen",
+    "kendall": 0.46373198969098106,
+    "kendall_datasets": 8,
+    "mae": 0.23497968769079222,
+    "mae_datasets": 8,
+    "method": "topreward_ll",
+    "voc": 0.6033921985888954,
+    "voc_datasets": 8
+   },
+   {
+    "auroc": 0.8018016224559426,
+    "auroc_datasets": 41,
+    "datasets": 43,
+    "domain": "Average",
+    "kendall": 0.923235801381195,
+    "kendall_datasets": 43,
+    "mae": 0.07197933206044092,
+    "mae_datasets": 43,
+    "method": "graph_stage",
+    "voc": 0.944868339061048,
+    "voc_datasets": 43
+   },
+   {
+    "auroc": 0.8035689641818169,
+    "auroc_datasets": 41,
+    "datasets": 43,
+    "domain": "Average",
+    "kendall": 0.6289969666719922,
+    "kendall_datasets": 43,
+    "mae": 0.15513783656148963,
+    "mae_datasets": 43,
+    "method": "mlp",
+    "voc": 0.7689430469216372,
+    "voc_datasets": 43
+   },
+   {
+    "auroc": 0.8241560423468354,
+    "auroc_datasets": 41,
+    "datasets": 43,
+    "domain": "Average",
+    "kendall": 0.4815592493726017,
+    "kendall_datasets": 43,
+    "mae": 0.19737475948348934,
+    "mae_datasets": 43,
+    "method": "robometer_4b",
+    "voc": 0.6250465315547941,
+    "voc_datasets": 43
+   },
+   {
+    "auroc": 0.7004923779826184,
+    "auroc_datasets": 41,
+    "datasets": 43,
+    "domain": "Average",
+    "kendall": 0.4685461093544958,
+    "kendall_datasets": 43,
+    "mae": 0.23637955695214094,
+    "mae_datasets": 43,
+    "method": "topreward_ll",
+    "voc": 0.6092554003650902,
+    "voc_datasets": 43
+   }
+  ],
+  "methods": [
+   {
+    "key": "graph_stage",
+    "label": "Behavior Graph",
+    "ours": true
+   },
+   {
+    "key": "mlp",
+    "label": "MLP",
+    "ours": false
+   },
+   {
+    "key": "robometer_4b",
+    "label": "ROBOMETER-4B",
+    "ours": false
+   },
+   {
+    "key": "topreward_ll",
+    "label": "TOPReward",
+    "ours": false
+   }
+  ],
+  "metrics": [
+   {
+    "higher_better": true,
+    "key": "voc",
+    "label": "VOC"
+   },
+   {
+    "higher_better": true,
+    "key": "kendall",
+    "label": "Kendall"
+   },
+   {
+    "higher_better": false,
+    "key": "mae",
+    "label": "MAE"
+   },
+   {
+    "higher_better": true,
+    "key": "auroc",
+    "label": "AUROC"
+   }
+  ],
+  "rows": [
+   {
+    "auroc": 0.5350877192982456,
+    "dataset": "cooking_baseline",
+    "domain": "Real-world",
+    "kendall": 0.572224743094507,
+    "mae": 0.1662756322050886,
+    "method": "graph_stage",
+    "voc": 0.6918190941798384
+   },
+   {
+    "auroc": 0.6364522417153996,
+    "dataset": "cooking_baseline",
+    "domain": "Real-world",
+    "kendall": 0.25160214028486644,
+    "mae": 0.3386896751789979,
+    "method": "mlp",
+    "voc": 0.34196196451329447
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "cooking_baseline",
+    "domain": "Real-world",
+    "kendall": 0.4943783068783069,
+    "mae": 0.19269409920390765,
+    "method": "robometer_4b",
+    "voc": 0.6471611721611721
+   },
+   {
+    "auroc": 0.6569200779727095,
+    "dataset": "cooking_baseline",
+    "domain": "Real-world",
+    "kendall": 0.2880952407174907,
+    "mae": 0.28136647944934556,
+    "method": "topreward_ll",
+    "voc": 0.39333865427224174
+   },
+   {
+    "auroc": 0.5625,
+    "dataset": "cooking_baseline_carrot_dit",
+    "domain": "Real-world",
+    "kendall": 0.7140073560556508,
+    "mae": 0.1440490304881079,
+    "method": "graph_stage",
+    "voc": 0.709283297382021
+   },
+   {
+    "auroc": 0.8177083333333334,
+    "dataset": "cooking_baseline_carrot_dit",
+    "domain": "Real-world",
+    "kendall": 0.434606131948496,
+    "mae": 0.2189093962097922,
+    "method": "mlp",
+    "voc": 0.6006915361214863
+   },
+   {
+    "auroc": 0.984375,
+    "dataset": "cooking_baseline_carrot_dit",
+    "domain": "Real-world",
+    "kendall": 0.669808201058201,
+    "mae": 0.12795926037240804,
+    "method": "robometer_4b",
+    "voc": 0.8588141025641024
+   },
+   {
+    "auroc": 0.421875,
+    "dataset": "cooking_baseline_carrot_dit",
+    "domain": "Real-world",
+    "kendall": 0.41770402833317527,
+    "mae": 0.2221155061191765,
+    "method": "topreward_ll",
+    "voc": 0.5731551430957741
+   },
+   {
+    "auroc": 0.8194444444444445,
+    "dataset": "cooking_baseline_corn_dit",
+    "domain": "Real-world",
+    "kendall": 0.8833430890993279,
+    "mae": 0.06189858776350072,
+    "method": "graph_stage",
+    "voc": 0.8879124242520336
+   },
+   {
+    "auroc": 0.6507863562091504,
+    "dataset": "cooking_baseline_corn_dit",
+    "domain": "Real-world",
+    "kendall": 0.4553663494490785,
+    "mae": 0.21686367643663482,
+    "method": "mlp",
+    "voc": 0.6239269146503762
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "cooking_baseline_corn_dit",
+    "domain": "Real-world",
+    "kendall": 0.761739417989418,
+    "mae": 0.10116686702823874,
+    "method": "robometer_4b",
+    "voc": 0.9152510683760683
+   },
+   {
+    "auroc": 0.2702205882352941,
+    "dataset": "cooking_baseline_corn_dit",
+    "domain": "Real-world",
+    "kendall": 0.4168124481324504,
+    "mae": 0.22870976259012546,
+    "method": "topreward_ll",
+    "voc": 0.5504359094614206
+   },
+   {
+    "auroc": 0.7715277777777777,
+    "dataset": "cooking_baseline_dit_200",
+    "domain": "Real-world",
+    "kendall": 0.8803390884790976,
+    "mae": 0.07023401829620053,
+    "method": "graph_stage",
+    "voc": 0.943916061795243
+   },
+   {
+    "auroc": 0.7277777777777779,
+    "dataset": "cooking_baseline_dit_200",
+    "domain": "Real-world",
+    "kendall": 0.45742072220321645,
+    "mae": 0.21889921463652065,
+    "method": "mlp",
+    "voc": 0.6329790086582613
+   },
+   {
+    "auroc": 0.9958333333333332,
+    "dataset": "cooking_baseline_dit_200",
+    "domain": "Real-world",
+    "kendall": 0.7018022486772487,
+    "mae": 0.1382938547702026,
+    "method": "robometer_4b",
+    "voc": 0.8653205128205128
+   },
+   {
+    "auroc": 0.6716666666666667,
+    "dataset": "cooking_baseline_dit_200",
+    "domain": "Real-world",
+    "kendall": 0.34025077649970586,
+    "mae": 0.22962339911154747,
+    "method": "topreward_ll",
+    "voc": 0.4861474385121934
+   },
+   {
+    "auroc": 0.7999999999999999,
+    "dataset": "cooking_baseline_lid_dit",
+    "domain": "Real-world",
+    "kendall": 0.9525584652260178,
+    "mae": 0.05419451070632347,
+    "method": "graph_stage",
+    "voc": 0.9760323020817309
+   },
+   {
+    "auroc": 0.7276190476190476,
+    "dataset": "cooking_baseline_lid_dit",
+    "domain": "Real-world",
+    "kendall": 0.4945402856329486,
+    "mae": 0.19720221047264075,
+    "method": "mlp",
+    "voc": 0.6867891489677231
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "cooking_baseline_lid_dit",
+    "domain": "Real-world",
+    "kendall": 0.7476962081128747,
+    "mae": 0.11871149029960115,
+    "method": "robometer_4b",
+    "voc": 0.9016783679283679
+   },
+   {
+    "auroc": 0.5,
+    "dataset": "cooking_baseline_lid_dit",
+    "domain": "Real-world",
+    "kendall": 0.4290913477185272,
+    "mae": 0.24584661681794795,
+    "method": "topreward_ll",
+    "voc": 0.5825105384268944
+   },
+   {
+    "auroc": 0.9276291723822587,
+    "dataset": "libero_goal",
+    "domain": "LIBERO",
+    "kendall": 0.9250590761265277,
+    "mae": 0.06068749637369212,
+    "method": "graph_stage",
+    "voc": 0.9618687461681672
+   },
+   {
+    "auroc": 0.9844993141289438,
+    "dataset": "libero_goal",
+    "domain": "LIBERO",
+    "kendall": 0.9502842566752374,
+    "mae": 0.03548512485638101,
+    "method": "mlp",
+    "voc": 0.9912664495174579
+   },
+   {
+    "auroc": 0.810562414266118,
+    "dataset": "libero_goal",
+    "domain": "LIBERO",
+    "kendall": 0.5432758792832052,
+    "mae": 0.1729449670620203,
+    "method": "robometer_4b",
+    "voc": 0.7005218738744503
+   },
+   {
+    "auroc": 0.6346707818930041,
+    "dataset": "libero_goal",
+    "domain": "LIBERO",
+    "kendall": 0.45962534139463823,
+    "mae": 0.24010989407941352,
+    "method": "topreward_ll",
+    "voc": 0.6063281020148793
+   },
+   {
+    "auroc": 0.730420466058764,
+    "dataset": "libero_object",
+    "domain": "LIBERO",
+    "kendall": 0.9345810910825639,
+    "mae": 0.050836136283976374,
+    "method": "graph_stage",
+    "voc": 0.9659151049299681
+   },
+   {
+    "auroc": 0.9829280648429585,
+    "dataset": "libero_object",
+    "domain": "LIBERO",
+    "kendall": 0.9467211679262553,
+    "mae": 0.03675705503813175,
+    "method": "mlp",
+    "voc": 0.9917709998918349
+   },
+   {
+    "auroc": 0.8990374873353596,
+    "dataset": "libero_object",
+    "domain": "LIBERO",
+    "kendall": 0.789343518099412,
+    "mae": 0.13761075842647894,
+    "method": "robometer_4b",
+    "voc": 0.9147105011711495
+   },
+   {
+    "auroc": 0.7964539007092198,
+    "dataset": "libero_object",
+    "domain": "LIBERO",
+    "kendall": 0.40090001130245506,
+    "mae": 0.23877711044801644,
+    "method": "topreward_ll",
+    "voc": 0.5487283673799609
+   },
+   {
+    "auroc": 0.8228796186728689,
+    "dataset": "libero_plus_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.7498093942782141,
+    "mae": 0.12848896178170685,
+    "method": "graph_stage",
+    "voc": 0.8184489649017793
+   },
+   {
+    "auroc": 0.8771953856128277,
+    "dataset": "libero_plus_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.893934763369273,
+    "mae": 0.05419848539656777,
+    "method": "mlp",
+    "voc": 0.9694917308033274
+   },
+   {
+    "auroc": 0.8086980219136031,
+    "dataset": "libero_plus_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.6222357999039517,
+    "mae": 0.16864233727211153,
+    "method": "robometer_4b",
+    "voc": 0.7675646323572519
+   },
+   {
+    "auroc": 0.6790735592186468,
+    "dataset": "libero_plus_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.46176533933948694,
+    "mae": 0.23336637111361802,
+    "method": "topreward_ll",
+    "voc": 0.5964302380551665
+   },
+   {
+    "auroc": 0.8509238765745794,
+    "dataset": "libero_pro_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.7587555016210942,
+    "mae": 0.12750951558370302,
+    "method": "graph_stage",
+    "voc": 0.8309140177596227
+   },
+   {
+    "auroc": 0.7762777739352441,
+    "dataset": "libero_pro_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.8700293776066047,
+    "mae": 0.0647950322965722,
+    "method": "mlp",
+    "voc": 0.9642055081823271
+   },
+   {
+    "auroc": 0.8698237126399541,
+    "dataset": "libero_pro_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.6660540909002051,
+    "mae": 0.15101825684333756,
+    "method": "robometer_4b",
+    "voc": 0.815292846034371
+   },
+   {
+    "auroc": 0.6939553505664907,
+    "dataset": "libero_pro_perturbations",
+    "domain": "LIBERO",
+    "kendall": 0.45500592270092804,
+    "mae": 0.230966398821871,
+    "method": "topreward_ll",
+    "voc": 0.5862235999164399
+   },
+   {
+    "auroc": 0.6123563218390805,
+    "dataset": "libero_pro_spatial_with_mug",
+    "domain": "LIBERO",
+    "kendall": 0.8838719625780338,
+    "mae": 0.07188326068019558,
+    "method": "graph_stage",
+    "voc": 0.9256001782245734
+   },
+   {
+    "auroc": 0.5717911877394636,
+    "dataset": "libero_pro_spatial_with_mug",
+    "domain": "LIBERO",
+    "kendall": 0.5485259010768956,
+    "mae": 0.184006261362708,
+    "method": "mlp",
+    "voc": 0.7284821698582785
+   },
+   {
+    "auroc": 0.8591954022988505,
+    "dataset": "libero_pro_spatial_with_mug",
+    "domain": "LIBERO",
+    "kendall": 0.5421843641671228,
+    "mae": 0.16694376988674067,
+    "method": "robometer_4b",
+    "voc": 0.7118805874840358
+   },
+   {
+    "auroc": 0.4159961685823754,
+    "dataset": "libero_pro_spatial_with_mug",
+    "domain": "LIBERO",
+    "kendall": -0.2764512249440521,
+    "mae": 0.37911160046362696,
+    "method": "topreward_ll",
+    "voc": -0.3532301912040561
+   },
+   {
+    "auroc": 0.8982434998539294,
+    "dataset": "libero_spatial",
+    "domain": "LIBERO",
+    "kendall": 0.9339529433757873,
+    "mae": 0.05406139968730076,
+    "method": "graph_stage",
+    "voc": 0.9680588630848669
+   },
+   {
+    "auroc": 0.9891177329827636,
+    "dataset": "libero_spatial",
+    "domain": "LIBERO",
+    "kendall": 0.9593802513074249,
+    "mae": 0.030504447153980086,
+    "method": "mlp",
+    "voc": 0.9935803356973182
+   },
+   {
+    "auroc": 0.9133070406076541,
+    "dataset": "libero_spatial",
+    "domain": "LIBERO",
+    "kendall": 0.7358331710325574,
+    "mae": 0.12443675531116456,
+    "method": "robometer_4b",
+    "voc": 0.8870147362862086
+   },
+   {
+    "auroc": 0.7629820333041192,
+    "dataset": "libero_spatial",
+    "domain": "LIBERO",
+    "kendall": 0.4713528582317506,
+    "mae": 0.23340876123135249,
+    "method": "topreward_ll",
+    "voc": 0.6142567186934306
+   },
+   {
+    "auroc": 0.3333333333333333,
+    "dataset": "mimicgen_coffee_d0",
+    "domain": "MimicGen",
+    "kendall": 0.991111111111111,
+    "mae": 0.047543274250543284,
+    "method": "graph_stage",
+    "voc": 0.9878787878787879
+   },
+   {
+    "auroc": 0.08253968253968254,
+    "dataset": "mimicgen_coffee_d0",
+    "domain": "MimicGen",
+    "kendall": 0.854698682072716,
+    "mae": 0.06636205744542785,
+    "method": "mlp",
+    "voc": 0.9580887309721642
+   },
+   {
+    "auroc": 0.16984126984126982,
+    "dataset": "mimicgen_coffee_d0",
+    "domain": "MimicGen",
+    "kendall": 0.4617819349962207,
+    "mae": 0.19983363355371261,
+    "method": "robometer_4b",
+    "voc": 0.614819756962614
+   },
+   {
+    "auroc": 0.15793650793650793,
+    "dataset": "mimicgen_coffee_d0",
+    "domain": "MimicGen",
+    "kendall": -0.02866530223259273,
+    "mae": 0.32860491771969447,
+    "method": "topreward_ll",
+    "voc": -0.05058734995933564
+   },
+   {
+    "auroc": 0.0,
+    "dataset": "mimicgen_hammer_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.9709831477781566,
+    "mae": 0.040701394447953954,
+    "method": "graph_stage",
+    "voc": 0.9798593619875984
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "mimicgen_hammer_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.765333226015903,
+    "mae": 0.09395121337255537,
+    "method": "mlp",
+    "voc": 0.9134363748314973
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "mimicgen_hammer_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.4052542892156863,
+    "mae": 0.23988475859683012,
+    "method": "robometer_4b",
+    "voc": 0.5629963684191625
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "mimicgen_hammer_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.5683001265364637,
+    "mae": 0.31710249617660186,
+    "method": "topreward_ll",
+    "voc": 0.7350141131305531
+   },
+   {
+    "auroc": 0.8525641025641025,
+    "dataset": "mimicgen_mug_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.9024863672909292,
+    "mae": 0.059900281454197124,
+    "method": "graph_stage",
+    "voc": 0.9430667791093058
+   },
+   {
+    "auroc": 0.9166666666666666,
+    "dataset": "mimicgen_mug_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6874818150736665,
+    "mae": 0.12248223003964763,
+    "method": "mlp",
+    "voc": 0.8512104591045918
+   },
+   {
+    "auroc": 0.7211538461538461,
+    "dataset": "mimicgen_mug_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.37276149776149775,
+    "mae": 0.22482484427096475,
+    "method": "robometer_4b",
+    "voc": 0.5043782873109796
+   },
+   {
+    "auroc": 0.592948717948718,
+    "dataset": "mimicgen_mug_cleanup_d0",
+    "domain": "MimicGen",
+    "kendall": 0.593992763294735,
+    "mae": 0.2543295893013931,
+    "method": "topreward_ll",
+    "voc": 0.7617071651770199
+   },
+   {
+    "auroc": 0.8333333333333334,
+    "dataset": "mimicgen_square_d0",
+    "domain": "MimicGen",
+    "kendall": 0.9350459277207456,
+    "mae": 0.1006918596936912,
+    "method": "graph_stage",
+    "voc": 0.9437417530401033
+   },
+   {
+    "auroc": 0.8974358974358975,
+    "dataset": "mimicgen_square_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6723945397783533,
+    "mae": 0.13354733708925212,
+    "method": "mlp",
+    "voc": 0.8334461606114386
+   },
+   {
+    "auroc": 0.8632478632478633,
+    "dataset": "mimicgen_square_d0",
+    "domain": "MimicGen",
+    "kendall": 0.49264855514855516,
+    "mae": 0.223001367941849,
+    "method": "robometer_4b",
+    "voc": 0.6434007232084156
+   },
+   {
+    "auroc": 0.8931623931623932,
+    "dataset": "mimicgen_square_d0",
+    "domain": "MimicGen",
+    "kendall": 0.2446461224573253,
+    "mae": 0.28350135882008337,
+    "method": "topreward_ll",
+    "voc": 0.3707029249703309
+   },
+   {
+    "auroc": 0.5,
+    "dataset": "mimicgen_stack_d0",
+    "domain": "MimicGen",
+    "kendall": 0.9863251581003621,
+    "mae": 0.09373962725281082,
+    "method": "graph_stage",
+    "voc": 0.9895814999738408
+   },
+   {
+    "auroc": 0.8125,
+    "dataset": "mimicgen_stack_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6115116867211062,
+    "mae": 0.16435229817926836,
+    "method": "mlp",
+    "voc": 0.7577883213309867
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "mimicgen_stack_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6224036130216194,
+    "mae": 0.19363481089744797,
+    "method": "robometer_4b",
+    "voc": 0.7754172061997197
+   },
+   {
+    "auroc": 0.875,
+    "dataset": "mimicgen_stack_d0",
+    "domain": "MimicGen",
+    "kendall": 0.5266029536625754,
+    "mae": 0.19795538787856037,
+    "method": "topreward_ll",
+    "voc": 0.6934625927753696
+   },
+   {
+    "auroc": 0.7884615384615384,
+    "dataset": "mimicgen_stack_three_d0",
+    "domain": "MimicGen",
+    "kendall": 0.728568765077474,
+    "mae": 0.12469541678636675,
+    "method": "graph_stage",
+    "voc": 0.826644340537784
+   },
+   {
+    "auroc": 0.9209401709401709,
+    "dataset": "mimicgen_stack_three_d0",
+    "domain": "MimicGen",
+    "kendall": 0.5699270339646207,
+    "mae": 0.16521605119565286,
+    "method": "mlp",
+    "voc": 0.7473283929017859
+   },
+   {
+    "auroc": 0.9380341880341879,
+    "dataset": "mimicgen_stack_three_d0",
+    "domain": "MimicGen",
+    "kendall": 0.5416157916157917,
+    "mae": 0.211117991893177,
+    "method": "robometer_4b",
+    "voc": 0.6879649196956888
+   },
+   {
+    "auroc": 0.9166666666666666,
+    "dataset": "mimicgen_stack_three_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6239596937286835,
+    "mae": 0.1722153876716214,
+    "method": "topreward_ll",
+    "voc": 0.7866977757760356
+   },
+   {
+    "auroc": 0.7142857142857143,
+    "dataset": "mimicgen_threading_d0",
+    "domain": "MimicGen",
+    "kendall": 0.9952079357094447,
+    "mae": 0.048521230348769116,
+    "method": "graph_stage",
+    "voc": 0.998106203984149
+   },
+   {
+    "auroc": 0.4603174603174603,
+    "dataset": "mimicgen_threading_d0",
+    "domain": "MimicGen",
+    "kendall": 0.7022634986220216,
+    "mae": 0.1177134746744639,
+    "method": "mlp",
+    "voc": 0.8550019855738041
+   },
+   {
+    "auroc": 0.9151404151404151,
+    "dataset": "mimicgen_threading_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6775720972149543,
+    "mae": 0.2476569631062593,
+    "method": "robometer_4b",
+    "voc": 0.8544269680258689
+   },
+   {
+    "auroc": 0.7234432234432234,
+    "dataset": "mimicgen_threading_d0",
+    "domain": "MimicGen",
+    "kendall": 0.5606742800452709,
+    "mae": 0.16594654449833454,
+    "method": "topreward_ll",
+    "voc": 0.7328613004481496
+   },
+   {
+    "auroc": 0.7355218855218855,
+    "dataset": "mimicgen_three_piece_assembly_d0",
+    "domain": "MimicGen",
+    "kendall": 0.7449148890081759,
+    "mae": 0.10784064999115262,
+    "method": "graph_stage",
+    "voc": 0.8193945434866015
+   },
+   {
+    "auroc": 0.8465909090909092,
+    "dataset": "mimicgen_three_piece_assembly_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6416419007787487,
+    "mae": 0.14006512780181468,
+    "method": "mlp",
+    "voc": 0.8077889988334418
+   },
+   {
+    "auroc": 0.7013468013468014,
+    "dataset": "mimicgen_three_piece_assembly_d0",
+    "domain": "MimicGen",
+    "kendall": 0.38953523328523326,
+    "mae": 0.2541417590643132,
+    "method": "robometer_4b",
+    "voc": 0.5221721565471565
+   },
+   {
+    "auroc": 0.635016835016835,
+    "dataset": "mimicgen_three_piece_assembly_d0",
+    "domain": "MimicGen",
+    "kendall": 0.6203452800353876,
+    "mae": 0.16018181946004875,
+    "method": "topreward_ll",
+    "voc": 0.7972790663930401
+   },
+   {
+    "auroc": 0.9935897435897436,
+    "dataset": "prepare_tray_baseline",
+    "domain": "Real-world",
+    "kendall": 0.9903088603831987,
+    "mae": 0.02638869953415462,
+    "method": "graph_stage",
+    "voc": 0.9947460100034368
+   },
+   {
+    "auroc": 0.8092948717948718,
+    "dataset": "prepare_tray_baseline",
+    "domain": "Real-world",
+    "kendall": 0.6378007479192936,
+    "mae": 0.14184662613267673,
+    "method": "mlp",
+    "voc": 0.8188601963389396
+   },
+   {
+    "auroc": 0.5179334554334555,
+    "dataset": "prepare_tray_baseline",
+    "domain": "Real-world",
+    "kendall": 0.4477364841948175,
+    "mae": 0.18589565778242553,
+    "method": "robometer_4b",
+    "voc": 0.6557794057794056
+   },
+   {
+    "auroc": 0.8490155677655679,
+    "dataset": "prepare_tray_baseline",
+    "domain": "Real-world",
+    "kendall": 0.6314702042127317,
+    "mae": 0.21345955042522094,
+    "method": "topreward_ll",
+    "voc": 0.8092914045383894
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "prepare_tray_baseline_dp",
+    "domain": "Real-world",
+    "kendall": 0.9445017546328743,
+    "mae": 0.041777065593404376,
+    "method": "graph_stage",
+    "voc": 0.9604854265676681
+   },
+   {
+    "auroc": 0.9208754208754208,
+    "dataset": "prepare_tray_baseline_dp",
+    "domain": "Real-world",
+    "kendall": 0.7089517765631349,
+    "mae": 0.10965940454630385,
+    "method": "mlp",
+    "voc": 0.8777908886729545
+   },
+   {
+    "auroc": 0.7198653198653199,
+    "dataset": "prepare_tray_baseline_dp",
+    "domain": "Real-world",
+    "kendall": 0.4782627865961199,
+    "mae": 0.1839182229641565,
+    "method": "robometer_4b",
+    "voc": 0.6920702754036087
+   },
+   {
+    "auroc": 0.5619528619528619,
+    "dataset": "prepare_tray_baseline_dp",
+    "domain": "Real-world",
+    "kendall": 0.685044377549676,
+    "mae": 0.2047729498247652,
+    "method": "topreward_ll",
+    "voc": 0.85757053988906
+   },
+   {
+    "auroc": 0.8888888888888888,
+    "dataset": "prepare_tray_baseline_rgrl",
+    "domain": "Real-world",
+    "kendall": 0.9460823001506814,
+    "mae": 0.04428108920315813,
+    "method": "graph_stage",
+    "voc": 0.9765539936564697
+   },
+   {
+    "auroc": 0.6537698412698413,
+    "dataset": "prepare_tray_baseline_rgrl",
+    "domain": "Real-world",
+    "kendall": 0.5235640627071807,
+    "mae": 0.18428663101563178,
+    "method": "mlp",
+    "voc": 0.7066577319396462
+   },
+   {
+    "auroc": 0.7450396825396827,
+    "dataset": "prepare_tray_baseline_rgrl",
+    "domain": "Real-world",
+    "kendall": 0.4044312169312169,
+    "mae": 0.1915018598896466,
+    "method": "robometer_4b",
+    "voc": 0.6125324328449328
+   },
+   {
+    "auroc": 0.6478174603174603,
+    "dataset": "prepare_tray_baseline_rgrl",
+    "domain": "Real-world",
+    "kendall": 0.6543109845847682,
+    "mae": 0.1882729055008737,
+    "method": "topreward_ll",
+    "voc": 0.8207442479974043
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "prepare_tray_plusbottom",
+    "domain": "Real-world",
+    "kendall": 0.9750517693268171,
+    "mae": 0.030918288608598188,
+    "method": "graph_stage",
+    "voc": 0.9903910211536354
+   },
+   {
+    "auroc": 0.9629629629629629,
+    "dataset": "prepare_tray_plusbottom",
+    "domain": "Real-world",
+    "kendall": 0.7825758985251742,
+    "mae": 0.08420133462553676,
+    "method": "mlp",
+    "voc": 0.9325382789474562
+   },
+   {
+    "auroc": 0.7777777777777778,
+    "dataset": "prepare_tray_plusbottom",
+    "domain": "Real-world",
+    "kendall": 0.4842004703115814,
+    "mae": 0.18089683158920644,
+    "method": "robometer_4b",
+    "voc": 0.69050756342423
+   },
+   {
+    "auroc": 0.9259259259259259,
+    "dataset": "prepare_tray_plusbottom",
+    "domain": "Real-world",
+    "kendall": 0.6311343411679535,
+    "mae": 0.2109919066294014,
+    "method": "topreward_ll",
+    "voc": 0.7956942105732342
+   },
+   {
+    "auroc": 0.8982638888888889,
+    "dataset": "prepare_tray_plustop",
+    "domain": "Real-world",
+    "kendall": 0.9630333657187994,
+    "mae": 0.041750944320583426,
+    "method": "graph_stage",
+    "voc": 0.983323644924334
+   },
+   {
+    "auroc": 0.9211805555555556,
+    "dataset": "prepare_tray_plustop",
+    "domain": "Real-world",
+    "kendall": 0.7988075212798091,
+    "mae": 0.08211069693727334,
+    "method": "mlp",
+    "voc": 0.935737279793814
+   },
+   {
+    "auroc": 0.5253472222222223,
+    "dataset": "prepare_tray_plustop",
+    "domain": "Real-world",
+    "kendall": 0.44765762786596114,
+    "mae": 0.1846191030489213,
+    "method": "robometer_4b",
+    "voc": 0.6433402014652013
+   },
+   {
+    "auroc": 0.7465277777777777,
+    "dataset": "prepare_tray_plustop",
+    "domain": "Real-world",
+    "kendall": 0.6212902692140667,
+    "mae": 0.22565453107036845,
+    "method": "topreward_ll",
+    "voc": 0.7940499772820481
+   },
+   {
+    "auroc": 0.6875,
+    "dataset": "robomimic_can_mh",
+    "domain": "Robomimic",
+    "kendall": 0.9710921670973311,
+    "mae": 0.08415526043972062,
+    "method": "graph_stage",
+    "voc": 0.9792688762447095
+   },
+   {
+    "auroc": 0.9166666666666666,
+    "dataset": "robomimic_can_mh",
+    "domain": "Robomimic",
+    "kendall": 0.7289820476059009,
+    "mae": 0.1207923720220913,
+    "method": "mlp",
+    "voc": 0.8529948548697712
+   },
+   {
+    "auroc": 0.75,
+    "dataset": "robomimic_can_mh",
+    "domain": "Robomimic",
+    "kendall": 0.5314313972609738,
+    "mae": 0.19308723241132608,
+    "method": "robometer_4b",
+    "voc": 0.6955135505314187
+   },
+   {
+    "auroc": 0.8125,
+    "dataset": "robomimic_can_mh",
+    "domain": "Robomimic",
+    "kendall": 0.6119837702220141,
+    "mae": 0.3565335178297248,
+    "method": "topreward_ll",
+    "voc": 0.754025622705704
+   },
+   {
+    "dataset": "robomimic_can_ph",
+    "domain": "Robomimic",
+    "kendall": 1.0,
+    "mae": 0.09858968050604078,
+    "method": "graph_stage",
+    "voc": 1.0
+   },
+   {
+    "dataset": "robomimic_can_ph",
+    "domain": "Robomimic",
+    "kendall": 0.4225508214943821,
+    "mae": 0.249645064177306,
+    "method": "mlp",
+    "voc": 0.5403323004159281
+   },
+   {
+    "dataset": "robomimic_can_ph",
+    "domain": "Robomimic",
+    "kendall": 0.6130707670750889,
+    "mae": 0.18477614111696614,
+    "method": "robometer_4b",
+    "voc": 0.7761864546871483
+   },
+   {
+    "dataset": "robomimic_can_ph",
+    "domain": "Robomimic",
+    "kendall": 0.48761441439184044,
+    "mae": 0.3868085277084539,
+    "method": "topreward_ll",
+    "voc": 0.6307733072046214
+   },
+   {
+    "auroc": 0.8823529411764706,
+    "dataset": "robomimic_lift_mh",
+    "domain": "Robomimic",
+    "kendall": 0.9722430946996141,
+    "mae": 0.14906970104961179,
+    "method": "graph_stage",
+    "voc": 0.9784030781545866
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "robomimic_lift_mh",
+    "domain": "Robomimic",
+    "kendall": 0.8146476055548657,
+    "mae": 0.11273575145435903,
+    "method": "mlp",
+    "voc": 0.9101233253223929
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "robomimic_lift_mh",
+    "domain": "Robomimic",
+    "kendall": 0.601746846373307,
+    "mae": 0.19276480582856026,
+    "method": "robometer_4b",
+    "voc": 0.7454101662642426
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "robomimic_lift_mh",
+    "domain": "Robomimic",
+    "kendall": 0.4726879157425219,
+    "mae": 0.32861166821710625,
+    "method": "topreward_ll",
+    "voc": 0.6312915821931661
+   },
+   {
+    "dataset": "robomimic_lift_ph",
+    "domain": "Robomimic",
+    "kendall": 1.0,
+    "mae": 0.2626262626262626,
+    "method": "graph_stage",
+    "voc": 1.0
+   },
+   {
+    "dataset": "robomimic_lift_ph",
+    "domain": "Robomimic",
+    "kendall": 0.48203288339159706,
+    "mae": 0.289994077423777,
+    "method": "mlp",
+    "voc": 0.547468866578437
+   },
+   {
+    "dataset": "robomimic_lift_ph",
+    "domain": "Robomimic",
+    "kendall": 0.8248185504787339,
+    "mae": 0.1492235442170089,
+    "method": "robometer_4b",
+    "voc": 0.9169456562617541
+   },
+   {
+    "dataset": "robomimic_lift_ph",
+    "domain": "Robomimic",
+    "kendall": 0.38400646742357186,
+    "mae": 0.358370938357038,
+    "method": "topreward_ll",
+    "voc": 0.5175588425202394
+   },
+   {
+    "auroc": 0.847985347985348,
+    "dataset": "robomimic_square_mh",
+    "domain": "Robomimic",
+    "kendall": 0.9028528715876312,
+    "mae": 0.1318646483944352,
+    "method": "graph_stage",
+    "voc": 0.8907535138510276
+   },
+   {
+    "auroc": 0.8388278388278388,
+    "dataset": "robomimic_square_mh",
+    "domain": "Robomimic",
+    "kendall": 0.6975197625647693,
+    "mae": 0.1479402054880851,
+    "method": "mlp",
+    "voc": 0.8283169799439579
+   },
+   {
+    "auroc": 0.8760683760683761,
+    "dataset": "robomimic_square_mh",
+    "domain": "Robomimic",
+    "kendall": 0.4994857985929415,
+    "mae": 0.22006071708386446,
+    "method": "robometer_4b",
+    "voc": 0.6441599914127386
+   },
+   {
+    "auroc": 0.8736263736263736,
+    "dataset": "robomimic_square_mh",
+    "domain": "Robomimic",
+    "kendall": 0.2513667491067944,
+    "mae": 0.2920596895493501,
+    "method": "topreward_ll",
+    "voc": 0.36907594369779817
+   },
+   {
+    "auroc": 0.0,
+    "dataset": "robomimic_square_ph",
+    "domain": "Robomimic",
+    "kendall": 0.973110239311047,
+    "mae": 0.10662654161429581,
+    "method": "graph_stage",
+    "voc": 0.9734965332476294
+   },
+   {
+    "auroc": 0.7647058823529411,
+    "dataset": "robomimic_square_ph",
+    "domain": "Robomimic",
+    "kendall": 0.37366999539570545,
+    "mae": 0.2653459205516302,
+    "method": "mlp",
+    "voc": 0.49928713505977895
+   },
+   {
+    "auroc": 0.9411764705882353,
+    "dataset": "robomimic_square_ph",
+    "domain": "Robomimic",
+    "kendall": 0.46410911940105604,
+    "mae": 0.22458758479805005,
+    "method": "robometer_4b",
+    "voc": 0.6351728769659913
+   },
+   {
+    "auroc": 0.8823529411764706,
+    "dataset": "robomimic_square_ph",
+    "domain": "Robomimic",
+    "kendall": 0.22560348219726858,
+    "mae": 0.296626927454182,
+    "method": "topreward_ll",
+    "voc": 0.34030888696097206
+   },
+   {
+    "auroc": 0.8095238095238096,
+    "dataset": "robomimic_tool_hang_ph",
+    "domain": "Robomimic",
+    "kendall": 0.9803447616264317,
+    "mae": 0.050797220719736386,
+    "method": "graph_stage",
+    "voc": 0.9930786634411547
+   },
+   {
+    "auroc": 0.8055555555555555,
+    "dataset": "robomimic_tool_hang_ph",
+    "domain": "Robomimic",
+    "kendall": 0.48840026152424154,
+    "mae": 0.19610248762335225,
+    "method": "mlp",
+    "voc": 0.6638382690982522
+   },
+   {
+    "auroc": 0.75,
+    "dataset": "robomimic_tool_hang_ph",
+    "domain": "Robomimic",
+    "kendall": 0.3853930461073318,
+    "mae": 0.23658673529971097,
+    "method": "robometer_4b",
+    "voc": 0.6034569597069597
+   },
+   {
+    "auroc": 0.5277777777777778,
+    "dataset": "robomimic_tool_hang_ph",
+    "domain": "Robomimic",
+    "kendall": 0.5880620924833082,
+    "mae": 0.15848436388783846,
+    "method": "topreward_ll",
+    "voc": 0.7623956274146076
+   },
+   {
+    "auroc": 0.9257936507936507,
+    "dataset": "robomimic_transport_mh",
+    "domain": "Robomimic",
+    "kendall": 0.8385655174609425,
+    "mae": 0.10351326203010087,
+    "method": "graph_stage",
+    "voc": 0.8726852088256724
+   },
+   {
+    "auroc": 0.7075396825396826,
+    "dataset": "robomimic_transport_mh",
+    "domain": "Robomimic",
+    "kendall": 0.3514133892755366,
+    "mae": 0.2763464406872079,
+    "method": "mlp",
+    "voc": 0.48309494445294
+   },
+   {
+    "auroc": 0.28968253968253965,
+    "dataset": "robomimic_transport_mh",
+    "domain": "Robomimic",
+    "kendall": -0.19361772486772488,
+    "mae": 0.31845735354082927,
+    "method": "robometer_4b",
+    "voc": -0.26525183150183146
+   },
+   {
+    "auroc": 0.6253968253968254,
+    "dataset": "robomimic_transport_mh",
+    "domain": "Robomimic",
+    "kendall": 0.13541269723943103,
+    "mae": 0.31694164956328014,
+    "method": "topreward_ll",
+    "voc": 0.18304976231887615
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "robomimic_transport_ph",
+    "domain": "Robomimic",
+    "kendall": 0.9968417773221657,
+    "mae": 0.03229730583166631,
+    "method": "graph_stage",
+    "voc": 0.9990394679358839
+   },
+   {
+    "auroc": 0.9517704517704518,
+    "dataset": "robomimic_transport_ph",
+    "domain": "Robomimic",
+    "kendall": 0.3678594823594155,
+    "mae": 0.2686665612216581,
+    "method": "mlp",
+    "voc": 0.5071185360762702
+   },
+   {
+    "auroc": 0.8253968253968255,
+    "dataset": "robomimic_transport_ph",
+    "domain": "Robomimic",
+    "kendall": -0.16443543229257515,
+    "mae": 0.3180931910648252,
+    "method": "robometer_4b",
+    "voc": -0.2461811006453863
+   },
+   {
+    "auroc": 0.6874236874236873,
+    "dataset": "robomimic_transport_ph",
+    "domain": "Robomimic",
+    "kendall": 0.1943439544370524,
+    "mae": 0.29572384652408573,
+    "method": "topreward_ll",
+    "voc": 0.2635989819553232
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "set_table_baseline",
+    "domain": "Real-world",
+    "kendall": 0.9426656396925689,
+    "mae": 0.04137249634843996,
+    "method": "graph_stage",
+    "voc": 0.9587203121670355
+   },
+   {
+    "auroc": 0.7110042735042734,
+    "dataset": "set_table_baseline",
+    "domain": "Real-world",
+    "kendall": 0.4192658610702571,
+    "mae": 0.23306998977753127,
+    "method": "mlp",
+    "voc": 0.5821420248986774
+   },
+   {
+    "auroc": 0.6043447293447294,
+    "dataset": "set_table_baseline",
+    "domain": "Real-world",
+    "kendall": 0.2701581790123457,
+    "mae": 0.2247786720861625,
+    "method": "robometer_4b",
+    "voc": 0.36192278015194673
+   },
+   {
+    "auroc": 0.8265669515669516,
+    "dataset": "set_table_baseline",
+    "domain": "Real-world",
+    "kendall": 0.5179154024178811,
+    "mae": 0.2643994988386873,
+    "method": "topreward_ll",
+    "voc": 0.7059789917577796
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "set_table_baseline_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.993401589349363,
+    "mae": 0.020348967354987955,
+    "method": "graph_stage",
+    "voc": 0.993014346813982
+   },
+   {
+    "auroc": 0.5462962962962963,
+    "dataset": "set_table_baseline_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.6256086722274449,
+    "mae": 0.14563609768098365,
+    "method": "mlp",
+    "voc": 0.8105020984917531
+   },
+   {
+    "auroc": 0.9774410774410774,
+    "dataset": "set_table_baseline_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.43158369408369407,
+    "mae": 0.19504991169279093,
+    "method": "robometer_4b",
+    "voc": 0.5808877233877233
+   },
+   {
+    "auroc": 0.8818181818181818,
+    "dataset": "set_table_baseline_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.5751157743217544,
+    "mae": 0.1897815017284771,
+    "method": "topreward_ll",
+    "voc": 0.7578383721779717
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "set_table_baseline_v2_plusleft_sync",
+    "domain": "Real-world",
+    "kendall": 0.9850622007137589,
+    "mae": 0.020301483835506107,
+    "method": "graph_stage",
+    "voc": 0.9896475978721333
+   },
+   {
+    "auroc": 0.8557800224466892,
+    "dataset": "set_table_baseline_v2_plusleft_sync",
+    "domain": "Real-world",
+    "kendall": 0.5846548816761513,
+    "mae": 0.15849417968501997,
+    "method": "mlp",
+    "voc": 0.7718935748292785
+   },
+   {
+    "auroc": 0.9450056116722783,
+    "dataset": "set_table_baseline_v2_plusleft_sync",
+    "domain": "Real-world",
+    "kendall": 0.44783148949815615,
+    "mae": 0.20966724512629875,
+    "method": "robometer_4b",
+    "voc": 0.6155318061568061
+   },
+   {
+    "auroc": 0.7595398428731762,
+    "dataset": "set_table_baseline_v2_plusleft_sync",
+    "domain": "Real-world",
+    "kendall": 0.6742418683634243,
+    "mae": 0.11888251853982103,
+    "method": "topreward_ll",
+    "voc": 0.8596631483883685
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "set_table_baseline_v2_plusmiddle_sync",
+    "domain": "Real-world",
+    "kendall": 0.9859848134424273,
+    "mae": 0.023434442447972954,
+    "method": "graph_stage",
+    "voc": 0.9909978726437908
+   },
+   {
+    "auroc": 0.8973063973063974,
+    "dataset": "set_table_baseline_v2_plusmiddle_sync",
+    "domain": "Real-world",
+    "kendall": 0.4903269312078938,
+    "mae": 0.20005774946629962,
+    "method": "mlp",
+    "voc": 0.6641672298155129
+   },
+   {
+    "auroc": 0.9531986531986533,
+    "dataset": "set_table_baseline_v2_plusmiddle_sync",
+    "domain": "Real-world",
+    "kendall": 0.578303872053872,
+    "mae": 0.17959889114855984,
+    "method": "robometer_4b",
+    "voc": 0.7583666333666333
+   },
+   {
+    "auroc": 0.823905723905724,
+    "dataset": "set_table_baseline_v2_plusmiddle_sync",
+    "domain": "Real-world",
+    "kendall": 0.6056069406400304,
+    "mae": 0.1440909322581025,
+    "method": "topreward_ll",
+    "voc": 0.7679382558289193
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "set_table_baseline_v2_plusright_sync",
+    "domain": "Real-world",
+    "kendall": 0.9927624299185567,
+    "mae": 0.01906863763098328,
+    "method": "graph_stage",
+    "voc": 0.9950994738887043
+   },
+   {
+    "auroc": 0.9656565656565657,
+    "dataset": "set_table_baseline_v2_plusright_sync",
+    "domain": "Real-world",
+    "kendall": 0.5600097660245057,
+    "mae": 0.16448449968907153,
+    "method": "mlp",
+    "voc": 0.7326298224836937
+   },
+   {
+    "auroc": 0.946127946127946,
+    "dataset": "set_table_baseline_v2_plusright_sync",
+    "domain": "Real-world",
+    "kendall": 0.6124889770723104,
+    "mae": 0.16896787049517917,
+    "method": "robometer_4b",
+    "voc": 0.8003310269976937
+   },
+   {
+    "auroc": 0.4390572390572391,
+    "dataset": "set_table_baseline_v2_plusright_sync",
+    "domain": "Real-world",
+    "kendall": 0.6774223821842065,
+    "mae": 0.13099606830768065,
+    "method": "topreward_ll",
+    "voc": 0.8595824592880531
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "set_table_baseline_v2_sync",
+    "domain": "Real-world",
+    "kendall": 0.985327908745446,
+    "mae": 0.019796247860578892,
+    "method": "graph_stage",
+    "voc": 0.9900954271099219
+   },
+   {
+    "auroc": 0.748282967032967,
+    "dataset": "set_table_baseline_v2_sync",
+    "domain": "Real-world",
+    "kendall": 0.4600604215969452,
+    "mae": 0.21803234501259697,
+    "method": "mlp",
+    "voc": 0.6251828394976165
+   },
+   {
+    "auroc": 0.8147893772893773,
+    "dataset": "set_table_baseline_v2_sync",
+    "domain": "Real-world",
+    "kendall": 0.3432953042328042,
+    "mae": 0.21024227542821836,
+    "method": "robometer_4b",
+    "voc": 0.47133454343275766
+   },
+   {
+    "auroc": 0.7833485958485958,
+    "dataset": "set_table_baseline_v2_sync",
+    "domain": "Real-world",
+    "kendall": 0.6594790323949734,
+    "mae": 0.14411078967243643,
+    "method": "topreward_ll",
+    "voc": 0.8373403973274606
+   },
+   {
+    "auroc": 1.0,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.9937496706272206,
+    "mae": 0.02137667878004414,
+    "method": "graph_stage",
+    "voc": 0.9953443835174175
+   },
+   {
+    "auroc": 0.8906944444444443,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.7317625069293091,
+    "mae": 0.10423138012430912,
+    "method": "mlp",
+    "voc": 0.8906009600038295
+   },
+   {
+    "auroc": 0.8880555555555555,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.3456941688712522,
+    "mae": 0.2119231806013759,
+    "method": "robometer_4b",
+    "voc": 0.48783628408628404
+   },
+   {
+    "auroc": 0.5175000000000001,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.7190615664643555,
+    "mae": 0.11391202120770712,
+    "method": "topreward_ll",
+    "voc": 0.8802907268142616
+   },
+   {
+    "auroc": 0.987037037037037,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.9987218353017401,
+    "mae": 0.023539103893036515,
+    "method": "graph_stage",
+    "voc": 0.9998159425185724
+   },
+   {
+    "auroc": 0.5855218855218856,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.5902903122963602,
+    "mae": 0.15505536025374747,
+    "method": "mlp",
+    "voc": 0.7680129334469669
+   },
+   {
+    "auroc": 0.9717171717171716,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.41352513227513227,
+    "mae": 0.21316995078592815,
+    "method": "robometer_4b",
+    "voc": 0.5553715574548908
+   },
+   {
+    "auroc": 0.7781144781144781,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.6222585996586804,
+    "mae": 0.13709917759763882,
+    "method": "topreward_ll",
+    "voc": 0.7985689673233027
+   },
+   {
+    "auroc": 0.914141414141414,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.9793936375429166,
+    "mae": 0.02384399257330431,
+    "method": "graph_stage",
+    "voc": 0.9887291278589223
+   },
+   {
+    "auroc": 0.8338945005611672,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.7151021988382089,
+    "mae": 0.11189500730809386,
+    "method": "mlp",
+    "voc": 0.8812290684402084
+   },
+   {
+    "auroc": 0.9486531986531986,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.3437545928865373,
+    "mae": 0.2131811920183959,
+    "method": "robometer_4b",
+    "voc": 0.4951202347035679
+   },
+   {
+    "auroc": 0.7431257014590349,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "domain": "Real-world",
+    "kendall": 0.7044578100242996,
+    "mae": 0.15266236484895826,
+    "method": "topreward_ll",
+    "voc": 0.8623921426595395
+   },
+   {
+    "auroc": 0.9502769942665413,
+    "dataset": "transport_mh_salvage250",
+    "domain": "Robomimic",
+    "kendall": 0.9448952419266278,
+    "mae": 0.06362097332705557,
+    "method": "graph_stage",
+    "voc": 0.9676063324703573
+   },
+   {
+    "auroc": 0.9795964456243201,
+    "dataset": "transport_mh_salvage250",
+    "domain": "Robomimic",
+    "kendall": 0.923348028360151,
+    "mae": 0.05029642040250123,
+    "method": "mlp",
+    "voc": 0.9847956871909312
+   },
+   {
+    "auroc": 0.5731799494865696,
+    "dataset": "transport_mh_salvage250",
+    "domain": "Robomimic",
+    "kendall": -0.14180285935512413,
+    "mae": 0.30154794197086815,
+    "method": "robometer_4b",
+    "voc": -0.20013112290986854
+   },
+   {
+    "auroc": 0.7289051121803736,
+    "dataset": "transport_mh_salvage250",
+    "domain": "Robomimic",
+    "kendall": 0.2435835988463095,
+    "mae": 0.29183370162848415,
+    "method": "topreward_ll",
+    "voc": 0.3274977095462688
+   }
+  ]
+ },
+ "schema": 1,
+ "study": {
+  "choices": [
+   {
+    "answers": 4,
+    "choice_label": "Milk left",
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "graph",
+    "picks": 2,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "answers": 4,
+    "choice_label": "Milk middle",
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "display": "graph",
+    "picks": 1,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "answers": 4,
+    "choice_label": "Milk right",
+    "dataset": "set_table_plusright_pretrained_dit",
+    "display": "graph",
+    "picks": 1,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "answers": 5,
+    "choice_label": "Milk left",
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "videos",
+    "picks": 3,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "answers": 5,
+    "choice_label": "Milk middle",
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "display": "videos",
+    "picks": 0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "answers": 5,
+    "choice_label": "Milk right",
+    "dataset": "set_table_plusright_pretrained_dit",
+    "display": "videos",
+    "picks": 2,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "answers": 10,
+    "choice_label": "Bowl on top",
+    "dataset": "prepare_tray_plustop",
+    "display": "graph",
+    "picks": 4,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "answers": 10,
+    "choice_label": "Bowl in middle",
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "picks": 6,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "answers": 7,
+    "choice_label": "Bowl on top",
+    "dataset": "prepare_tray_plustop",
+    "display": "videos",
+    "picks": 4,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "answers": 7,
+    "choice_label": "Bowl in middle",
+    "dataset": "prepare_tray_plusbottom",
+    "display": "videos",
+    "picks": 3,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "answers": 4,
+    "choice_label": "Carrot",
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "picks": 3,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "answers": 4,
+    "choice_label": "Corn",
+    "dataset": "cooking_baseline_corn_dit",
+    "display": "graph",
+    "picks": 0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "answers": 4,
+    "choice_label": "Lid",
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "graph",
+    "picks": 1,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "answers": 6,
+    "choice_label": "Carrot",
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "videos",
+    "picks": 4,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "answers": 6,
+    "choice_label": "Corn",
+    "dataset": "cooking_baseline_corn_dit",
+    "display": "videos",
+    "picks": 0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "answers": 6,
+    "choice_label": "Lid",
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "videos",
+    "picks": 2,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   }
+  ],
+  "outcomes": [
+   {
+    "better": "down",
+    "key": "temporal_demand",
+    "label": "Temporal demand"
+   },
+   {
+    "better": "down",
+    "key": "effort",
+    "label": "Effort"
+   },
+   {
+    "better": "up",
+    "key": "confidence",
+    "label": "Confidence"
+   }
+  ],
+  "paired": [
+   {
+    "better": "down",
+    "difference": -25.555555555555557,
+    "higher": 0,
+    "label": "Temporal demand",
+    "lower": 13,
+    "mean_graph": 38.888888888888886,
+    "mean_videos": 64.44444444444444,
+    "n_pairs": 18,
+    "outcome": "temporal_demand",
+    "relative": -39.6551724137931,
+    "tied": 5
+   },
+   {
+    "better": "down",
+    "difference": -21.111111111111114,
+    "higher": 2,
+    "label": "Effort",
+    "lower": 12,
+    "mean_graph": 38.888888888888886,
+    "mean_videos": 60.0,
+    "n_pairs": 18,
+    "outcome": "effort",
+    "relative": -35.18518518518519,
+    "tied": 4
+   },
+   {
+    "better": "up",
+    "difference": 2.2222222222222285,
+    "higher": 6,
+    "label": "Confidence",
+    "lower": 6,
+    "mean_graph": 61.111111111111114,
+    "mean_videos": 58.888888888888886,
+    "n_pairs": 18,
+    "outcome": "confidence",
+    "relative": 3.773584905660388,
+    "tied": 6
+   }
+  ],
+  "participants": 18,
+  "preference": {
+   "counts": {
+    "graph": 16,
+    "videos": 2
+   },
+   "n_chose": 18,
+   "n_participants": 18,
+   "share": {
+    "graph": 88.88888888888889,
+    "videos": 11.11111111111111
+   }
+  },
+  "ratings": [
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P01",
+    "score": 80.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P01",
+    "score": 80.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P01",
+    "score": 60.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P01",
+    "score": 100.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P01",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P01",
+    "score": 60.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P02",
+    "score": 20.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P02",
+    "score": 20.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P02",
+    "score": 80.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P02",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P02",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P02",
+    "score": 60.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P03",
+    "score": 20.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P03",
+    "score": 40.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P03",
+    "score": 80.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P03",
+    "score": 20.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P03",
+    "score": 20.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P03",
+    "score": 40.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P04",
+    "score": 20.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P04",
+    "score": 20.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P04",
+    "score": 40.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P04",
+    "score": 20.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P04",
+    "score": 20.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P04",
+    "score": 40.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P05",
+    "score": 0.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P05",
+    "score": 0.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P05",
+    "score": 100.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P05",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P05",
+    "score": 100.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P05",
+    "score": 40.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P06",
+    "score": 0.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P06",
+    "score": 0.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P06",
+    "score": 80.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P06",
+    "score": 40.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P06",
+    "score": 40.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P06",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P07",
+    "score": 20.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P07",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P07",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P07",
+    "score": 60.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P07",
+    "score": 60.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P07",
+    "score": 40.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P08",
+    "score": 60.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P08",
+    "score": 80.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P08",
+    "score": 60.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P08",
+    "score": 60.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P08",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P08",
+    "score": 40.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P09",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P09",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P09",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P09",
+    "score": 80.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P09",
+    "score": 60.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P09",
+    "score": 40.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P10",
+    "score": 100.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P10",
+    "score": 80.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P10",
+    "score": 80.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P10",
+    "score": 100.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P10",
+    "score": 100.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P10",
+    "score": 100.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P11",
+    "score": 80.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P11",
+    "score": 80.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P11",
+    "score": 20.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P11",
+    "score": 100.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P11",
+    "score": 100.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P11",
+    "score": 20.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P12",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P12",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P12",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P12",
+    "score": 80.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P12",
+    "score": 40.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P12",
+    "score": 60.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P13",
+    "score": 40.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P13",
+    "score": 40.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P13",
+    "score": 100.0,
+    "stage": 1,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P13",
+    "score": 60.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P13",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P13",
+    "score": 80.0,
+    "stage": 2,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P14",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P14",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P14",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P14",
+    "score": 0.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P14",
+    "score": 20.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P14",
+    "score": 80.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P15",
+    "score": 40.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P15",
+    "score": 20.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P15",
+    "score": 80.0,
+    "stage": 1,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P15",
+    "score": 20.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P15",
+    "score": 0.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P15",
+    "score": 60.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P16",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P16",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P16",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P16",
+    "score": 40.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P16",
+    "score": 80.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P16",
+    "score": 40.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P17",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P17",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P17",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P17",
+    "score": 80.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P17",
+    "score": 40.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P17",
+    "score": 60.0,
+    "stage": 2,
+    "task": "set_table"
+   },
+   {
+    "display": "graph",
+    "outcome": "temporal_demand",
+    "participant": "P18",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "effort",
+    "participant": "P18",
+    "score": 40.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "graph",
+    "outcome": "confidence",
+    "participant": "P18",
+    "score": 60.0,
+    "stage": 1,
+    "task": "prepare_tray"
+   },
+   {
+    "display": "videos",
+    "outcome": "temporal_demand",
+    "participant": "P18",
+    "score": 60.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "effort",
+    "participant": "P18",
+    "score": 20.0,
+    "stage": 2,
+    "task": "cooking"
+   },
+   {
+    "display": "videos",
+    "outcome": "confidence",
+    "participant": "P18",
+    "score": 80.0,
+    "stage": 2,
+    "task": "cooking"
+   }
+  ],
+  "regret": [
+   {
+    "choice_label": "Milk right",
+    "chose_best": false,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "display": "graph",
+    "participant": "P01",
+    "randomized": true,
+    "regret": 33.333333333333336,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "videos",
+    "participant": "P01",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "participant": "P01",
+    "randomized": false,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "graph",
+    "participant": "P02",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "videos",
+    "participant": "P02",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "participant": "P02",
+    "randomized": false,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "videos",
+    "participant": "P03",
+    "randomized": true,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "graph",
+    "participant": "P03",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Milk middle",
+    "chose_best": false,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "display": "graph",
+    "participant": "P03",
+    "randomized": false,
+    "regret": 30.000000000000004,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Milk right",
+    "chose_best": false,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "display": "videos",
+    "participant": "P04",
+    "randomized": true,
+    "regret": 33.333333333333336,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "participant": "P04",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "participant": "P04",
+    "randomized": false,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "graph",
+    "participant": "P05",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "videos",
+    "participant": "P05",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Lid",
+    "chose_best": true,
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "graph",
+    "participant": "P05",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "participant": "P06",
+    "randomized": true,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "videos",
+    "participant": "P06",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "videos",
+    "participant": "P06",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "participant": "P07",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Lid",
+    "chose_best": true,
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "videos",
+    "participant": "P07",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "graph",
+    "participant": "P07",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "videos",
+    "participant": "P08",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "participant": "P08",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "videos",
+    "participant": "P08",
+    "randomized": false,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "graph",
+    "participant": "P09",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "videos",
+    "participant": "P09",
+    "randomized": true,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk right",
+    "chose_best": false,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "display": "graph",
+    "participant": "P09",
+    "randomized": false,
+    "regret": 33.333333333333336,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Lid",
+    "chose_best": true,
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "graph",
+    "participant": "P10",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "videos",
+    "participant": "P10",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Milk middle",
+    "chose_best": false,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "display": "graph",
+    "participant": "P10",
+    "randomized": false,
+    "regret": 30.000000000000004,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "participant": "P11",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "videos",
+    "participant": "P11",
+    "randomized": true,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk middle",
+    "chose_best": false,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "display": "graph",
+    "participant": "P11",
+    "randomized": false,
+    "regret": 30.000000000000004,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "graph",
+    "participant": "P12",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "videos",
+    "participant": "P12",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Lid",
+    "chose_best": true,
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "graph",
+    "participant": "P12",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "participant": "P13",
+    "randomized": true,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "videos",
+    "participant": "P13",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "graph",
+    "participant": "P13",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "videos",
+    "participant": "P14",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Milk middle",
+    "chose_best": false,
+    "dataset": "set_table_plusmiddle_pretrained_dit",
+    "display": "graph",
+    "participant": "P14",
+    "randomized": true,
+    "regret": 30.000000000000004,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Lid",
+    "chose_best": true,
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "graph",
+    "participant": "P14",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "videos",
+    "participant": "P15",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "participant": "P15",
+    "randomized": true,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "participant": "P15",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Bowl on top",
+    "chose_best": false,
+    "dataset": "prepare_tray_plustop",
+    "display": "graph",
+    "participant": "P16",
+    "randomized": true,
+    "regret": 11.66666666666667,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "videos",
+    "participant": "P16",
+    "randomized": true,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "graph",
+    "participant": "P16",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "participant": "P17",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Milk right",
+    "chose_best": false,
+    "dataset": "set_table_plusright_pretrained_dit",
+    "display": "videos",
+    "participant": "P17",
+    "randomized": true,
+    "regret": 33.333333333333336,
+    "task": "set_table",
+    "task_label": "Set the table"
+   },
+   {
+    "choice_label": "Carrot",
+    "chose_best": false,
+    "dataset": "cooking_baseline_carrot_dit",
+    "display": "graph",
+    "participant": "P17",
+    "randomized": false,
+    "regret": 6.666666666666665,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Bowl in middle",
+    "chose_best": true,
+    "dataset": "prepare_tray_plusbottom",
+    "display": "graph",
+    "participant": "P18",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "prepare_tray",
+    "task_label": "Prepare the tray"
+   },
+   {
+    "choice_label": "Lid",
+    "chose_best": true,
+    "dataset": "cooking_baseline_lid_dit",
+    "display": "videos",
+    "participant": "P18",
+    "randomized": true,
+    "regret": 0.0,
+    "task": "cooking",
+    "task_label": "Cook the meal"
+   },
+   {
+    "choice_label": "Milk left",
+    "chose_best": true,
+    "dataset": "set_table_plusleft_pretrained_dit",
+    "display": "graph",
+    "participant": "P18",
+    "randomized": false,
+    "regret": 0.0,
+    "task": "set_table",
+    "task_label": "Set the table"
+   }
+  ],
+  "tasks": [
+   {
+    "key": "set_table",
+    "label": "Set the table"
+   },
+   {
+    "key": "prepare_tray",
+    "label": "Prepare the tray"
+   },
+   {
+    "key": "cooking",
+    "label": "Cook the meal"
+   }
+  ]
+ }
+}

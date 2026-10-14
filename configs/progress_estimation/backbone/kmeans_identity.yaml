@@ -1,0 +1,15 @@
+# Shared graph backbone: sliding windows -> identity reduction (standardized) ->
+# KMeans -> BehaviorGraph. Fit once per split, shared by all graph methods.
+# Defaults reproduce the original benchmark (identity, K=16); override K on the CLI
+# (backbone.clustering.n_clusters=128) to match the tuned pool500 runs.
+_target_: behavior_graphs.progress_estimation.methods.GraphBackbone
+window_width: 2
+window_stride: 3
+reduction:
+  _target_: behavior_graphs.stages.reduction.identity.IdentityReduction
+  normalize: standard
+clustering:
+  _target_: behavior_graphs.stages.clustering.kmeans.KMeansClustering
+  n_clusters: 16
+  n_init: 10
+  random_state: 0

@@ -1,0 +1,43 @@
+# Default values for the graph_demo.py Streamlit page's interactive controls.
+#
+# These are viz-session defaults: initial widget state that a user can freely
+# override live, for whichever already-computed run they happen to have open.
+# They are read directly (yaml.safe_load, same convention as
+# configs/vlm/models.yaml), not composed through Hydra — this page isn't a
+# Hydra entry point. This is distinct from a run's own config.yaml, which
+# records the Hydra pipeline hyperparameters (clustering, windowing, ...)
+# that actually produced that run's artifacts and must stay fixed for
+# reproducibility.
+
+appearance:
+  light_mode: false
+  colorblind_mode: false
+  video_panel: below  # below | right — where clips for the clicked node appear
+
+viz:
+  visualization: tree_native_svg  # one of VIZ_OPTIONS in graph_demo.py
+  color_by_tree: outcome  # default color mode when viewing a tree
+  color_by_graph: value  # default color mode when viewing a Markov graph
+
+folding:
+  enabled: true
+  min_visit_fraction_pct: 2.0  # slider default (range 0.5-20.0, step 0.5)
+
+simplification:
+  mode: none  # one of: none, count
+  min_branch: 1  # count-pruning threshold: hide transitions seen < N times
+  # Sticky-decode flicker smoothing, in every mode. Off by default: it helps 60%
+  # of runs and hurts 26%, and flicker is not what makes trees big — the page
+  # prices it on the open run instead. See docs/sweep_study.md.
+  smoothing_enabled: false
+  sticky_lambda: 2.0  # 1-2 is the safe band; higher merges distinct behaviors
+  max_depth_cap: 500  # trajectory-tree depth cap
+  rare_edge_max_count: 2  # state-merging: edges at/below this count render dashed
+
+encoding:
+  edge_style: lines  # arrows | lines
+  edge_width_slope: 5.0  # px, range 0-12, step 0.5
+  node_size_slope: 16.0  # px, range 0-36, step 1.0
+
+inspector:
+  mode: Nodes  # Nodes | Transitions

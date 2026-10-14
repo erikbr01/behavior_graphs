@@ -1,0 +1,5 @@
+# Stratified k-fold CV (every episode scored once, in its held-out fold).
+_target_: behavior_graphs.progress_estimation.runner.KFoldSplit
+n_folds: 3
+test_frac: 0.3
+seed: 0

@@ -1,0 +1,55 @@
+[submodule "third_party/robomimic"]
+	path = third_party/robomimic
+	url = git@github.com:erikbr01/robomimic.git
+[submodule "third_party/mimicgen"]
+	path = third_party/mimicgen
+	url = git@github.com:erikbr01/mimicgen.git
+[submodule "third_party/robocasa"]
+	path = third_party/robocasa
+	url = git@github.com:erikbr01/robocasa.git
+[submodule "third_party/libero"]
+	path = third_party/libero
+	url = git@github.com:erikbr01/libero.git
+[submodule "third_party/libero_pro"]
+	path = third_party/libero_pro
+	url = git@github.com:erikbr01/libero_pro.git
+[submodule "third_party/diffusion_policy"]
+	path = third_party/diffusion_policy
+	url = git@github.com:erikbr01/diffusion_policy.git
+[submodule "third_party/openpi"]
+	path = third_party/openpi
+	url = git@github.com:erikbr01/openpi.git
+[submodule "third_party/robo_dataset"]
+	path = third_party/robo_dataset
+	url = git@github.com:erikbr01/robo_dataset.git
+[submodule "third_party/molmoact2"]
+	path = third_party/molmoact2
+	url = git@github.com:erikbr01/molmoact2.git
+[submodule "third_party/vla_foundry"]
+	path = third_party/vla_foundry
+	url = git@github.com:erikbr01/vla_foundry.git
+[submodule "third_party/robocasa365"]
+	path = third_party/robocasa365
+	url = git@github.com:erikbr01/robocasa.git
+	branch = robocasa365
+[submodule "third_party/robocasa_openpi"]
+	path = third_party/robocasa_openpi
+	url = git@github.com:erikbr01/robocasa_openpi.git
+[submodule "third_party/robocasa_gr00t"]
+	path = third_party/robocasa_gr00t
+	url = git@github.com:erikbr01/robocasa_Isaac-GR00T.git
+[submodule "third_party/rgrl"]
+	path = third_party/rgrl
+	url = git@github.com:erikbr01/rgrl.git
+	# Must name the branch the RECORDED gitlink is actually on. The pin
+	# (0915ec8) lives only on lerobot-v3-source; weighted-sampling (82ac6bd) is
+	# not an ancestor of it, so `submodule update --remote` used to jump to a
+	# different commit than the one every result here was produced with.
+	branch = lerobot-v3-source
+[submodule "third_party/warp_rm"]
+	path = third_party/warp_rm
+	url = git@github.com:erikbr01/warp-rm.git
+	branch = policy-graphs-integration
+[submodule "third_party/robometer"]
+	path = third_party/robometer
+	url = git@github.com:erikbr01/robometer.git

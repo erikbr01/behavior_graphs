@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+.venv
+.pytest_cache/
+.ruff_cache/
+
+# Experiment artifacts
+data
+!configs/data
+!configs/progress_estimation/data
+runs/
+outputs/
+multirun/
+wandb/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+deploy/.env
+.env
+
+
+# progress-estimation benchmark outputs (regenerable; not versioned)
+analysis/out/
+
+# Local media-proxy cache (behavior_graphs.viz.media)
+.mediacache/
+.streamlit/cache/
+
+# hydra job log written by scripts/run_sweep.py into the launch dir
+run_sweep.log
+
+# Study responses — participant data, and the default dir a local run writes to
+study_results/
+
+# Local scratch: the pipeline stage cache, several GB of it.
+cache/
+
+# Timestamped copies made by hand before a deploy change.
+deploy/*.bak-*

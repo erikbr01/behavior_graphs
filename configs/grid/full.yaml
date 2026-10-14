@@ -1,0 +1,54 @@
+# Full sweep of the graph-creation pipeline.
+#
+#   python scripts/run_sweep.py grid=full 'rollouts={name: /path/to/rollouts}'
+#
+# Each stage option carries its own parameter grid; the runner takes the
+# cross-product of
+# (option × grid) across stage groups, ordered upstream-first so the stage
+# cache reuses every shared artifact. Graphs are cheap and upstream stages
+# are cached, so this is hours, not days — use dry_run=true to inspect and
+# limit=N for a smoke test.
+#
+# Grid values: a scalar (fixed), a list, or a _target_ generator —
+#   {_target_: behavior_graphs.pipeline.grid.irange,    _args_: [4, 20, 2]}    # 4,6,..,20
+#   {_target_: behavior_graphs.pipeline.grid.linspace,  _args_: [0.0, 0.5, 3]} # 0,.25,.5
+#   {_target_: behavior_graphs.pipeline.grid.logspace,  _args_: [1.0e-4, 1.0e-1, 4]}
+stages:
+  windowing:
+    sliding:
+      width: [1, 3, 5, 8, 12]
+      stride: [1, 2, 4]
+  reduction:
+    identity: {}
+    pca:
+      n_components: [8, 16, 32]
+    umap:
+      n_components: [2, 8]
+      n_neighbors: [15, 40]
+  clustering:
+    kmeans:
+      n_clusters: {_target_: behavior_graphs.pipeline.grid.irange, _args_: [4, 20, 2]}
+  # Graph smoothing deliberately not swept (pipeline default: none) — it
+  # relabels windows, which muddies the contribution of the upstream stages.
+  # Worth revisiting: its effect is strongly run-dependent, which makes it a
+  # hyperparameter rather than a default, and it needs `sticky` at a low lambda
+  # rather than the `median` this comment used to suggest. Measurements and the
+  # reasoning are in docs/sweep_study.md, "What drives graph complexity".
+  # graph:
+  #   transition:
+  #     smoothing: [none, sticky]
+  #     sticky_lambda: [1, 2, 5]
+
+# Model selection over the finished sweep (also editable live in the GUI).
+# Weights apply to population-normalized, direction-corrected metrics
+# (1 = best in population). Constraints are on raw values and only FLAG runs
+# (feasible=false) — "necessary but not sufficient"; every computed run stays
+# in all reports.
+selection:
+  _target_: behavior_graphs.model_selection.scoring.CompositeSelection
+  weights:
+    silhouette: 1.0
+    davies_bouldin: 0.25
+    swap_rate: 0.25
+  constraints:
+    silhouette: {min: 0.05}

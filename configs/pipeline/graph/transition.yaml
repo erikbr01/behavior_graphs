@@ -1,0 +1,11 @@
+_target_: behavior_graphs.stages.graph.transition.TransitionGraphBuilder
+smoothing: none
+smoothing_window: 5
+# The builder is handed the features the clustering was fitted on, not the raw
+# window features (pipeline/run.py -> in_clustering_space), and sticky_decode
+# normalizes its unary costs by their std, so lambda is on a comparable scale
+# across reductions. In that space ~1-2 is the useful range; the old advice to
+# use >=25 belongs to the raw-feature space this stage no longer sees.
+sticky_lambda: 2.0
+degree_one_prune: false
+min_edge_count: 0
