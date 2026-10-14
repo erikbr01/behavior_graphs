@@ -466,8 +466,10 @@ Checkpoints land in `<output>/checkpoints/` (`latest.ckpt` + top-k by
 
 `scripts/droid_collect_rollouts.py` **in the submodule** is the interactive
 runner: sync / async-chunk / async-streaming inference modes, per-episode
-instruction. It records each episode, **prompts you for the outcome right
-then**, and writes the canonical layout — no separate labeling pass.
+instruction. It records each episode and **prompts you for the outcome right
+then**, so there is no separate labeling pass. It writes
+`recordings/ep_<timestamp>/`; folding that into the canonical layout is a
+second step, below.
 
 Three processes across two machines:
 

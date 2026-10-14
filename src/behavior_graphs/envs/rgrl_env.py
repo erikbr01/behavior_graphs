@@ -7,19 +7,29 @@ based pattern, but against rgrl's own hydra surface: five composed config
 groups (data/target/policy/training/env), not one nested task config, and
 separate train.py/eval.py entrypoints, not train.py/eval_save_rollouts.py.
 
-rgrl doesn't yet write the canonical trajectory layout TrajectorySet/
-RolloutSet expect (episodes/metadata.yaml, actions.npz, policy_embeddings/)
--- its eval only writes evals/<label>/summary.json (success_rate, wall time,
-a policy/env timing breakdown). ``collect_rollouts`` therefore raises
-NotImplementedError; ``eval_policy`` (not part of the EnvAdapter ABC -- its
-return shape doesn't fit RolloutSet) is the actual source of success-rate
-numbers for this adapter.
+Three entrypoints, not two. ``train_policy`` and ``eval_policy`` drive
+train.py and eval.py; ``collect_rollouts`` drives
+``rgrl.inference.collect_rollouts``, which records rollouts against any
+``rollout_env`` backend -- robomimic sim or the real DROID robot -- with
+per-step activation capture, and is then folded into this repo's canonical
+layout by ``scripts/utils/assemble_droid_sync_recordings.py``.
+
+``eval_policy`` is not part of the EnvAdapter ABC: eval.py reports
+``evals/<label>/summary.json`` (success_rate, wall time, a policy/env timing
+breakdown), whose shape does not fit RolloutSet. It is the cheap way to get a
+success rate without recording anything.
+
+NOTE on submodule pins: the collector was generalized beyond DROID (and renamed
+from ``collect_droid_rollouts.py``) on the branch this repo pins. A working tree
+left on an older branch will not have it, and ``collect_rollouts`` says so
+rather than failing obscurely.
 """
 
 from __future__ import annotations
 
 import json
 import logging
+import sys
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -27,6 +37,7 @@ from typing import Any
 
 from behavior_graphs.core.env import EnvAdapter, Policy, RolloutSet, TrainingData
 from behavior_graphs.envs._process import default_repo_root, run_streaming
+from behavior_graphs.envs.trajectory_dir import RolloutDirectory
 
 logger = logging.getLogger(__name__)
 
@@ -193,14 +204,103 @@ class RgrlAdapter(EnvAdapter):
         output_dir: Path,
         num_episodes: int,
         seed: int = 0,
+        *,
+        rollout_env: str | None = None,
+        capture_layers: Sequence[str] | None = None,
+        assemble: bool = True,
         **kwargs: Any,
     ) -> RolloutSet:
-        raise NotImplementedError(
-            "rgrl doesn't write the canonical trajectory layout yet (its eval only "
-            "produces evals/<label>/summary.json -- no episodes/metadata.yaml, "
-            "actions.npz, or policy_embeddings/); use eval_policy() for success-rate "
-            "numbers instead"
+        """Collect rollouts via the submodule's ``collect_rollouts`` CLI.
+
+        Two subprocesses, because rgrl's collector and this repo's canonical
+        layout meet at a conversion step rather than directly:
+
+        1. ``python -m rgrl.inference.collect_rollouts`` writes
+           ``<output_dir>/recordings/ep_<ts>/`` — per-camera MP4s,
+           ``embeddings_<layer>.npz`` per ``capture_layers`` entry, and a
+           per-episode ``metadata.yaml`` carrying the success label. (A real
+           DROID session also writes ``trajectory.h5``; a sim session has no
+           analog and skips it.)
+        2. ``scripts/utils/assemble_droid_sync_recordings.py`` folds that tree
+           into ``episodes/`` + ``media/`` + ``policy_embeddings/`` via
+           ``write_rollout_dir``. It reads only timestamps, the online
+           embeddings, the videos and the per-episode metadata — never
+           ``trajectory.h5`` — which is why one assembler serves both the real
+           robot and sim.
+
+        ``rollout_env`` selects the backend from the submodule's
+        ``configs/rollout_env/`` (``robomimic`` for sim, ``droid`` for the real
+        robot); it defaults to ``robomimic`` when this adapter has a sim ``env``
+        configured and ``droid`` otherwise. ``capture_layers`` names the policy
+        taps to record; without it the collector runs but writes no embeddings,
+        so a behavior graph built from the result would have nothing to cluster.
+
+        Only ``sync`` and ``async_chunk`` modes pair an activation with the
+        action it produced; ``async_streaming`` can attribute a future chunk's
+        activation to the current step, so pass ``mode`` accordingly and
+        re-extract offline if you need embeddings from a streaming session.
+
+        Pass ``assemble=False`` to stop after step 1 and keep the raw
+        ``recordings/`` tree — the right choice for an async-streaming session
+        that needs offline extraction before assembly.
+        """
+        output_dir = Path(output_dir).resolve()
+        module = "rgrl.inference.collect_rollouts"
+        if not (self.submodule_dir / "rgrl" / "inference" / "collect_rollouts.py").exists():
+            raise FileNotFoundError(
+                f"{self.submodule_dir} has no {module}: this checkout predates the "
+                "collector being generalized beyond DROID. The recorded submodule "
+                "pin carries it; the working tree is on a branch that does not. "
+                f"Check out the pin (git -C {self.submodule_dir} checkout "
+                "<gitlink sha>) or a branch containing it."
+            )
+
+        backend = rollout_env or ("robomimic" if self.env else "droid")
+        if not (self.submodule_dir / "configs" / "rollout_env" / f"{backend}.yaml").exists():
+            available = sorted(
+                p.stem for p in (self.submodule_dir / "configs" / "rollout_env").glob("*.yaml")
+            )
+            raise ValueError(f"no rollout_env {backend!r} (available: {available})")
+
+        layers = list(capture_layers or [])
+        args = [
+            "-m",
+            module,
+            f"ckpt={policy.checkpoint_path}",
+            f"rollout_env={backend}",
+            f"output_dir={output_dir}",
+            f"num_episodes={num_episodes}",
+            f"rollout_env.seed={seed}",
+        ]
+        if layers:
+            args.append("capture_layers=[" + ",".join(layers) + "]")
+        args += [f"{key}={value}" for key, value in kwargs.items()]
+        output_dir.mkdir(parents=True, exist_ok=True)
+        self._run_in_submodule(args, log_path=output_dir / "collect_subprocess.log")
+
+        if not assemble:
+            return RolloutDirectory(output_dir)
+
+        if not layers:
+            logger.warning(
+                "no capture_layers requested: assembling %s with videos and outcomes "
+                "but no policy_embeddings, so the pipeline's default feature source "
+                "will find nothing",
+                output_dir,
+            )
+        assembler = self.repo_root / "scripts" / "utils" / "assemble_droid_sync_recordings.py"
+        assemble_args = [str(assembler), str(output_dir)]
+        for layer in layers:
+            assemble_args += ["--layer", layer]
+        # The assembler imports this repo, not the submodule's env, so it runs
+        # under the interpreter that imported this module rather than
+        # self._python(). Its cwd is the repo root for the same reason.
+        run_streaming(
+            [sys.executable, *assemble_args],
+            cwd=self.repo_root,
+            log_path=output_dir / "assemble.log",
         )
+        return RolloutDirectory(output_dir)
 
     def eval_policy(
         self,

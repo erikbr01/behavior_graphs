@@ -1,5 +1,13 @@
-"""Assemble a sync-mode ``droid_collect_rollouts.py`` recordings/ tree into the
-canonical rollout layout (episodes/media/policy_embeddings), in place.
+"""Assemble a sync-mode collector's recordings/ tree into the canonical rollout
+layout (episodes/media/policy_embeddings), in place.
+
+Serves both collectors that write that tree: diffusion_policy's
+``scripts/droid_collect_rollouts.py`` and rgrl's
+``rgrl.inference.collect_rollouts`` (which generalized beyond DROID and so also
+covers robomimic sim sessions). Despite the name, nothing here is
+DROID-specific: it never reads ``trajectory.h5``, only episode timestamps, the
+online embeddings, the videos and each episode's metadata -- which is exactly
+the set a sim session writes too.
 
 Sync-mode collection saves an online per-episode embedding
 (``embeddings_<layer>.npz``) alongside each episode, so no offline extraction

@@ -1,0 +1,17 @@
+# rgrl (flow-matching) on robomimic Lift, low-dim state.
+#
+# The submodule composes five config groups of its own (data/target/policy/
+# training/env); this names which of each to use. Override any of them, or any
+# leaf inside them, from the CLI:
+#
+#   python scripts/train_policy.py env=rgrl_lift env.training=quick \
+#       'overrides={data.path: /path/to/low_dim.hdf5}'
+#
+# `env` here is rgrl's *rollout* config (configs/env/robomimic_lift.yaml in the
+# submodule), used by eval_policy; it is not this file.
+_target_: behavior_graphs.envs.rgrl_env.RgrlAdapter
+data: lift_state
+target: lift_state
+env: robomimic_lift
+policy: flow
+training: default
