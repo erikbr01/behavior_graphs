@@ -113,6 +113,24 @@ def test_assemble_false_keeps_the_raw_recordings_tree(adapter, ckpt, tmp_path, m
     assert [where for where, _ in calls] == ["submodule"], "no assembler run was expected"
 
 
+def test_assemble_false_returns_a_path_not_a_rolloutset(adapter, ckpt, tmp_path, monkeypatch):
+    """Regression: it used to build a RolloutDirectory over the un-assembled tree.
+
+    `episodes/metadata.yaml` is written *by* assembly, so constructing a
+    RolloutSet before step 2 raised FileNotFoundError. A real 3-episode sim
+    collection hit this; the unit test missed it because it had mocked
+    RolloutDirectory out, which is precisely the object that failed. So this one
+    does NOT mock it -- the point is that nothing tries to construct it at all.
+    """
+    monkeypatch.setattr(RgrlAdapter, "_run_in_submodule", lambda self, args, log_path: None)
+    out = tmp_path / "out"
+    got = adapter.collect_rollouts(
+        ckpt, out, num_episodes=2, capture_layers=["enc"], assemble=False
+    )
+    assert got == out.resolve(), "assemble=False should hand back the raw output dir"
+    assert not (out / "episodes").exists(), "nothing should have been assembled"
+
+
 def test_no_capture_layers_warns_that_the_graph_would_have_nothing(
     adapter, ckpt, tmp_path, monkeypatch, caplog
 ):

@@ -209,7 +209,7 @@ class RgrlAdapter(EnvAdapter):
         capture_layers: Sequence[str] | None = None,
         assemble: bool = True,
         **kwargs: Any,
-    ) -> RolloutSet:
+    ) -> RolloutSet | Path:
         """Collect rollouts via the submodule's ``collect_rollouts`` CLI.
 
         Two subprocesses, because rgrl's collector and this repo's canonical
@@ -279,7 +279,10 @@ class RgrlAdapter(EnvAdapter):
         self._run_in_submodule(args, log_path=output_dir / "collect_subprocess.log")
 
         if not assemble:
-            return RolloutDirectory(output_dir)
+            # Deliberately a Path: see the docstring. Constructing a
+            # RolloutDirectory here raised FileNotFoundError on the metadata
+            # assembly had not written yet.
+            return output_dir
 
         if not layers:
             logger.warning(

@@ -1,0 +1,11 @@
+# rgrl (flow-matching) on robomimic Transport, low-dim state.
+#
+# Transport is bimanual and long-horizon (obs 41-d, action 20-d, 700 max steps),
+# so unlike Lift it fails often enough for a behavior graph to have structure
+# to show -- which is why the demo uses it.
+_target_: behavior_graphs.envs.rgrl_env.RgrlAdapter
+data: transport_mh_success_only
+target: transport_mh_state
+env: robomimic_transport
+policy: flow
+training: default
