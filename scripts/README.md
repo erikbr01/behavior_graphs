@@ -34,8 +34,9 @@ point at. Everything else is grouped by what it is for.
   representations each arm sweeps over; `launch_sweep.sh` and the `chain_*.sh`
   drivers run the grid.
 - **`analysis/`** — the paper's statistics. `user_study_mixed_effects.py` fits
-  the mixed-effects model behind Tab. I; `cld_analysis.py` produces the compact
-  letter display behind Fig. 3.
+  the mixed-effects model behind Tab. I. Fig. 3's compact letter display comes
+  from `behavior_graphs.stats.policy_comparison` via `export_paper_results.py`,
+  not from here.
 - **`utils/`** — data plumbing: the DROID conversion/merge/trim pipeline, the
   SAFE dataset importers, trajectory and video featurization, and sweep-artifact
   housekeeping.

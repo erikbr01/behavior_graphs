@@ -43,6 +43,12 @@ analysis = [
     "pandas>=2.0",
     "bambi>=0.15",
     "arviz>=0.17",
+    # arviz pulls arviz-plots, which through 0.8.0 calls `matplotlib.style.core`
+    # -- removed in matplotlib 3.11, so an unpinned install of this extra fails
+    # at `import bambi` with AttributeError. Verified working at
+    # arviz 0.20 / arviz-plots 0.8.0 / matplotlib 3.10.9. Lift the cap once
+    # arviz-plots stops using the private module.
+    "matplotlib<3.11",
 ]
 # google-genai 2.0: ThinkingConfig.thinking_level, which GeminiVLMClient
 # sets on every call (verified absent in 1.38 and present in 2.0).

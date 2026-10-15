@@ -26,6 +26,7 @@ Two split forms are supported deliberately:
 from __future__ import annotations
 
 import dataclasses
+import os
 import pathlib
 from typing import Any
 
@@ -192,7 +193,14 @@ class DatasetConfig:
 
 
 def _as_path(v: Any) -> pathlib.Path | None:
-    return None if v is None else pathlib.Path(str(v)).expanduser()
+    # expandvars before expanduser: the shipped task configs name their data
+    # root as ``${DATA_PATH}/...`` so a checkout is portable, and without this
+    # that arrives as a literal directory name -- which surfaces as a confusing
+    # "no ${DATA_PATH}/sweeps/.../rescored.json" rather than as a missing
+    # variable.
+    if v is None:
+        return None
+    return pathlib.Path(os.path.expandvars(str(v))).expanduser()
 
 
 def load(name: str | pathlib.Path) -> DatasetConfig:

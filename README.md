@@ -105,18 +105,29 @@ fine-tuning: see [`docs/droid_workflow.md`](docs/droid_workflow.md).
 
 ## Reproducing the paper
 
-| Paper element | How to reproduce |
-|---|---|
-| Tab. III — ablation over representation × reduction | `python scripts/ablation_study/paper_ablation.py` prints exactly the twenty-four numbers the table reports, and exits non-zero if any has drifted. The sweep behind it: `scripts/ablation_study/launch_sweep.sh`; ground truth: `scripts/ablation_study/build_gripper_gt.py`. |
-| Tab. II — progress estimation over 43 datasets | `python scripts/run_progress_bench.py` for one dataset, `scripts/sweep_progress_allds.py` for the whole zoo (`configs/progress_estimation/data/zoo.yaml`). |
-| Fig. 3 — retrained-policy success rates | `scripts/analysis/cld_analysis.py`, and the demo's **Policy Comparison** page. |
-| Fig. 4 + Tab. I — user study | `scripts/analysis/user_study_mixed_effects.py` over the responses; the study itself is `apps/study` serving `three_stage_v1`. |
-| Figs. 1–2 and the graph figures | the demo's **Figures** page, which exports them as the paper's PDFs. |
+**[REPRODUCE.md](REPRODUCE.md)** is the step-by-step guide, with
+[`reproduce/`](reproduce/) holding one script per result. They *check* rather
+than render: each compares what it computes against the published value and
+exits non-zero if they disagree.
 
-The numbers those produce are also checked in as data, in
+```bash
+export DATA_PATH=/path/to/data
+export STUDY_RESULTS_DIR=$DATA_PATH/study_results
+./reproduce/run_all.sh
+```
+
+| result | status | from |
+|---|---|---|
+| Tab. III — ablation | **exact**, all 24 values | sweeps on disk |
+| Fig. 3 — policy success rates | **exact**, value by value | raw rollouts |
+| Fig. 4 — study answers | **exact**, value by value | response store |
+| Tab. I — adjusted effects | **claims hold**, digits move (unseeded MCMC) | re-fit |
+| Tab. II — progress estimation | **self-consistent**; re-derivation needs a re-run | — |
+
+The numbers are also checked in as data, in
 `src/behavior_graphs/results/paper_results.json` — written by
 `scripts/export_paper_results.py` from the artifacts, never typed in by hand —
-which is what the reviewer page serves.
+which is what the demo site serves.
 
 ## VLM node labeling
 

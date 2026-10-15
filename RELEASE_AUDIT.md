@@ -27,7 +27,7 @@ entrypoints start under `AppTest`.
 | VLM annotation via contact sheets, two-pass | `stages/labeling/vlm_labeler.py`, `vlm/adapters.py`, `scripts/label_nodes.py` |
 | Eq. 6-7 success and path likelihood | `stages/evaluation/values.py`, `user_study/path_explorer.py` |
 | Interactive graph, node/edge video playback | `viz/streamlit/`, `apps/{demo,study,reviewer}` |
-| Fig. 3 retrained-policy success rates, Beta posteriors, CLD, FWER | `stats/policy_comparison.py`, `scripts/analysis/cld_analysis.py` |
+| Fig. 3 retrained-policy success rates, Beta posteriors, CLD, FWER | `stats/policy_comparison.py`, `scripts/export_paper_results.py` |
 | SIV-A user study as run | `user_studies/variants/three_stage/`, `user_study/`, `apps/study` |
 | Fig. 4 + Tab. I mixed-effects, EMMs, regret | `user_study/{mixed_effects,regret,figure_export,table_export}.py` |
 | SIV-B progress estimation + Tab. II (43 datasets) | `progress_estimation/`, `configs/progress_estimation/`, `scripts/run_progress_bench.py` |
