@@ -1,0 +1,2 @@
+# RoboCasa365 pick-place task — diffusion policy variant.
+robocasa365_dp_pickplace: ${oc.env:DATA_PATH}/rollouts/robocasa365_dp_pickplace

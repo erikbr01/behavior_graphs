@@ -1,0 +1,6 @@
+_target_: behavior_graphs.envs.robocasa365.Robocasa365Adapter
+task: PickPlaceCounterToCabinet
+policy_stack: pi0
+checkpoint: ""
+split: pretrain
+replan_steps: 5

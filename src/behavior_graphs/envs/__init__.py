@@ -12,6 +12,8 @@ _ADAPTERS = {
     "DroidAdapter": "behavior_graphs.envs.droid",
     "LiberoAdapter": "behavior_graphs.envs.libero",
     "LiberoProAdapter": "behavior_graphs.envs.libero_pro",
+    "RobocasaAdapter": "behavior_graphs.envs.robocasa",
+    "Robocasa365Adapter": "behavior_graphs.envs.robocasa365",
     "VlaFoundryAdapter": "behavior_graphs.envs.vla_foundry",
     # rgrl_env.py defines RgrlAdapter but it was never registered here, so
     # `from behavior_graphs.envs import RgrlAdapter` raised ImportError while its
@@ -44,6 +46,8 @@ if TYPE_CHECKING:
     from behavior_graphs.envs.libero import LiberoAdapter as LiberoAdapter
     from behavior_graphs.envs.libero_pro import LiberoProAdapter as LiberoProAdapter
     from behavior_graphs.envs.mimicgen import MimicgenAdapter as MimicgenAdapter
+    from behavior_graphs.envs.robocasa import RobocasaAdapter as RobocasaAdapter
+    from behavior_graphs.envs.robocasa365 import Robocasa365Adapter as Robocasa365Adapter
     from behavior_graphs.envs.robomimic import RobomimicAdapter as RobomimicAdapter
     from behavior_graphs.envs.trajectory_dir import RolloutDirectory as RolloutDirectory
     from behavior_graphs.envs.trajectory_dir import TrajectoryDirectory as TrajectoryDirectory

@@ -1,0 +1,4 @@
+_target_: behavior_graphs.envs.robocasa.RobocasaAdapter
+task: image/robocasa_lerobot_atomic/diffusion_policy_transformer
+dataset_path: ???
+embedding_layer: bottleneck_plan_t0

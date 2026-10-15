@@ -77,11 +77,13 @@ droid_real_world:
   - cooking_baseline_corn_dit
   - cooking_baseline_dit_200
   - cooking_baseline_lid_dit
-# The generalist-VLA graphs the paper shows qualitatively. Outside the 43
-# datasets the progress table reports: they read mean-pooled hidden states
-# rather than a policy trained on the task, which is a different representation
-# than every other family here.
+# Families outside the 43 datasets the paper's progress table reports, kept
+# because behavior graphs and progress estimation are wanted for them: RoboCasa,
+# and the generalist-VLA graphs the paper shows qualitatively (those read
+# mean-pooled hidden states rather than a policy trained on the task, a
+# different representation than every other family here).
 other_sim:
+  - robocasa365_dp_pickplace
   - vla_foundry_mug
   - vla_foundry_qwen3_mug
 # The SAFE real-robot families (13 franka + 8 widowx) are deliberately OUT of
