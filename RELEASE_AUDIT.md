@@ -186,19 +186,58 @@ leaving the five `ieee.tex` actually includes.
 
 ## 4. Still open
 
-1. **Submodules are all private** (`git@github.com:erikbr01/...`). A public
-   `git clone --recurse-submodules` fails for everyone. Left alone as
-   instructed; it blocks release. Six of the sixteen are now unreferenced by any
-   remaining code (`molmoact2`, `robocasa`, `robocasa365`, `robocasa_gr00t`,
-   `robocasa_openpi`, `warp_rm`) and can go with them.
-2. **History.** This repo is a fresh single commit. Nothing carries over from
-   the 143 PRs, which is deliberate -- they contain the dead ends above.
-3. **No data download path.** The README's reproduce table names scripts whose
-   inputs (rollout dirs, sweeps) are not published anywhere yet. Decide whether
-   the release ships the DROID rollouts, a subset, or only the derived
-   `paper_results.json`.
-4. **`paper/ieee.tex` still loads `lipsum`** behind a "remove once placeholders
-   are written" comment, and its commented-out `\twocolumn` block references
-   `figures/fig1_title.pdf`, which does not exist in the repo.
-5. **`experiments/PROGRESS_ESTIMATION_LOG.md`** (925 lines) is a working log,
-   not a document -- it reads as an internal record. Keep, trim, or drop.
+Current as of the last working session. Items 1-3 are decided; what remains is
+listed under "Before publishing" and "Known defects".
+
+**Decided**
+- rgrl lineage: `port`. `main` now carries port (#27), source's four unique
+  commits (#30) and the sim-success fix (#29); the release pins `main`.
+- RoboCasa: kept. Behavior graphs and progress estimation are wanted for it,
+  so the adapters, configs and zoo entry were restored after an earlier cut.
+- Submodules stay private until everything releases together; data is being
+  handled separately.
+
+**Before publishing**
+1. **Delete this file.** It names internal dead ends and is a working document.
+2. **Private submodules** still make `clone --recurse-submodules` fail for
+   anyone outside. This is the hard blocker, deferred by decision, not solved.
+3. **`paper/ieee.tex` loads `lipsum`** behind a "remove once placeholders are
+   written" comment, and its commented-out `\twocolumn` block references
+   `figures/fig1_title.pdf`, which is not in the repo.
+4. **`experiments/PROGRESS_ESTIMATION_LOG.md`** (925 lines) reads as an internal
+   working log. Keep, trim, or drop.
+
+**Known defects, found but not fixed**
+5. **Eval and collection disagree on the same policy.** `eval.py` reads
+   `configs/env/robomimic_transport.yaml` (max_steps 700, parallel_envs 25,
+   seed 10000); the collector reads `configs/collect_rollouts.yaml`
+   (max_timesteps 1000, num_envs 1, seed 0). Measured on one transport_mh
+   policy: eval 0.46, collected rollouts 44/50 = 0.88. Both are honest under
+   their own settings, but a reader who sees `success_rate 0.46` and then a
+   graph with 44 successes will reasonably think something is broken. Aligning
+   the collector's rollout settings with the eval env's is a behavioural choice
+   about which harness is canonical, so it was left open.
+6. **Weighted sampling is now inconsistent across repos.** diffusion_policy
+   merged `weighted-bc` (#12); rgrl's equivalent (`weighted-sampling`, #1) was
+   closed as conflicting. Decide deliberately rather than by which PR happened
+   to be mergeable.
+7. **`robometer` and `warp_rm` have never been checked out** here, so their
+   pins are recorded but unverified. robometer is a Tab. II baseline.
+8. **REPRODUCE.md section 5 (the Figures page) is written from reading the
+   code, not from a verified run.** Every other section is backed by an
+   actual run; that one is not.
+
+**Environment notes (not shipped, useful to whoever picks this up)**
+- The analysis extra lives in a separate venv at
+  `/mnt/ssdB/erik/venvs/bg_analysis` rather than the shared one, because pymc
+  pins numpy/scipy tightly and other sessions use the shared venv.
+- `third_party/rgrl/.venv` here is a symlink to
+  `/mnt/ssdB/erik/venvs/bg_rgrl_pinned`; the boot drive is ~93% full.
+- `STUDY_RESULTS_DIR` must be `$DATA_PATH/study_results` (84 sessions, 18 on
+  the reported layout). A dev checkout's own `study_results/` holds lab
+  previews with `origin: lab` and yields zero participants.
+- This box has a soft real-time tenant (X-Plane rollouts). Convention agreed
+  with the other sessions: announce heavy jobs, `nice -n 19`, yield GPU 0 to
+  real-time runs. `ionice` is a no-op here -- both NVMe are `[none]` scheduler
+  and the cgroup io controller is not delegated to user slices, so there is no
+  user-space I/O throttle. Deferring a write is the only real lever.
