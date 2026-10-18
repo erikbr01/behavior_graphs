@@ -1,4 +1,4 @@
-"""A :class:`~policy_graphs.core.env.Policy` that is just a checkpoint reference.
+"""A :class:`~behavior_graphs.core.env.Policy` that is just a checkpoint reference.
 
 Adapters for policies served out of process -- the model runs behind an HTTP
 server in its own environment, and this repo never loads its weights -- have no
@@ -12,7 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from policy_graphs.core.env import Policy
+from behavior_graphs.core.env import Policy
 
 
 class HFCheckpointPolicy(Policy):
