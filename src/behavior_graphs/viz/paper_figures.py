@@ -122,8 +122,20 @@ def export(fig, fmt: str = "pdf") -> bytes:
     if fmt not in ("pdf", "svg", "png"):
         raise ValueError(f"unsupported format {fmt!r}; want pdf, svg or png")
     buf = io.BytesIO()
-    # 600 dpi only matters for png; vector formats ignore it.
-    fig.savefig(buf, format=fmt, dpi=600 if fmt == "png" else None)
+    # The font type is resolved at SAVE time, not at draw time, and the
+    # builders return once `paper_style()` has exited -- so saving plainly
+    # here wrote Type 3 fonts, the one outcome `viz/paper.py` says the whole
+    # style exists to prevent and that IEEE PDF eXpress rejects.
+    #
+    # Only the font entries are re-applied, not all of PAPER_RC: that also
+    # carries `savefig.bbox: "tight"`, which would crop the MediaBox to the
+    # ink and silently undo the fixed column width these figures are sized
+    # for. Verified both ways -- no /Type3 in the output, and the page box
+    # unchanged.
+    fonts = {"pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "none"}
+    with plt.rc_context(fonts):
+        # 600 dpi only matters for png; vector formats ignore it.
+        fig.savefig(buf, format=fmt, dpi=600 if fmt == "png" else None)
     return buf.getvalue()
 
 
