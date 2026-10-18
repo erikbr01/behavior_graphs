@@ -708,13 +708,19 @@ class _TorchcodecReader(_ClipReader):
             chunk = wanted[start : start + _DECODE_CHUNK]
             try:
                 batch = self._decoder.get_frames_at(indices=chunk)
-            except RuntimeError:
+            except (RuntimeError, IndexError):
                 # The frame count came from the container, and this stream
                 # delivers fewer than it promised (an interrupted recording).
                 # PyAV's sequential read just ends early here; torchcodec
                 # raises on the first index it cannot decode, so retry the
                 # chunk one frame at a time to keep the ones before it and let
                 # _frames_for_rows backfill the rest.
+                #
+                # Which exception depends on the version: torchcodec raised
+                # RuntimeError for an undecodable index and now raises
+                # IndexError ("Invalid frame index=N for stream_index=0").
+                # Catching only the old one turned a backfillable short clip
+                # into a crash on any current install.
                 yield from self._one_at_a_time(chunk)
                 return
             yield from zip(chunk, batch.data.numpy())
@@ -723,7 +729,7 @@ class _TorchcodecReader(_ClipReader):
         for idx in chunk:
             try:
                 frame = self._decoder.get_frames_at(indices=[idx])
-            except RuntimeError:
+            except (RuntimeError, IndexError):
                 return
             yield idx, frame.data.numpy()[0]
 
