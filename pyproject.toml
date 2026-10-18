@@ -108,7 +108,17 @@ droid = [
 ]
 # xdist: ~1800 mostly-independent tests, so the
 # suite is embarrassingly parallel and `-n 8 --dist loadfile` is in addopts below.
-dev = ["pytest>=8.0", "pytest-xdist>=3.6", "ruff>=0.4"]
+dev = [
+    "pytest>=8.0",
+    "pytest-xdist>=3.6",
+    "ruff>=0.4",
+    # The browser harness (tests/browser/cdp.py) drives Chrome over the
+    # DevTools protocol: `requests` for the HTTP endpoints, `websocket-client`
+    # for the CDP socket. Undeclared, every `-m browser` test skipped on a
+    # complete install -- with Chrome present and nothing saying why.
+    "requests>=2.31",
+    "websocket-client>=1.7",
+]
 all = ["behavior_graphs[viz,analysis,vlm,nn,dino,droid,dev]"]
 
 [tool.hatch.build.targets.wheel]
