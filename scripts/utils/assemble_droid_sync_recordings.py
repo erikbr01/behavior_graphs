@@ -136,7 +136,12 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("rollout_dir", type=Path)
-    parser.add_argument("--layer", default="bottleneck_plan_t0")
+    # Repeatable, like --camera. The collector can capture several activation
+    # taps in one pass and rgrl_env.py emits one --layer per entry; as a
+    # single-valued option argparse kept only the LAST, so a two-layer
+    # collection wrote both embeddings_*.npz in step 1 and assembled one of
+    # them, leaving a rollout dir that looks complete and is missing a layer.
+    parser.add_argument("--layer", action="append", dest="layers")
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument(
         "--skip-incomplete",
@@ -172,6 +177,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    layers = args.layers or ["bottleneck_plan_t0"]
     rollout_dir = args.rollout_dir
     outputs = [rollout_dir / sub for sub in ("episodes", "media", "policy_embeddings")]
     if not args.overwrite:
@@ -180,11 +186,14 @@ def main(argv: list[str] | None = None) -> int:
                 parser.error(f"{existing} already exists; pass --overwrite to replace")
 
     ep_dirs = sorted((rollout_dir / RECORDINGS_DIR).glob("ep_*"))
-    incomplete = [ep for ep in ep_dirs if _missing_inputs(ep, args.layer)]
+    incomplete = sorted(
+        {ep for layer in layers for ep in ep_dirs if _missing_inputs(ep, layer)}
+    )
     if incomplete and not args.skip_incomplete:
+        names = "/".join(f"embeddings_{layer}.npz" for layer in layers)
         parser.error(
             f"{len(incomplete)} of {len(ep_dirs)} episodes are missing or have an "
-            f"empty metadata.yaml/embeddings_{args.layer}.npz, starting with "
+            f"empty metadata.yaml/{names}, starting with "
             f"{incomplete[0]}. Pass --skip-incomplete to assemble the rest."
         )
     for ep_dir in incomplete:
@@ -201,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(f"exporting {len(cameras)} camera view(s): {', '.join(cameras)}")
 
-    lengths, successes, extras, video_paths, embeddings = [], [], [], {}, []
+    lengths, successes, extras, video_paths, embeddings = [], [], [], {}, {}
 
     with tempfile.TemporaryDirectory(prefix="assemble_droid_") as tmp:
         tmp_dir = Path(tmp)
@@ -232,10 +241,13 @@ def main(argv: list[str] | None = None) -> int:
                 # Readers still accept the flat form, so datasets assembled
                 # before this are unaffected.
                 video_paths[i] = clips
-            with np.load(ep_dir / f"embeddings_{args.layer}.npz") as data:
-                embeddings.append(np.asarray(data["embeddings"], dtype=np.float32))
+            for layer in layers:
+                with np.load(ep_dir / f"embeddings_{layer}.npz") as data:
+                    embeddings.setdefault(layer, []).append(
+                        np.asarray(data["embeddings"], dtype=np.float32)
+                    )
 
-        stacked = np.concatenate(embeddings)
+        stacked = {layer: np.concatenate(parts) for layer, parts in embeddings.items()}
 
         # Only now is the existing dataset replaceable: everything above can
         # fail (unreadable metadata, a corrupt npz, ffmpeg) and must leave the
@@ -253,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
             rollout_dir,
             lengths,
             successes,
-            {args.layer: stacked},
+            stacked,
             video_paths=video_paths,
             source={"kind": "droid_rollouts", "raw": str(rollout_dir)},
             episode_extras=extras,
@@ -269,7 +281,7 @@ def main(argv: list[str] | None = None) -> int:
     n_fail = sum(1 for ep in episodes if ep.success is False)
     print(
         f"{rollout_dir}: {len(episodes)} episodes — {n_succ} success, {n_fail} failure, "
-        f"{len(episodes) - n_succ - n_fail} unlabeled; layer {args.layer}"
+        f"{len(episodes) - n_succ - n_fail} unlabeled; layers {', '.join(layers)}"
     )
     return 0
 

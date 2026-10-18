@@ -166,3 +166,40 @@ def test_a_truncated_capture_costs_only_its_own_view(tmp_path):
 
     assert (root / "media" / "exterior_image_1_left" / "ep0000_success.mp4").is_file()
     assert not (root / "media" / "wrist_image").exists()
+
+
+def test_every_requested_layer_is_assembled(tmp_path):
+    """The regression: `--layer` was single-valued, so only the last survived.
+
+    `RgrlAdapter.collect_rollouts` emits one `--layer` per entry in
+    `capture_layers`, and the collector writes an `embeddings_<layer>.npz` per
+    tap. argparse kept only the final one, so a two-layer collection produced a
+    rollout directory that looked complete and silently carried one layer --
+    discovered much later as a short `embedding_layers()`.
+    """
+    root = tmp_path / "ds"
+    rec = root / "recordings"
+    second = "obs_encoder"
+    for name in ("ep_1", "ep_2"):
+        _episode(rec, name)
+        np.savez(
+            rec / name / f"embeddings_{second}.npz",
+            embeddings=np.ones((4, 5), dtype=np.float32),
+        )
+
+    assert main([str(root), "--layer", LAYER, "--layer", second]) == 0
+
+    reader = RolloutDirectory(root)
+    assert sorted(reader.embedding_layers()) == sorted([LAYER, second])
+
+
+def test_a_layer_missing_from_one_episode_is_reported_by_name(tmp_path):
+    """Completeness is checked per layer, not only for the last one given."""
+    root = tmp_path / "ds"
+    rec = root / "recordings"
+    _episode(rec, "ep_1")
+    np.savez(rec / "ep_1" / "embeddings_obs_encoder.npz", embeddings=np.ones((4, 5), "float32"))
+    _episode(rec, "ep_2")  # has LAYER only -- obs_encoder is absent
+
+    with pytest.raises(SystemExit):
+        main([str(root), "--layer", LAYER, "--layer", "obs_encoder"])
