@@ -125,6 +125,12 @@ preprocessing uses it.
 uv pip install -e ".[droid]"
 ```
 
+One preprocessing step has a dependency that is not on PyPI:
+`scripts/ablation_study/extract_dit_embeddings.py` imports `abc_minimal`,
+which comes from the ABC policy checkout and must be on `PYTHONPATH`. It is
+needed only to regenerate the DiT embeddings behind Tab. III from raw
+captures; the rescored sweep in the bundle already has them.
+
 ### Without a policy checkpoint
 
 A behavior graph can be built from recorded video alone, using a frozen vision
