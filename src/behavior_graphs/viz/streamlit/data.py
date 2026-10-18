@@ -1292,7 +1292,7 @@ class LoadedRun:
     node_values: dict[int, float] | None
     #: The reduced features the clustering was fitted on. Anything measuring
     #: distance to a cluster wants these, not ``windows.features`` — see
-    #: ``in_clustering_space``. None when the run has no ``reduced.npy``.
+    #: ``in_clustering_space``. None when the run saved no reduced array.
     reduced: np.ndarray | None = None
     metrics: dict = field(default_factory=dict)
     rollout_dir: Path | None = None
@@ -1322,7 +1322,15 @@ def load_run(run_dir_str: str, data_path: str | None = None) -> LoadedRun:
     coords = None
     if (run_dir / "coords_2d.npy").exists():
         coords = artifacts.load_array("coords_2d")
-    reduced = artifacts.load_array("reduced") if (run_dir / "reduced.npy").exists() else None
+    # Ask the artifacts layer where the array lives rather than guessing the
+    # filename: `reduced` is in `_COMPRESSED_ARRAYS`, so it is written as
+    # `.npz` and this guard looked for `.npy`. It was therefore False for
+    # every run in the current format, `reduced` was always None, and the
+    # app's sticky smoothing silently fell back to raw features -- the mode
+    # measured as relabelling 13.7% of windows and growing the trajectory
+    # tree by a median 56%.
+    reduced_path = artifacts.array_path("reduced")
+    reduced = artifacts.load_array("reduced") if reduced_path is not None else None
     metrics = artifacts.load_metrics()
     rollout_dir = _resolve_rollout_dir(metrics.get("rollout_dir"), data_path)
     return LoadedRun(
