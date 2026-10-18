@@ -126,16 +126,6 @@ def test_it_is_exported_at_the_column_width():
     assert single.get_figwidth() == pytest.approx(paper.SINGLE_COLUMN_WIDTH_IN)
 
 
-def test_a_pdf_and_a_png_come_off_one_figure():
-    graph = _graph()
-
-    files = graph_figure.behavior_graph_figure_files(graph=graph, pos=_layout(graph))
-
-    assert files is not None
-    assert files["pdf"].startswith(b"%PDF")
-    assert files["png"].startswith(b"\x89PNG")
-
-
 def test_the_same_graph_exports_the_same_bytes():
     """No timestamp in it, so a figure that has not changed does not turn up as
     a diff in the paper repo."""

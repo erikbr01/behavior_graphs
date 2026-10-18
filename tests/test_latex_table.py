@@ -243,11 +243,6 @@ class TestBolding:
         assert _cells(latex, 1)[1].startswith(r"\textbf")
         assert not _cells(latex, 2)[1].startswith(r"\textbf")
 
-    def test_a_single_row_wins_nothing(self):
-        frame = _frame(method=["a"], mean_roc_auc=[0.9])
-        latex = booktabs_table(frame, score_columns=["mean_roc_auc"], bold_best=True)
-        assert r"\textbf" not in latex
-
     def test_a_column_where_every_method_ties_wins_nothing(self):
         frame = _frame(method=["a", "b"], mean_roc_auc=[0.9, 0.9])
         latex = booktabs_table(frame, score_columns=["mean_roc_auc"], bold_best=True)

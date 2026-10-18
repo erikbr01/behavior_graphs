@@ -135,4 +135,7 @@ def test_the_runner_reselects_per_outer_fold():
         ds, [GraphStage(backbone=bb)]
     )
     assert len(bb.history) == 3
-    assert summary["graph_stage"]["voc"][0] == pytest.approx(summary["graph_stage"]["voc"][0])
+    # The reported mean must be a real number, not NaN: every outer fold has
+    # to have produced a score for the spread to mean anything. (This line
+    # used to compare a value to itself, which no arithmetic can fail.)
+    assert np.isfinite(summary["graph_stage"]["voc"][0])

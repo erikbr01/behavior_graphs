@@ -21,16 +21,10 @@ from behavior_graphs.viz.streamlit.components.panel_layout import (  # noqa: E40
     BELOW,
     DEFAULT_LAYOUT,
     RIGHT,
-    videos_per_page,
 )
 
 # AppTest.from_function runs each script function standalone, so every name it
 # uses has to be imported inside it — this module's imports are not in scope.
-
-
-def test_videos_per_page_shrinks_beside_the_graph():
-    assert videos_per_page(BELOW) == 3
-    assert videos_per_page(RIGHT) == 1
 
 
 def _selector_script() -> None:

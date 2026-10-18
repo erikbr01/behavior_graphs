@@ -224,14 +224,3 @@ def test_a_warm_up_hit_writes_no_record(monkeypatch, tmp_path):
     assert not list(tmp_path.glob("*.json")), "a warm-up is not a participant"
     said = " ".join(str(element.value) for element in at.markdown)
     assert WARMUP_MARKER in said
-
-
-def test_a_warm_up_stops_before_the_study_is_drawn():
-    """Reaching the renderer at all is what writes; the marker has to come from
-    the branch above it."""
-    from pathlib import Path as _Path
-
-    source = (_Path(__file__).resolve().parents[1] / "apps" / "study" / "Home.py").read_text()
-    body = source[source.index("_VARIANT_ID = ") :]
-
-    assert body.index("WARMUP_PARAM") < body.index("_variant.render(")

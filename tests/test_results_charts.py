@@ -418,7 +418,37 @@ def test_collections_are_listed_in_the_tables_own_order_of_sources():
 def test_the_table_the_paper_carries_is_still_buildable():
     """The page no longer draws it -- twenty rows of four metrics was a wall
     rather than a result -- but it is the paper's table and the builder stays
-    tested, since the prose beside the curves quotes its average row."""
+    tested, since the prose beside the curves quotes its average row.
+
+    This test had no body at all: a docstring asserting that something stays
+    tested, and nothing testing it. It could not fail, and it read as coverage
+    the suite did not have.
+    """
+    means = [
+        {"domain": "LIBERO", "method": "graph_stage", "datasets": 6, "voc": 0.91, "mae": 0.08},
+        {"domain": "LIBERO", "method": "mlp", "datasets": 6, "voc": 0.86, "mae": 0.10},
+        {"domain": "Real-world", "method": "graph_stage", "datasets": 19, "voc": 0.95, "mae": 0.06},
+        {"domain": "Real-world", "method": "mlp", "datasets": 19, "voc": 0.74, "mae": 0.15},
+    ]
+    frame = charts.progress_table(means, _METRICS, _METHODS)
+
+    # One row per (domain, method), each source carrying its dataset count --
+    # the count is what stops a domain mean resting on fewer datasets than it
+    # appears to.
+    assert list(frame["Source"]) == [
+        "LIBERO (6)",
+        "LIBERO (6)",
+        "Real-world (19)",
+        "Real-world (19)",
+    ]
+    assert list(frame["VOC \u2191"]) == [0.91, 0.86, 0.95, 0.74]
+    # Direction is per metric: highest VOC and LOWEST MAE win their block.
+    assert charts.best_cells(frame, _METRICS) == {
+        (0, "VOC \u2191"): True,
+        (0, "MAE \u2193"): True,
+        (2, "VOC \u2191"): True,
+        (2, "MAE \u2193"): True,
+    }
 
 
 def test_the_table_bolds_the_best_cell_in_each_block_by_its_metrics_direction():

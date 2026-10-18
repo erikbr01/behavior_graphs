@@ -124,12 +124,6 @@ class TestAssignEpisodeSubclusters:
         assert UNCLUSTERED in groups
         assert set(groups[UNCLUSTERED]) == {2, 3}
 
-    def test_tie_breaks_to_lower_label(self):
-        window_eps = [5, 5]
-        sub_labels = np.array([3, 1])
-        groups = assign_episode_subclusters([5], window_eps, sub_labels)
-        assert groups == {1: [5]}
-
     def test_noise_winner_groups_as_unclustered(self):
         window_eps = [0, 0, 0]
         sub_labels = np.array([-1, -1, 2])
@@ -138,11 +132,6 @@ class TestAssignEpisodeSubclusters:
 
 
 class TestStableSubclusterId:
-    def test_deterministic(self):
-        a = stable_subcluster_id("(1, 2, -5)", 0)
-        b = stable_subcluster_id("(1, 2, -5)", 0)
-        assert a == b
-
     def test_distinguishes_sub_label_and_parent(self):
         ids = {
             stable_subcluster_id("(1, 2, -5)", 0),

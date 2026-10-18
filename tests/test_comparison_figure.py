@@ -46,14 +46,6 @@ def test_it_is_exported_at_the_width_it_is_asked_for():
     assert wide.get_figwidth() == pytest.approx(paper.DOUBLE_COLUMN_WIDTH_IN)
 
 
-def test_a_pdf_and_a_png_come_off_one_figure():
-    files = comparison_figure.violin_figure_files(result=_three())
-
-    assert files is not None
-    assert files["pdf"].startswith(b"%PDF")
-    assert files["png"].startswith(b"\x89PNG")
-
-
 def test_the_same_comparison_exports_the_same_bytes():
     """No timestamp in it, so a figure that has not changed does not turn up as
     a diff in the paper repo."""

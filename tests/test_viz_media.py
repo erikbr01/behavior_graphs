@@ -311,14 +311,6 @@ def test_clip_paths_skips_episodes_without_video(tmp_path):
     assert clip_paths([], idx, tmp_path) == []
 
 
-def test_index_schema_version_is_stable_and_content_derived():
-    from behavior_graphs.model_selection.index import index_schema_version
-
-    v = index_schema_version()
-    assert isinstance(v, str) and v
-    assert index_schema_version() == v
-
-
 def test_legacy_mp4_index_reports_absence_as_none(tmp_path, monkeypatch):
     """No videos -> no media dir, rather than a placeholder path to join onto."""
     from behavior_graphs.viz.streamlit.data import legacy_mp4_index

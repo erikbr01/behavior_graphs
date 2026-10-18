@@ -56,7 +56,8 @@ class TestShortNodeLabel:
         [
             "Grasp the milk carton firmly",
             "reach_for_handle",
-            "Behaviour 3",  # not the prefix we generate; not ours to shorten
+            # "Behaviour 3" lives in test_only_generated_behavior_ids_are_shortened,
+            # same input and same assertion; one copy is enough.
         ],
     )
     def test_a_name_someone_wrote_is_left_alone(self, name):

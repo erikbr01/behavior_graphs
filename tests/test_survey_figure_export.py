@@ -126,7 +126,6 @@ def test_a_panel_is_drawn_per_answer_that_was_actually_given():
     assert y_labels[1] == "Rating"
     assert y_labels[2] == ""  # one axis for the three, labelled once on the left
     # Said once, on the leftmost box panel.
-    assert y_labels[2] == ""
 
 
 def test_the_panel_letters_follow_the_panels_that_survived():

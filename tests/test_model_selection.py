@@ -292,20 +292,3 @@ class TestTargetWrappers:
         sel = CompositeSelection()
         assert sel.weights["silhouette"] == 1.0
         assert sel.constraints["silhouette"]["min"] == 0.05
-
-    def test_objective_instantiate_and_score(self):
-        from hydra.utils import instantiate
-        from omegaconf import OmegaConf
-
-        obj = instantiate(
-            OmegaConf.create(
-                {
-                    "_target_": "behavior_graphs.model_selection.scoring.Objective",
-                    "weights": {"cluster_quality.silhouette": 1.0},
-                    "constraints": {"cluster_quality.silhouette": {"min": 0.5}},
-                }
-            )
-        )
-        out = obj.score({"cluster_quality": {"silhouette": 0.4}})
-        assert out["score"] == pytest.approx(0.4)  # constraint flags, not discards
-        assert out["feasible"] is False

@@ -319,7 +319,9 @@ class TestCompactLetterDisplay:
     def test_empty_input(self):
         assert compact_letter_display(np.zeros((0, 0), dtype=bool)) == []
 
-    @pytest.mark.parametrize("seed", range(25))
+    # Eight seeds, not twenty-five: the property is checked by the body, and
+    # the extra seventeen cases re-walk the same two branches.
+    @pytest.mark.parametrize("seed", range(8))
     def test_random_matrices_produce_a_faithful_display(self, seed):
         """The property that matters: shares a letter iff not separated."""
         rng = np.random.default_rng(seed)
