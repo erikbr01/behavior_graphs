@@ -64,3 +64,7 @@ deploy/*.bak-*
 # The reproduction data bundle, as reproduce/make_data_bundle.sh writes it.
 /data_bundle/
 /data_bundle.tar.gz
+
+# Written into the repo root by unsloth when a ROBOMETER/TOPReward baseline
+# runs from third_party/robometer's venv. Generated torch-compile shims.
+unsloth_compiled_cache/
