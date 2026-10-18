@@ -25,7 +25,7 @@ are not it:
   correctly report zero participants, which reads like missing data rather than
   the wrong directory;
 - the working store on the machine the paper was produced on sits *beside* the
-  data root (`.../policy_graphs/study_results`), not inside it.
+  data root, not inside it.
 
 So set it explicitly rather than deriving it, and check the count: of 84 stored
 sessions, 84 are participant-origin, 20 ran to completion, and **18** are on the
@@ -80,8 +80,8 @@ contract.
   policy_embeddings/<layer>.npz    (total_steps, d) float32 — the graph's input
   observations/<key>.npz           optional raw observations
   actions.npz                      optional, action executed at each step
-  media/ep0000_succ.mp4            optional, single view
-  media/<camera>/ep0000_succ.mp4   optional, one directory per view
+  media/ep0000_success.mp4         optional, single view
+  media/<camera>/ep0000_success.mp4  optional, one directory per view
 ```
 
 What each consumer needs:
@@ -101,8 +101,10 @@ Train in the submodule, then collect through the adapter — one command each,
 and the output is already canonical:
 
 ```bash
-python scripts/train_policy.py env=robomimic_lift_lowdim
+python scripts/train_policy.py env=robomimic_lift_lowdim \
+    env.dataset_path=/path/to/low_dim.hdf5
 python scripts/collect_rollouts.py env=robomimic_lift_lowdim \
+    env.dataset_path=/path/to/low_dim.hdf5 \
     checkpoint=runs/train/.../checkpoints/latest.ckpt num_episodes=50
 ```
 

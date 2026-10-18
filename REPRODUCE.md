@@ -28,9 +28,12 @@ export STUDY_RESULTS_DIR=/path/to/study_results   # the participant store -- see
 ## 0. Setup
 
 ```bash
-git clone --recurse-submodules <this repo> && cd behavior_graphs
+git clone <this repo> && cd behavior_graphs
 uv sync --all-extras          # the locked versions; `uv pip install` ignores uv.lock
 ```
+
+Nothing on this page needs the submodules, and they are not public yet, so
+clone without `--recurse-submodules` (see [docs/known_issues.md](docs/known_issues.md)).
 
 Two steps need extras beyond the default install, and `00_preflight.sh` tells
 you which are missing before anything long starts:
@@ -175,8 +178,9 @@ extras. **Takes** minutes — four NUTS chains.
 exactly, and is diffed value by value.
 
 **Table I is checked differently, on purpose.** It is a Bayesian mixed-effects
-fit with unseeded chains, so re-running it moves the third significant figure
-every time. Diffing digits would fail a perfectly good reproduction. So
+fit whose sampler IS seeded, but whose third significant figure still moves
+between library versions -- the seed fixes the random stream, not the
+floating-point arithmetic under it. Diffing digits would fail a perfectly good reproduction. So
 `check_study_claims.py` checks what the paper actually claims:
 
 - temporal demand and effort are **reduced**, intervals excluding zero
@@ -226,7 +230,7 @@ covers that.
 | Table III — ablation | **exact**, all 24 values | sweeps on disk |
 | Figure 3 — policy success rates | **exact**, value by value | raw rollouts |
 | Figure 4 — study answers | **exact**, value by value | response store |
-| Table I — adjusted effects | **claims hold**, digits move | re-fit (unseeded MCMC) |
+| Table I — adjusted effects | **claims hold**, digits move | re-fit (seeded; versions differ) |
 | Table II — progress estimation | **self-consistent**; re-derivation needs a re-run | — |
 
 ## Building a behavior graph on your own data

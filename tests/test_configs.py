@@ -97,3 +97,59 @@ def test_labeling_configs_instantiate() -> None:
         labeler = instantiate(cfg)
         assert isinstance(labeler, NodeLabeler)
         assert isinstance(labeler.name, str) and labeler.name
+
+
+def test_every_env_config_resolves_its_adapter() -> None:
+    """The group `test_config_instantiates` never covered, and the gap that hid a bug.
+
+    `envs/_hf_policy.py` carried a `from policy_graphs.core.env import Policy`
+    left over from the package rename. That takes down `vla_foundry` and
+    `robocasa365`, and with them four `configs/env/*.yaml` whose `_target_`
+    can no longer be located -- `Robocasa365Adapter` among them, which the
+    release explicitly keeps. Every test passed, because the venv the suite
+    usually runs in has the OLD package installed and the import resolved.
+
+    Locating the target is the whole check: these adapters take mandatory
+    values (`dataset_path: ???`) and reach for submodules, so instantiating
+    them here would test the environment rather than the config.
+    """
+    from hydra.utils import get_class, get_method
+
+    from behavior_graphs.core.env import EnvAdapter
+
+    paths = sorted((CONFIGS / "env").glob("*.yaml"))
+    assert paths, "no env configs found"
+    for path in paths:
+        target = OmegaConf.load(path).get("_target_")
+        assert target, f"{path.name} has no _target_"
+        try:
+            obj = get_class(target)
+        except Exception:  # a factory function rather than a class
+            obj = get_method(target)
+            continue
+        assert issubclass(obj, EnvAdapter), f"{path.name}: {target} is not an EnvAdapter"
+
+
+@pytest.mark.parametrize(
+    "config_name,overrides",
+    [
+        ("config", []),
+        ("sweep", []),
+        # Both leave `env` mandatory, so name one; the point is that the rest
+        # of the defaults list resolves, not that a bare compose works.
+        ("collect_rollouts", ["env=robomimic_lift_lowdim"]),
+        ("train_policy", ["env=robomimic_lift_lowdim"]),
+    ],
+)
+def test_entry_point_configs_compose(config_name: str, overrides: list[str]) -> None:
+    """A defaults list naming a file that no longer exists is a dead entry point.
+
+    `configs/progress_estimation/bench.yaml` sat broken this way after a
+    method config was removed with its reference left in place: the default
+    command could not compose at all, and nothing noticed.
+    """
+    from hydra import compose, initialize_config_dir
+
+    with initialize_config_dir(config_dir=str(CONFIGS), version_base=None):
+        cfg = compose(config_name=config_name, overrides=overrides, return_hydra_config=False)
+    assert cfg is not None

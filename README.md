@@ -33,7 +33,7 @@ apps/reviewer◄─┤           Dimensionality reduction├── Policy       
   policy-learning configs.
 - **Adapters** (`src/behavior_graphs/envs/`) implement the abstract interfaces
   `TrainingData` / `Policy` / `RolloutSet` (`core/env.py`) per environment and
-  write rollouts in one canonical layout (`envs/rollout_dir.py`).
+  write rollouts in one canonical layout (`envs/trajectory_dir.py`).
 - **Feature sources** are interchangeable: the policy's own per-timestep
   embeddings (the default), raw state/actions (proprioception), or — with no
   checkpoint at all — a frozen vision backbone over the recorded episode video
@@ -95,11 +95,14 @@ is enough to reproduce every published number except Tab. II.
 ## Workflow
 
 ```bash
-# 1. Train a policy (delegates to the env's submodule)
-python scripts/train_policy.py env=robomimic_lift_lowdim
+# 1. Train a policy (delegates to the env's submodule). Every env config
+#    leaves dataset_path mandatory, so it has to be supplied.
+python scripts/train_policy.py env=robomimic_lift_lowdim \
+    env.dataset_path=/path/to/low_dim.hdf5
 
 # 2. Collect rollouts with per-timestep policy embeddings
 python scripts/collect_rollouts.py env=robomimic_lift_lowdim \
+    env.dataset_path=/path/to/low_dim.hdf5 \
     checkpoint=runs/train/.../checkpoints/latest.ckpt num_episodes=50
 
 # 3. Build the behavior graph
@@ -150,7 +153,7 @@ export STUDY_RESULTS_DIR=/path/to/study_results   # the participant store; see d
 | Tab. III — ablation | **exact**, all 24 values | sweeps on disk |
 | Fig. 3 — policy success rates | **exact**, value by value | raw rollouts |
 | Fig. 4 — study answers | **exact**, value by value | response store |
-| Tab. I — adjusted effects | **claims hold**, digits move (unseeded MCMC) | re-fit |
+| Tab. I — adjusted effects | **claims hold**, digits move across library versions | re-fit |
 | Tab. II — progress estimation | **self-consistent**; re-derivation needs a re-run | — |
 
 The numbers are also checked in as data, in
@@ -174,7 +177,7 @@ pytest                  # unit tests (interfaces, stages, viz) — parallel, ~24
 pytest -m integration   # end-to-end: trains a cheap lift/square policy
 pytest -m browser       # drives the app in headless Chrome (needs Chrome)
 
-pytest -m 'not integration'   # everything but the simulators
+pytest -m 'not integration and not browser'   # everything but simulators and Chrome
 ```
 
 `-n 8 --dist loadfile` is in `addopts`, and `integration` and `browser` are both

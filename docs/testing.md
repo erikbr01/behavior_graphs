@@ -14,7 +14,7 @@ pytest                  # ~1790 tests, ~24 s
 pytest -m integration   # trains a cheap lift/square policy, needs GPU + data
 pytest -m browser       # 26 tests, ~2 min — headless Chrome over CDP
 
-pytest -m 'not integration'   # everything but the simulators
+pytest -m 'not integration and not browser'   # everything but the simulators
 ```
 
 `-n 8 --dist loadfile` is in `addopts`, so every group runs parallel. Nothing
