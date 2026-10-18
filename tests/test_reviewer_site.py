@@ -18,6 +18,9 @@ from pathlib import Path
 import pytest
 from streamlit.testing.v1 import AppTest
 
+# pytest puts this file's directory on sys.path (tests/ is not a package).
+import apptest_compat  # noqa: E402
+
 APP = Path(__file__).resolve().parents[1] / "apps" / "reviewer" / "Home.py"
 
 #: Names and addresses that must not reach a page served under review. Checked
@@ -95,7 +98,7 @@ def test_it_tells_the_story_in_the_order_the_paper_argues_it(page):
 
 @needs_runs
 def test_it_opens_with_the_papers_own_overview_figure(page):
-    assert len(page.get("imgs")) == 1
+    assert len(apptest_compat.images(page)) == 1
     assert (APP.parent / "assets" / "overview.png").is_file()
 
 

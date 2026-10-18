@@ -11,6 +11,9 @@ from __future__ import annotations
 
 import pytest
 
+# pytest puts this file's directory on sys.path (tests/ is not a package).
+import apptest_compat  # noqa: E402
+
 pytest.importorskip("streamlit")
 
 from streamlit.testing.v1 import AppTest  # noqa: E402
@@ -82,7 +85,7 @@ def test_it_offers_the_graph_as_a_pdf_and_a_png():
     assert "PNG" in _download(at, "PNG").label
     # The preview is the PNG of the same figure, so what is approved is what is
     # downloaded — one image, not a separate rendering.
-    assert len(list(at.get("imgs"))) == 1
+    assert len(apptest_compat.images(at)) == 1
 
 
 def test_the_options_are_the_figures_and_not_the_screens():

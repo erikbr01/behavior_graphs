@@ -12,6 +12,9 @@ from __future__ import annotations
 
 import pytest
 
+# pytest puts this file's directory on sys.path (tests/ is not a package).
+import apptest_compat  # noqa: E402
+
 pytest.importorskip("streamlit")
 
 from streamlit.testing.v1 import AppTest  # noqa: E402
@@ -83,7 +86,7 @@ def test_the_answers_survive_the_page_they_were_answered_on():
     at = at.text_area(key="t_remarks").set_value("the graph was quicker").run()
 
     after = AppTest.from_string(_READBACK, default_timeout=30)
-    for key, value in at.session_state.filtered_state.items():
+    for key, value in apptest_compat.session_values(at).items():
         if key in ("t_experience", "t_remarks"):
             continue
         after.session_state[key] = value

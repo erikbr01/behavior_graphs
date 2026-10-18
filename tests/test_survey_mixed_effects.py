@@ -51,7 +51,7 @@ def test_layouts_that_never_randomized_a_display_reach_no_model():
 def test_regret_needs_a_scored_choice_and_returns_nothing_without_one():
     """No retrained-policy rates, so no choice can be scored: the caller gets
     None and drops the panel, rather than a model fit to zero rows."""
-    assert mixed_effects.decision_gain_effect([THREE_STAGE], {}) is None
+    assert mixed_effects.decision_regret_effect([THREE_STAGE], {}) is None
 
 
 @pytest.mark.parametrize(
