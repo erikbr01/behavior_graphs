@@ -37,6 +37,7 @@ Task names are RoboCasa365 PascalCase env names (e.g.
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
@@ -68,10 +69,13 @@ _POLICY_STACKS = {
     },
     "dp": {
         # our diffusion_policy fork, robocasa365 runner; dedicated venv built
-        # by scripts/setup_env_robocasa365_uv.sh
+        # by scripts/setup_env_robocasa365_uv.sh. Resolved relative to the
+        # submodule (the command runs with cwd=stack_dir), like the gr00t stack
+        # above; set BEHAVIOR_GRAPHS_ROBOCASA365_PYTHON to point at a venv built
+        # somewhere else.
         "submodule": "third_party/diffusion_policy",
         "script": "scripts/eval_save_rollouts.py",
-        "runner": ["/mnt/ssdB/erik/behavior_graphs/venvs/robocasa365_dp_venv/bin/python"],
+        "runner": [os.environ.get("BEHAVIOR_GRAPHS_ROBOCASA365_PYTHON", ".venv/bin/python")],
         "extra_args": lambda self: [
             "--layer",
             "obs_encoder",

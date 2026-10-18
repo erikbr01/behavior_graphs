@@ -8,6 +8,26 @@ version = "0.1.0"
 description = "Interpretability of robot policies via behavior graphs"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { file = "LICENSE" }
+keywords = ["robotics", "interpretability", "imitation-learning", "behavior-graphs"]
+authors = [
+    { name = "Erik Bauer", email = "erbauer@stanford.edu" },
+    { name = "Jakob Thumm" },
+    { name = "Christopher Agia" },
+    { name = "Rohan Sinha" },
+    { name = "Chen Xu" },
+    { name = "Haruki Nishimura" },
+    { name = "Jeannette Bohg" },
+    { name = "Marco Pavone" },
+    { name = "Masha Itkina" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     "numpy>=1.23",
     "scipy>=1.9",
@@ -75,16 +95,35 @@ dino = [
     # is a speed dependency, not a correctness one.
     "torchcodec>=0.1",
 ]
+# Reading raw DROID captures: the per-episode `.mcap` logs the robot writes, and
+# the frame decode around them. Needed only to go from a raw capture to the
+# canonical rollout layout (scripts/utils/extract_droid_mp4s.py and the ablation
+# study's frame/embedding extractors) -- never to build a graph from rollouts
+# that already exist. See docs/data.md.
+droid = [
+    "mcap>=1.1",
+    "mcap-protobuf-support>=0.5",
+    "opencv-python>=4.8",
+    "h5py>=3.0",
+]
 # xdist: ~1800 mostly-independent tests, so the
 # suite is embarrassingly parallel and `-n 8 --dist loadfile` is in addopts below.
 dev = ["pytest>=8.0", "pytest-xdist>=3.6", "ruff>=0.4"]
-all = ["behavior_graphs[viz,analysis,vlm,nn,dino,dev]"]
+all = ["behavior_graphs[viz,analysis,vlm,nn,dino,droid,dev]"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/behavior_graphs"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# src-layout, so `behavior_graphs` is only importable after an install. Without
+# this the suite's green depended on import order: several scripts/*.py do their
+# own `sys.path.insert(..., "src")` at module scope, so once an xdist worker
+# happened to load one, every test file collected after it on that worker
+# imported fine and the handful collected before it failed with
+# ModuleNotFoundError. `pytest -p no:randomly tests/test_stages.py` passed in a
+# full run and failed on its own. This makes it deterministic either way.
+pythonpath = ["src"]
 # A hang used to be silent and unbounded: one full-suite run sat for two days at
 # 0% CPU, having stopped at 82% with no output and no diagnostic, and the only
 # way to find out where was to read /proc. `faulthandler_timeout` dumps every
