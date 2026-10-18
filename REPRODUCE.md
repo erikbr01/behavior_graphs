@@ -210,8 +210,12 @@ Figures 1 and 2 are composed diagrams rather than plotted output. The paper
 source and the exact figure files it uses live in the paper repository,
 [corl_2026_behavior_graphs](https://github.com/erikbr01/corl_2026_behavior_graphs).
 
-This is the one section written from reading the code rather than from a
-verified run — see [docs/known_issues.md](docs/known_issues.md).
+The export itself is verified: rendering a run directory from
+`$DATA_PATH/sweeps` through `graph_figure.behavior_graph_figure_files` — the
+same call the page's download buttons make — produces the PDF and PNG, and the
+figure is the graph that run describes. What is not driven end to end here is
+the Streamlit navigation around it, which needs a browser; `pytest -m browser`
+covers that.
 
 ---
 

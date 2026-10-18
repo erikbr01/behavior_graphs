@@ -58,13 +58,6 @@ change in `third_party/rgrl` was closed as conflicting. Which repos support it
 is therefore an accident of which pull request happened to be mergeable rather
 than a decision. Not used by any paper result.
 
-## The Figures page in REPRODUCE.md is unverified
-
-Every section of [REPRODUCE.md](../REPRODUCE.md) is backed by an actual run
-except §5, the demo app's Figures page, which was written from reading the
-code. The figures it exports are in the paper repository, so nothing depends on
-it, but the instructions have not been executed end to end.
-
 ## Submodules are private
 
 `git clone --recurse-submodules` fails for anyone outside the project while the
