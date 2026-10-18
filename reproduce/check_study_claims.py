@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 """Check Table I's claims survive a re-fit, rather than its digits.
 
-Table I comes from a Bayesian mixed-effects fit -- four NUTS chains, unseeded --
-so re-running it gives slightly different posterior summaries every time. Diffing
-the digits against the published ones therefore fails for a perfectly good
-reproduction, which is why this checks the claims the paper actually makes:
+Table I comes from a Bayesian mixed-effects fit -- four NUTS chains. The sampler
+IS seeded (`_SEED` in viz/streamlit/user_study/mixed_effects.py), so the same
+machine and the same library versions reproduce it exactly; a different pymc,
+numpy or BLAS does not, because the seed fixes the random stream and not the
+floating-point arithmetic underneath it. Measured across two environments here,
+the third significant figure moves. Diffing digits would therefore fail a
+perfectly good reproduction, which is why this checks the claims the paper
+actually makes:
 
   * temporal demand and effort are reduced, and their intervals exclude zero
   * confidence and success-rate regret are unchanged, intervals include zero
@@ -109,7 +113,8 @@ def main() -> int:
                 f"{label}: point estimate moved {abs(pd_ - fd):.2f} points "
                 f"({pd_} -> {fd}), beyond the {args.point_tolerance} tolerance"
             )
-        print(f"  {label:<22} {pd_!s:>18}  {fd!s:>18}   {claim}")
+        fmt = lambda v: "-" if v is None else f"{v:.3f}"  # noqa: E731
+        print(f"  {label:<22} {fmt(pd_):>18}  {fmt(fd):>18}   {claim}")
 
     if problems:
         print(f"\n  {len(problems)} problem(s):")
@@ -118,7 +123,8 @@ def main() -> int:
         return 1
     print(
         "\n  every claim Table I makes survives the re-fit; point estimates within "
-        f"{args.point_tolerance} rating points (MCMC is unseeded, so digits will differ)"
+        f"{args.point_tolerance} rating points (the sampler is seeded, but the "
+        "digits still move across library versions)"
     )
     return 0
 

@@ -7,6 +7,7 @@ responses from a participant; raw boxplots do not.
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Iterable
 
 _EXPERIENCE = {
@@ -58,6 +59,13 @@ def _fit(formula: str, data, *, subject: str, draws: int, tune: int):
             chains=4,
             target_accept=0.95,
             random_seed=_SEED,
+            # PyMC draws its progress bar on STDOUT, not stderr. Callers that
+            # pipe this fit's result -- `export_paper_results.py --stdout`, and
+            # so `reproduce/check_study_claims.py`, which parses that -- get a
+            # table of sampler progress ahead of the JSON and fail to decode
+            # it. Only draw the bar when stdout is a terminal, where it is
+            # wanted and harms nothing.
+            progressbar=sys.stdout.isatty(),
         )
     except Exception as error:  # noqa: BLE001 - bambi/pymc raise from their internals
         raise ModelFitError(
