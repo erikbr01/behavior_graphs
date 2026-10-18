@@ -125,13 +125,17 @@ Each run writes `{dataset}_metrics.json`, `{dataset}_report.md` and one
 A zero-shot 4B reward model, run from the vendored `third_party/robometer`
 submodule in **its own venv** — its runtime deps conflict with this project's.
 `configs/progress_estimation/method/robometer_4b.yaml` names the checkpoint;
-model *code* comes from the submodule, so it must be initialised:
+model *code* comes from the submodule, so it must be initialised and built:
 
 ```bash
 git submodule update --init third_party/robometer
+(cd third_party/robometer && uv sync)      # builds third_party/robometer/.venv
 HF_HOME=/path/to/hf_cache CUDA_VISIBLE_DEVICES=0 \
   third_party/robometer/.venv/bin/python scripts/run_progress_bench.py ...
 ```
+
+The same venv serves `topreward_ll` below: both reach their model code through
+this submodule.
 
 A LIBERO-only variant, `robometer_fft`, is available through
 `scripts/bench_allds_with_vlms.py --methods robometer_fft`. It is not a row in
@@ -234,14 +238,32 @@ over the datasets that define that metric, which is why a domain's AUROC can
 rest on fewer datasets than its VOC — AUROC is undefined on a collection whose
 rollouts all succeeded.
 
-## 5. Checking without re-running
+## 5. What reproduces, and how exactly
 
-The benchmark's per-dataset metric files are not in this repository, so
-`reproduce/02_table2_progress.sh verify` cannot recompute the table. What it
-does instead is check the published table against itself — every per-domain
-mean and the all-43 average, against the per-dataset rows behind them, 80
-checks. A stale export or a transcription slip shows up; a wrong measurement
-would not.
+**The graph and MLP rows re-derive bit-exactly.** Everything in the benchmark
+is seeded — the KFold split depends only on the success flags, K-means and the
+MLP take a seed — so a re-run on the same embeddings returns the published
+numbers to the last digit, not merely close to them. Verified on four datasets
+spanning all four domains:
+
+| dataset | method | metrics checked | largest difference |
+|---|---|---|---|
+| libero_goal | graph_stage, mlp | VOC, Kendall, MAE, AUROC | 0 |
+| robomimic_square_mh | graph_stage, mlp | " | 0 |
+| mimicgen_square_d0 | graph_stage, mlp | " | 0 |
+| prepare_tray_baseline | graph_stage, mlp | " | 0 |
+
+**The two VLM rows need more than this repository**: a 24 GB GPU, the
+`third_party/robometer` submodule built with its own venv, and the Qwen3-VL-8B
+and ROBOMETER-4B checkpoints from the hub. The submodule pin is correct and
+carries the baseline code; the rows have not been re-derived here.
+
+### Checking without re-running
+
+`reproduce/02_table2_progress.sh verify` needs no data at all. It checks the
+published table against itself — every per-domain mean and the all-43 average,
+against the per-dataset rows behind them, 80 checks. A stale export or a
+transcription slip shows up; a wrong measurement would not.
 
 ```bash
 ./reproduce/02_table2_progress.sh verify           # 80 consistency checks

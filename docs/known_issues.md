@@ -38,12 +38,18 @@ reimplementation for this reason (`_HIDDEN_METHODS` in
 `apps/demo/_pages/progress_estimation.py`). See
 [progress_estimation.md](progress_estimation.md).
 
-## Two submodules are pinned but unverified
+## The VLM baselines have not been re-run here
 
-`third_party/robometer` and `third_party/warp_rm` have never been checked out
-in this tree, so their recorded commits are untested. robometer matters: it
-supplies both VLM baselines in Tab. II (`robometer_4b` and the faithful
-`topreward_ll`).
+`third_party/robometer` and `third_party/warp_rm` now check out at their
+recorded commits, and the robometer pin carries
+`robometer/evals/baselines/topreward.py` — the code `TopRewardLL` reaches for.
+So the pins are good.
+
+What has not been done is running the two VLM rows of Tab. II end to end from
+this repository: that needs a 24 GB GPU, robometer's own venv, and the
+Qwen3-VL-8B and ROBOMETER-4B checkpoints. The graph and MLP rows re-derive
+bit-exactly (see [progress_estimation.md](progress_estimation.md)); the VLM
+rows are taken from the published artifacts.
 
 ## Weighted sampling is inconsistent across the submodules
 
