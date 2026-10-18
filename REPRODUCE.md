@@ -9,7 +9,7 @@ if they disagree. A green run is a reproduction, not a re-print.
 
 ```bash
 export DATA_PATH=/path/to/data                 # rollouts/, sweeps/
-export STUDY_RESULTS_DIR=$DATA_PATH/study_results
+export STUDY_RESULTS_DIR=/path/to/study_results   # the participant store -- see below
 ./reproduce/run_all.sh
 ```
 
@@ -56,22 +56,40 @@ PYTHON=/path/to/venv/bin/python ./reproduce/run_all.sh
 ./reproduce/00_preflight.sh
 ```
 
-### Two environment variables, and a trap in one of them
+### The data, and a trap in one environment variable
 
 `DATA_PATH` is the data root holding `rollouts/` and `sweeps/`.
 
-`STUDY_RESULTS_DIR` is the **participant** response store. A development
-checkout usually also has a `study_results/` directory of its own, and that one
-holds the lab app's *previews* — every record in it has `origin: lab`. Point at
-it and the study steps correctly report that they found no participants, which
-reads like missing data rather than the wrong directory. The participant store
-is normally `$DATA_PATH/study_results`.
+Everything on this page reads per-episode **outcomes** plus one rescored sweep
+— no video, no features, no checkpoints — so the whole input is about 60 MB.
+If you have a full data root, carve the bundle and work from that:
+
+```bash
+SRC=/path/to/full/data SRC_STUDY=/path/to/study_results \
+  ./reproduce/make_data_bundle.sh data_bundle
+export DATA_PATH=$PWD/data_bundle
+export STUDY_RESULTS_DIR=$PWD/data_bundle/study_results
+```
+
+`STUDY_RESULTS_DIR` is the **participant** response store, and it is the one
+variable worth setting by hand. Two directories look like it and are not:
+
+- a development checkout grows its own `study_results/`, holding the lab app's
+  *previews* — every record `origin: lab`. Point at it and the study steps
+  correctly report no participants, which reads like missing data rather than
+  the wrong directory;
+- it is **not** necessarily under `DATA_PATH`. On the machine the paper was
+  produced on it sits beside the data root, not inside it.
 
 The filter behind this matters more than it looks. Of 84 stored sessions, 84 are
 participant-origin, 20 ran to completion, and **18** are on the layout the paper
 reports — the n it quotes. The other two completed an earlier pilot layout: the
 same questions they were asked are not the questions the paper analyses. Counting
 them would turn "16 of 18 preferred the graph" into 80% of 20.
+
+The store also holds `raffle_entries.jsonl` — participant email addresses.
+Nothing here reads it, and `make_data_bundle.sh` copies responses by explicit
+glob so it cannot reach a bundle.
 
 ---
 
@@ -115,14 +133,14 @@ published table against itself: every per-domain mean, and the all-43 Average
 row, against the per-dataset rows behind them — 80 checks. A stale export or a
 transcription slip shows up; a wrong measurement would not.
 
-A genuine re-derivation means re-running the benchmark. One dataset is cheap.
-The full zoo is 43 collections × 4 methods, and the two VLM baselines dominate:
-**Robometer** needs `third_party/robometer` initialised, and **TOPReward** its
-own checkout. Budget hours and a GPU.
+A genuine re-derivation means re-running the benchmark. One dataset is cheap
+and CPU-only; the full zoo is 43 collections × 4 methods and the two VLM
+baselines dominate it.
 
-The zoo breaks down as LIBERO 6, Robomimic 10, MimicGen 8, real-world 19 — the
-43 the paper reports. `configs/progress_estimation/data/zoo.yaml` lists them, and
-names the families deliberately outside that count.
+**[docs/progress_estimation.md](docs/progress_estimation.md) is the full
+recipe** — raw data and preprocessing, which method reads what, the three
+benchmark phases, how to set up the two VLM baselines (including which of the
+two TOPReward implementations is the paper's), and the export.
 
 ## 3. Figure 3 — retrained-policy success rates
 
@@ -188,8 +206,12 @@ BEHAVIOR_GRAPHS_RUNS_ROOT=$DATA_PATH/sweeps streamlit run apps/demo/Home.py
 # -> Figures -> choose a run -> Export as a paper figure (PDF)
 ```
 
-Figures 1 and 2 are composed diagrams rather than plotted output; `paper/figures/`
-carries the versions the paper uses.
+Figures 1 and 2 are composed diagrams rather than plotted output. The paper
+source and the exact figure files it uses live in the paper repository,
+[corl_2026_behavior_graphs](https://github.com/erikbr01/corl_2026_behavior_graphs).
+
+This is the one section written from reading the code rather than from a
+verified run — see [docs/known_issues.md](docs/known_issues.md).
 
 ---
 

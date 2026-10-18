@@ -8,8 +8,10 @@ graph: rollouts are embedded with the policy's own representations, windowed,
 reduced, and clustered into discrete behaviors; the empirical transitions
 between behaviors — and between behaviors and outcomes — form the graph.
 
-The paper is in [`paper/`](paper/) ([PDF](paper/behavior_graphs.pdf)), and the
-interactive demo is at [try.behavior-graphs.com](https://try.behavior-graphs.com).
+The paper source lives in its own repository,
+[corl_2026_behavior_graphs](https://github.com/erikbr01/corl_2026_behavior_graphs);
+the interactive demo is at
+[try.behavior-graphs.com](https://try.behavior-graphs.com).
 
 ## What is here
 
@@ -49,6 +51,10 @@ apps/reviewer◄─┤           Dimensionality reduction├── Policy       
   success rather than on the graph: pairwise exact tests, family-wise error
   control, compact letter displays and Beta posteriors — the machinery behind
   Fig. 3. See [`docs/policy_comparison.md`](docs/policy_comparison.md).
+- **Progress estimation** (`src/behavior_graphs/progress_estimation/`) fits a
+  stage schedule over the graph's behaviors and scores it against three
+  baselines on 43 rollout collections — Tab. II. See
+  [`docs/progress_estimation.md`](docs/progress_estimation.md).
 
 ## Setup
 
@@ -56,12 +62,24 @@ apps/reviewer◄─┤           Dimensionality reduction├── Policy       
 git clone --recurse-submodules <this repo>
 cd behavior_graphs
 uv venv && uv pip install -e ".[all]"
+pytest                        # ~1800 tests, ~25 s
 ```
+
+The submodules are only needed to *train* policies and to run the two VLM
+baselines. Building graphs from existing rollouts, and everything in
+[REPRODUCE.md](REPRODUCE.md), works from a plain `git clone`.
 
 Environment-specific stacks (simulators, torch, JAX) are uv-managed per
 submodule: `third_party/diffusion_policy/scripts/setup_env_uv.sh` builds the
 training env for robomimic/mimicgen/droid; openpi manages its own via `uv sync`
 (see `third_party/openpi/README.md`).
+
+## Data
+
+No data ships with the repository. **[docs/data.md](docs/data.md)** covers the
+on-disk layout, the three environment variables that point at it, how to
+produce rollout collections for each environment, and the ~60 MB bundle that
+is enough to reproduce every published number except Tab. II.
 
 ## Workflow
 
@@ -112,7 +130,7 @@ exits non-zero if they disagree.
 
 ```bash
 export DATA_PATH=/path/to/data
-export STUDY_RESULTS_DIR=$DATA_PATH/study_results
+export STUDY_RESULTS_DIR=/path/to/study_results   # the participant store; see docs/data.md
 ./reproduce/run_all.sh
 ```
 
@@ -174,6 +192,14 @@ which guarantee, and the test shapes to avoid.
   year      = {2026},
 }
 ```
+
+## Known issues
+
+Defects we know about and have not fixed — an eval/collection mismatch, two
+unverified submodule pins, and the two TOPReward implementations that are easy
+to confuse — are listed in
+**[docs/known_issues.md](docs/known_issues.md)** rather than left to be
+rediscovered.
 
 ## License
 
