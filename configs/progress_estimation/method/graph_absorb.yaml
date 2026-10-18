@@ -1,0 +1,8 @@
+# Absorption progress off the shared graph backbone: P(eventually reach SUCCESS
+# | current cluster). Not a row in the paper's Tab. II -- that reports
+# `graph_stage` -- but the two are scored together everywhere in the benchmark
+# (sweep_progress_allds.py, bench_allds_with_vlms.py and
+# consolidate_progress_results.py all expect both keys), so dropping it from the
+# default method set silently changes what the consolidation pairs.
+_target_: behavior_graphs.progress_estimation.methods.GraphAbsorb
+name: graph_absorb

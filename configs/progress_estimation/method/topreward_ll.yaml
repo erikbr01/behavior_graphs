@@ -1,0 +1,19 @@
+# FAITHFUL TOPReward -- the authors' own implementation, reached through the
+# vendored `third_party/robometer` submodule, whose core is byte-identical to
+# `topreward.clients.qwen.QwenClient.compute_instruction_reward`.
+#
+# THIS is the TOPReward row in the paper's Tab. II. The sibling `topreward.yaml`
+# is this repo's in-house reimplementation (teacher-forced P(yes)), which scores
+# very differently -- 0.811 vs 0.604 VOC on libero_goal -- and is kept only for
+# the record. Use this config to reproduce the published baseline; use that one
+# only if you specifically want the reimplementation.
+#
+# GPU + the robometer venv (see docs/progress_estimation.md).
+_target_: behavior_graphs.progress_estimation.methods.TopRewardLL
+name: topreward_ll
+model_id: Qwen/Qwen3-VL-8B-Instruct
+max_frames: 64
+num_prefix_samples: 15
+reduction: mean
+add_chat_template: true
+fps: 2.0

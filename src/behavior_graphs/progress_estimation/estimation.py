@@ -430,8 +430,8 @@ def progress_regression_metrics(
     """Paper-comparable progress metrics (TOPReward arXiv:2602.19313, ROBOMETER
     arXiv:2603.02115), averaged over SUCCESSFUL episodes vs linear-interpolation
     GT progress 0->1: voc (Spearman rank vs frame order), kendall (tau-b),
-    pearson (vs linear GT), mae (|pred-GT|, both in [0,1]). Ported from the
-    graph_guided prototype; see PROGRESS_ESTIMATION_LOG."""
+    pearson (vs linear GT), mae (|pred-GT|, both in [0,1]).
+    See docs/progress_estimation.md."""
     from scipy.stats import kendalltau, pearsonr, spearmanr
 
     voc, ken, pear, mae = [], [], [], []

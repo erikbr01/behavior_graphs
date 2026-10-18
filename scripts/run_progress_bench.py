@@ -7,18 +7,21 @@ report.md / metrics.json / *_curves.npz to `out`. Replaces the old
 `eval_progress_benchmark.py` (graph) and `vlm_reward_bench.py` (VLM) scripts —
 graph vs VLM runs are just different method selections (and venvs):
 
-    # graph methods (identity K16) on libero_goal, aligned eval:
-    DATA_PATH=${DATA_PATH} \
-      PYTHONPATH=src .../diffusion_policy_venv/bin/python scripts/run_progress_bench.py \
-      data=libero_goal backbone.clustering.n_clusters=128
+    # graph methods (identity K128) on libero_goal, aligned eval:
+    DATA_PATH=${DATA_PATH} PYTHONPATH=src python scripts/run_progress_bench.py \
+      data.name=libero_goal backbone.clustering.n_clusters=128
 
     # a VLM baseline (robometer venv + GPU): select only that method
     ... '~methods.graph_stage' '~methods.graph_absorb' '~methods.frame_index' \
-      +method/robometer_4b@methods.robometer_4b=robometer_4b
+      +method@methods.robometer_4b=robometer_4b
+
+Methods are added with ``+method@methods.<key>=<config>`` and removed with
+``~methods.<key>``. See docs/progress_estimation.md for the Tab. II recipe.
 """
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -31,12 +34,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from behavior_graphs.progress_estimation.io import EpisodeSet, policy_embedding_layer  # noqa: E402
 from behavior_graphs.progress_estimation.runner import BenchmarkRunner  # noqa: E402
 
-# Root at configs/ (like scripts/run_sweep.py) so bench.yaml can reuse the shared
-# configs/data/* dataset map via absolute defaults (/data@rollouts: all).
-CONFIG_PATH = str(Path(__file__).resolve().parents[1] / "configs")
+# Root at configs/progress_estimation/, so `method`, `metric`, `backbone` and
+# `split` are top-level groups that `+method@methods.<name>=<name>` can address.
+# bench.yaml puts $BG_CONFIGS_ROOT on hydra's search path to reach the shared
+# configs/data/* dataset map one directory up.
+CONFIGS_ROOT = Path(__file__).resolve().parents[1] / "configs"
+CONFIG_PATH = str(CONFIGS_ROOT / "progress_estimation")
+os.environ.setdefault("BG_CONFIGS_ROOT", str(CONFIGS_ROOT))
 
 
-@hydra.main(version_base=None, config_path=CONFIG_PATH, config_name="progress_estimation/bench")
+@hydra.main(version_base=None, config_path=CONFIG_PATH, config_name="bench")
 def main(cfg: DictConfig) -> None:
     d = cfg.data
     # Resolve `auto` against policy_embeddings/ only. load_rollouts' own auto

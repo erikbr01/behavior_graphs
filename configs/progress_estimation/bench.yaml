@@ -6,9 +6,13 @@
 # with every metric and writes report.md / metrics.json / *_curves.npz to `out`.
 #
 #   # graph methods (default) on libero_goal, aligned eval:
-#   DATA_PATH=... python scripts/run_progress_bench.py data=libero_goal
-#   # add a VLM baseline (needs the robometer venv + GPU):
-#   ... +method/robometer_4b@methods.robometer_4b=robometer_4b
+#   DATA_PATH=... python scripts/run_progress_bench.py data.name=libero_goal
+#   # add a baseline (`+method@methods.<key>=<config>`):
+#   ... +method@methods.mlp=mlp
+#   # the paper's Tab. II row set, with the two VLMs (robometer venv + GPU):
+#   ... '~methods.graph_absorb' '~methods.frame_index' \
+#       +method@methods.mlp=mlp +method@methods.robometer_4b=robometer_4b \
+#       +method@methods.topreward_ll=topreward_ll
 #   # drop a method / switch the K:
 #   ... '~methods.graph_absorb' backbone.clustering.n_clusters=128
 defaults:
@@ -34,6 +38,16 @@ data:
 out: analysis/out/progress_bench
 
 hydra:
+  # Loaded with config_path=configs/progress_estimation so that `method`,
+  # `metric` and `split` are top-level groups a CLI override can name. The
+  # shared configs/data map lives one level up, so put it on the search path
+  # rather than reaching for it with an absolute default -- hydra prepends the
+  # primary config's directory when resolving a group option, so a config_name
+  # of `progress_estimation/bench` turns `+progress_estimation/method@...` into
+  # a lookup for `progress_estimation/progress_estimation/method/...` and no
+  # method can be added from the command line at all.
+  searchpath:
+    - file://${oc.env:BG_CONFIGS_ROOT}
   run:
     dir: ${out}/runs/${now:%Y-%m-%d_%H-%M-%S}
   job:
