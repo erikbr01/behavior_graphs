@@ -38,6 +38,7 @@ from behavior_graphs.pipeline.cache import (
     embedding_fingerprint,
     stage_key,
 )
+from behavior_graphs.pipeline.dataset_resolution import resolve_layer_if_applicable
 from behavior_graphs.pipeline.folds import (
     resolve_split,
     subset_windows,
@@ -116,6 +117,25 @@ def run_pipeline(
         return out
 
     cache = StageCache(Path(cfg.cache_dir)) if cfg.get("cache_dir") else None
+
+    # Resolve `features.layer: null` against what this collection actually
+    # carries, before the config is read for anything -- the cache key is
+    # built from it a few lines down, so a resolved and an unresolved config
+    # must not be two different keys for one run.
+    #
+    # The default used to be the literal `pi05`, which is LIBERO's layer and
+    # nothing else's: the one command the README and REPRODUCE both give as
+    # the shortest path from rollouts to a graph died with
+    # "layer 'pi05' not found" on every other family -- DROID's `cond_proj`,
+    # the sim families' `bottleneck_plan_t0`, RoboCasa's `obs_encoder`, the
+    # generalist VLAs' `action_conditioning`. `resolve_layer` already existed
+    # for exactly this and had no caller left.
+    resolved_layer = resolve_layer_if_applicable(
+        cfg.features, rollouts.path, cfg.features.get("layer")
+    )
+    if resolved_layer is not None and cfg.features.get("layer") != resolved_layer:
+        log.info("features.layer auto-resolved to %r", resolved_layer)
+        cfg.features.layer = resolved_layer
 
     def cfg_dict(node):
         return OmegaConf.to_container(node, resolve=True)

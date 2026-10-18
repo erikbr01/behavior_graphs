@@ -1,2 +1,7 @@
 _target_: behavior_graphs.stages.features.policy_embedding.PolicyEmbeddings
-layer: pi05
+# null means "resolve from the collection". Every family names its tap
+# differently -- pi05 (LIBERO), cond_proj (DROID), bottleneck_plan_t0 (sim),
+# obs_encoder (RoboCasa), action_conditioning (generalist VLAs) -- so a fixed
+# default is right for exactly one of them. A collection carrying more than
+# one layer is an error rather than a guess: pass features.layer=<name>.
+layer: null
