@@ -18,9 +18,11 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[2]
-DATASET = os.environ.get(
-    "BEHAVIOR_GRAPHS_LIFT_IMAGE_DATASET",
-    "${DATA_PATH}/datasets/robomimic/lift/mh/image_abs.hdf5",
+DATASET = os.path.expandvars(
+    os.environ.get(
+        "BEHAVIOR_GRAPHS_LIFT_IMAGE_DATASET",
+        "${DATA_PATH}/datasets/robomimic/lift/mh/image_abs.hdf5",
+    )
 )
 
 pytestmark = pytest.mark.integration

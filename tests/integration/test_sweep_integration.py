@@ -24,9 +24,11 @@ import pytest
 import yaml
 
 LIFT_ROLLOUTS = Path(
-    os.environ.get(
-        "BEHAVIOR_GRAPHS_LIFT_ROLLOUTS",
-        "${DATA_PATH}/rollouts/robomimic_lift_mh",
+    os.path.expandvars(
+        os.environ.get(
+            "BEHAVIOR_GRAPHS_LIFT_ROLLOUTS",
+            "${DATA_PATH}/rollouts/robomimic_lift_mh",
+        )
     )
 )
 LAYER = "bottleneck_plan_t0"

@@ -38,9 +38,15 @@ def _cuda_device_count() -> int:
 
 
 REPO = Path(__file__).resolve().parents[2]
-DATASET = os.environ.get(
-    "BEHAVIOR_GRAPHS_LIFT_DATASET",
-    "$HOME/refactor_cupid/policy_doctor/data/source/robomimic/datasets/lift/mh/low_dim_abs.hdf5",
+# os.path.expandvars, because argparse/os.environ.get expand nothing: a
+# literal "${DATA_PATH}/..." default makes the skip guard below fire and the
+# whole tier report success by never running. The old default also pointed at
+# a directory that exists on no machine here.
+DATASET = os.path.expandvars(
+    os.environ.get(
+        "BEHAVIOR_GRAPHS_LIFT_DATASET",
+        "${DATA_PATH}/datasets/robomimic/lift/ph/low_dim.hdf5",
+    )
 )
 
 pytestmark = pytest.mark.integration
