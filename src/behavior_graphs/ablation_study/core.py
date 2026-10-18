@@ -26,12 +26,32 @@ import yaml
 from behavior_graphs.ablation_study import cells as C
 from behavior_graphs.ablation_study.config import DatasetConfig
 
-GRID = "ablation_core"
+# The grid the paper's three DROID columns were actually swept on. It was
+# named `ablation_core` here and `ablation_droid.yaml` on disk, so every
+# consumer of `design()` died with FileNotFoundError: the latex, crosstask
+# and core reports, `study.py rescore --core`, and write_section.py.
+#
+# Not a guess at which file was meant. `ablation_droid.yaml` describes itself
+# as the paper's design (3 reductions, K in 5/10/15, "4 x 2 x 3 x 3 x 2 = 144
+# cells per representation, 432 for the three arms"), and its axes reproduce
+# the shipped sweeps exactly: abc_settable and abc_preparetray hold 432
+# records each, over reduction {identity, pca, cuml_umap}, n_components
+# {None, 10}, k {5, 10, 15}, width {1, 3, 5, 8}, stride {1, 2}, smoothing
+# {none, sticky} -- the same seven axes at the same levels.
+GRID = "ablation_droid"
 GRID_PATH = pathlib.Path(__file__).resolve().parents[3] / "configs" / "grid" / f"{GRID}.yaml"
 
 #: Reduction and clustering targets name their own dial, so the grid's shape has
 #: to be read per stage rather than assumed uniform.
 _K_KEYS = ("n_clusters", "n_components", "min_cluster_size")
+
+
+def _level_order(value: str) -> tuple[int, float, str]:
+    """Numeric levels first and in order; non-numeric ones (``None``) last."""
+    try:
+        return (0, float(value), "")
+    except ValueError:
+        return (1, 0.0, value)
 
 
 @functools.cache
@@ -44,6 +64,10 @@ def design() -> dict[str, tuple[str, ...]]:
 
     ncs: set[str] = set()
     for spec in reductions.values():
+        # `identity: {}` declares no component count, and that absence is a
+        # level of this axis -- it is what the re-score stores as None for
+        # every identity cell. Sorting the levels numerically therefore has
+        # to tolerate one that is not a number.
         n = spec.get("n_components")
         ncs.update(str(v) for v in (n if isinstance(n, list) else [n]))
     ks: set[str] = set()
@@ -56,9 +80,9 @@ def design() -> dict[str, tuple[str, ...]]:
 
     return {
         "reduction": tuple(sorted(reductions)),
-        "n_components": tuple(sorted(ncs, key=float)),
+        "n_components": tuple(sorted(ncs, key=_level_order)),
         "clusterer": tuple(sorted(clustering)),
-        "k": tuple(sorted(ks, key=float)),
+        "k": tuple(sorted(ks, key=_level_order)),
         "width": tuple(str(v) for v in sliding["width"]),
         "stride": tuple(str(v) for v in sliding["stride"]),
         "smoothing": tuple(str(v) for v in stages["graph"]["transition"]["smoothing"]),
