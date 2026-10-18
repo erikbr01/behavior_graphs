@@ -61,9 +61,20 @@ apps/reviewer◄─┤           Dimensionality reduction├── Policy       
 ```bash
 git clone --recurse-submodules <this repo>
 cd behavior_graphs
-uv venv && uv pip install -e ".[all]"
-pytest                        # ~1800 tests, ~25 s
+uv sync --all-extras
+pytest                        # ~1800 tests, ~30 s
 ```
+
+Two installs, and they are not the same:
+
+```bash
+uv sync --all-extras          # the locked versions in uv.lock -- use this to reproduce
+uv pip install -e ".[all]"    # resolve fresh -- use this to develop against current deps
+```
+
+`uv pip install` ignores `uv.lock` entirely. Both are tested; the suite passes
+on the locked set and on a fresh resolve, which are a long way apart (streamlit
+1.58 vs 1.66, numpy 2.2 vs 2.5, pandas 2.3 vs 3.0).
 
 The submodules are only needed to *train* policies and to run the two VLM
 baselines. Building graphs from existing rollouts, and everything in

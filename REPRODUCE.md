@@ -29,7 +29,7 @@ export STUDY_RESULTS_DIR=/path/to/study_results   # the participant store -- see
 
 ```bash
 git clone --recurse-submodules <this repo> && cd behavior_graphs
-uv venv && uv pip install -e ".[all]"
+uv sync --all-extras          # the locked versions; `uv pip install` ignores uv.lock
 ```
 
 Two steps need extras beyond the default install, and `00_preflight.sh` tells
