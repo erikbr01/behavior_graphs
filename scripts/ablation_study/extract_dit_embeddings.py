@@ -41,9 +41,13 @@ training task itself.
 from __future__ import annotations
 
 import argparse
+import sys as _sys
+
+_sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[1]))
 import pathlib
 import sys
 
+import _paths  # noqa: E402
 import numpy as np
 import torch
 import yaml
@@ -123,13 +127,13 @@ def main() -> None:
     ap.add_argument(
         "--mcap-root",
         type=pathlib.Path,
-        default=pathlib.Path("${DATA_PATH}/abc_130k"),
+        default=_paths.env_path("${DATA_PATH}/abc_130k"),
     )
     ap.add_argument("--task", default="put_the_plastic_bottles_in_the_bin")
     ap.add_argument(
         "--checkpoint",
         type=pathlib.Path,
-        default=pathlib.Path("${DATA_ROOT}/abc_rabc/cache_bottles_75k.pt"),
+        default=_paths.env_path("${DATA_ROOT}/abc_rabc/cache_bottles_75k.pt"),
     )
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--flow-steps", type=int, default=10)

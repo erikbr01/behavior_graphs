@@ -27,6 +27,11 @@ import sys
 import traceback
 from pathlib import Path
 
+import _paths  # noqa: E402
+
+# Thread cap first: it only takes effect before numpy/sklearn initialise.
+# See scripts/_threads.py for the measurement that made this necessary.
+import _threads  # noqa: F401,E402  (import for its side effect)
 import numpy as np
 from omegaconf import OmegaConf
 
@@ -134,7 +139,7 @@ def main():
     ap.add_argument(
         "--rollouts-root",
         type=Path,
-        default=Path("${DATA_PATH}/rollouts"),
+        default=_paths.env_path("${DATA_PATH}/rollouts"),
     )
     ap.add_argument("--out", type=Path, default=Path("analysis/out/progress_allds"))
     ap.add_argument("--layer", default="auto")

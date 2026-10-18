@@ -171,7 +171,13 @@ def _env(gpu: int | None = None, threads: int | None = None) -> dict[str, str]:
     """
     env = {
         "PYTHONPATH": str(REPO / "src"),
-        "DATA_PATH": "${DATA_PATH}",
+        # The child environment is built from scratch rather than inherited,
+        # so this has to be the VALUE. It used to be the literal string
+        # "${DATA_PATH}", which every hydra config in the child then resolved
+        # to an eleven-character directory name under the repo -- and the
+        # sweep still reported success, because the paths already on the argv
+        # had been expanded by the parent.
+        "DATA_PATH": os.environ.get("DATA_PATH", ""),
         "PATH": "/usr/bin:/bin",
         "HOME": str(pathlib.Path.home()),
     }

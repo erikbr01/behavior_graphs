@@ -186,9 +186,7 @@ def main(argv: list[str] | None = None) -> int:
                 parser.error(f"{existing} already exists; pass --overwrite to replace")
 
     ep_dirs = sorted((rollout_dir / RECORDINGS_DIR).glob("ep_*"))
-    incomplete = sorted(
-        {ep for layer in layers for ep in ep_dirs if _missing_inputs(ep, layer)}
-    )
+    incomplete = sorted({ep for layer in layers for ep in ep_dirs if _missing_inputs(ep, layer)})
     if incomplete and not args.skip_incomplete:
         names = "/".join(f"embeddings_{layer}.npz" for layer in layers)
         parser.error(

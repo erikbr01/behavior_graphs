@@ -77,16 +77,40 @@ def _fit(formula: str, data, *, subject: str, draws: int, tune: int):
     return model, posterior
 
 
-def _posterior_summary(draws_array) -> dict[str, float]:
-    """Posterior mean and two-sided 95% HDI of a flattened draws array."""
+#: The credible level every interval in the study figures and Table I reports.
+HDI_PROB = 0.95
+
+
+def _hdi_bounds(values, prob: float = HDI_PROB):
+    """``(lower, upper)`` of the two-sided *prob* HDI, on either ArviZ API.
+
+    ArviZ renamed this argument `hdi_prob` -> `prob` at 1.0, and the obvious
+    try/except on TypeError is wrong in the dangerous direction: 0.x accepts
+    `prob` into a `**kwargs` tail and DISCARDS it, so no TypeError is raised,
+    the fallback never runs, and the function quietly returns the library
+    default instead of what was asked for. Measured on the same draws:
+
+        arviz 0.20   hdi(prob=0.95) == hdi()            -> 0.94, not 0.95
+        arviz 1.3    hdi(prob=0.95) != hdi()            -> 0.95, default 0.89
+
+    So the published study intervals were 94% HDIs labelled 95%. Pick the
+    keyword by inspecting the signature rather than by catching an exception
+    the older version does not raise.
+    """
+    import inspect
+
     import arviz as az
 
+    keyword = "prob" if "prob" in inspect.signature(az.hdi).parameters else "hdi_prob"
+    lower, upper = az.hdi(values, **{keyword: prob})
+    return float(lower), float(upper)
+
+
+def _posterior_summary(draws_array) -> dict[str, float]:
+    """Posterior mean and two-sided 95% HDI of a flattened draws array."""
     values = draws_array.reshape(-1)
-    try:
-        lower, upper = az.hdi(values, prob=0.95)
-    except TypeError:  # ArviZ before the 1.0 argument rename.
-        lower, upper = az.hdi(values, hdi_prob=0.95)
-    return {"mean": float(values.mean()), "lower": float(lower), "upper": float(upper)}
+    lower, upper = _hdi_bounds(values)
+    return {"mean": float(values.mean()), "lower": lower, "upper": upper}
 
 
 def _marginal_means(model, posterior, data) -> dict[str, dict[str, float]]:

@@ -20,10 +20,14 @@ it, so the embedding pass is a pure forward.
 from __future__ import annotations
 
 import argparse
+import sys as _sys
+
+_sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[1]))
 import pathlib
 import subprocess
 import tempfile
 
+import _paths  # noqa: E402
 import numpy as np
 from mcap.reader import make_reader
 from mcap_protobuf.decoder import DecoderFactory
@@ -150,7 +154,7 @@ def main() -> None:
     ap.add_argument(
         "--root",
         type=pathlib.Path,
-        default=pathlib.Path("${DATA_PATH}/abc_130k"),
+        default=_paths.env_path("${DATA_PATH}/abc_130k"),
     )
     ap.add_argument("--task", default="put_the_plastic_bottles_in_the_bin")
     ap.add_argument("--out", type=pathlib.Path, required=True)

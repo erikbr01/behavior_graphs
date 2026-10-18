@@ -25,12 +25,16 @@ is projected into, and the last DiT block's hidden state.
 """
 
 import argparse
+import sys as _sys
+
+_sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[1]))
 import json
 import pathlib
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 
+import _paths  # noqa: E402
 import numpy as np
 import torch
 
@@ -43,7 +47,7 @@ ap.add_argument(
     "--source",
     default=("${DATA_PATH}/abc_130k/data/train/put_the_plastic_bottles_in_the_bin"),
 )
-ap.add_argument("--out-root", default="${DATA_PATH}/abc_bottles_ds")
+ap.add_argument("--out-root", default=str(_paths.env_path("${DATA_PATH}/abc_bottles_ds")))
 ap.add_argument("--rate", type=float, default=10.0, help="must match the dataset root")
 ap.add_argument("--height", type=int, default=168)
 ap.add_argument("--width", type=int, default=224)

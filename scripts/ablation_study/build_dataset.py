@@ -29,9 +29,13 @@ resample onto one uniform grid by nearest-neighbour on absolute timestamps.
 from __future__ import annotations
 
 import argparse
+import sys as _sys
+
+_sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[1]))
 import json
 import pathlib
 
+import _paths  # noqa: E402
 import numpy as np
 import yaml
 from mcap.reader import make_reader
@@ -97,7 +101,7 @@ def main() -> None:
     ap.add_argument(
         "--root",
         type=pathlib.Path,
-        default=pathlib.Path("${DATA_PATH}/abc_130k"),
+        default=_paths.env_path("${DATA_PATH}/abc_130k"),
     )
     ap.add_argument("--task", default="sort_the_legos_into_containers_by_color")
     ap.add_argument("--out", type=pathlib.Path, required=True)

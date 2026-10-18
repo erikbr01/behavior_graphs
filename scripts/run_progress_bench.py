@@ -25,6 +25,9 @@ import os
 import sys
 from pathlib import Path
 
+# Thread cap first: it only takes effect before numpy/sklearn initialise.
+# See scripts/_threads.py for the measurement that made this necessary.
+import _threads  # noqa: F401,E402  (import for its side effect)
 import hydra
 from hydra.utils import instantiate
 from omegaconf import DictConfig
