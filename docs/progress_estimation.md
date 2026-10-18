@@ -137,6 +137,24 @@ HF_HOME=/path/to/hf_cache CUDA_VISIBLE_DEVICES=0 \
 The same venv serves `topreward_ll` below: both reach their model code through
 this submodule.
 
+**Two things break that venv as it resolves today**, and both have to be
+undone before either baseline runs:
+
+1. `uv sync` pulls torchao 0.18 through transformers, which needs torch ≥ 2.11
+   against robometer's pinned 2.8 — `import transformers` then dies with
+   `ImportError: cannot import name 'ScalingType'`. Nothing here uses the
+   quantizer it is wanted for, so remove it:
+   `uv pip uninstall --python third_party/robometer/.venv/bin/python torchao`.
+2. `robometer/models/rbm.py` selects its hidden state with
+   `outputs.hidden_states[-1] if hasattr(outputs, "hidden_states") else …`.
+   On current transformers the attribute is always present and is `None`
+   unless the inner model emitted it, so this indexes `None` and raises
+   `TypeError: 'NoneType' object is not subscriptable` on every episode. Test
+   by value rather than by presence.
+
+Both were hit running the Tab. II baselines from a clean checkout; with them
+fixed, ROBOMETER reproduces its published row (§5).
+
 A LIBERO-only variant, `robometer_fft`, is available through
 `scripts/bench_allds_with_vlms.py --methods robometer_fft`. It is not a row in
 Table II.
@@ -240,23 +258,40 @@ rollouts all succeeded.
 
 ## 5. What reproduces, and how exactly
 
-**The graph and MLP rows re-derive bit-exactly.** Everything in the benchmark
-is seeded — the KFold split depends only on the success flags, K-means and the
-MLP take a seed — so a re-run on the same embeddings returns the published
-numbers to the last digit, not merely close to them. Verified on four datasets
-spanning all four domains:
+**The graph and MLP rows re-derive, almost all of them exactly.** The
+benchmark is seeded throughout — the KFold split depends only on the success
+flags, k-means and the MLP take a seed — and `KMeansClustering` now pins its
+thread pool, so a label array depends on the data and the seed rather than on
+the host's core count. Re-run over all 43 collections, both methods, all four
+metrics:
 
-| dataset | method | metrics checked | largest difference |
-|---|---|---|---|
-| libero_goal | graph_stage, mlp | VOC, Kendall, MAE, AUROC | 0 |
-| robomimic_square_mh | graph_stage, mlp | " | 0 |
-| mimicgen_square_d0 | graph_stage, mlp | " | 0 |
-| prepare_tray_baseline | graph_stage, mlp | " | 0 |
+| | |
+|---|---|
+| values compared | 340 |
+| identical to the published digit | **333 (97.9%)** |
+| differing | 7, all `graph_stage`, all ≤ 5.3e-04 |
+| datasets exact on every value | **41 of 43** |
 
-**The two VLM rows need more than this repository**: a 24 GB GPU, the
-`third_party/robometer` submodule built with its own venv, and the Qwen3-VL-8B
-and ROBOMETER-4B checkpoints from the hub. The submodule pin is correct and
-carries the baseline code; the rows have not been re-derived here.
+`mlp` is exact on all 172 of its values. The residual sits in two LIBERO
+collections — `libero_plus_perturbations` and `libero_spatial` — and only in
+`graph_stage`, which is the one method whose output passes through k-means. It
+is a boundary effect: a handful of windows near a cluster edge land on the
+other side under a different BLAS build, which moves a rank correlation in its
+fourth decimal. Table II's margins are in the hundredths, so nothing it claims
+is sensitive to this.
+
+Thread count was the larger part of the same effect and is now fixed. Before
+the pin, `libero_object` read VOC 0.965863 against a published 0.965915; with
+threads pinned it reproduces to the digit. Two runs at the same thread count
+always agreed with each other, so this was never noise — it was a result that
+varied with the host.
+
+**The VLM rows need a GPU, and they reproduce too.** ROBOMETER-4B on
+`libero_goal`, re-scored here from the checkpoint: VOC 0.70100 against a
+published 0.70052, Kendall 0.54271 against 0.54328, MAE 0.17234 against
+0.17294, AUROC 0.81240 against 0.81056 — within 2e-03 throughout. Not
+bit-exact, and not expected to be: GPU attention kernels are not
+deterministic.
 
 ### Checking without re-running
 

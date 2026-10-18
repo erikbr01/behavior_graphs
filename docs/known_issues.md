@@ -45,11 +45,13 @@ recorded commits, and the robometer pin carries
 `robometer/evals/baselines/topreward.py` — the code `TopRewardLL` reaches for.
 So the pins are good.
 
-What has not been done is running the two VLM rows of Tab. II end to end from
-this repository: that needs a 24 GB GPU, robometer's own venv, and the
-Qwen3-VL-8B and ROBOMETER-4B checkpoints. The graph and MLP rows re-derive
-bit-exactly (see [progress_estimation.md](progress_estimation.md)); the VLM
-rows are taken from the published artifacts.
+The VLM rows have now been re-run here and ROBOMETER reproduces its published
+row to within 2e-03. Getting there needed two fixes to the pinned submodule's
+environment, both written up in
+[progress_estimation.md](progress_estimation.md): a torchao/torch version
+conflict, and a `hasattr` test in `rbm.py` that indexes `None` on current
+transformers. Neither is fixed upstream, so anyone reproducing these rows hits
+both.
 
 ## Weighted sampling is inconsistent across the submodules
 
