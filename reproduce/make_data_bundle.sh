@@ -68,6 +68,13 @@ if [ -n "$SRC_STUDY" ]; then
         echo "   REFUSING: a raffle file reached the bundle" >&2
         exit 1
     fi
+    # Name-matching only catches the file we know about. The responses carry no
+    # contact details at all, so anything email-shaped in the copied data means
+    # something new arrived in the store and nobody told this script.
+    if grep -rlEo '"[^"]+@[^"]+\.[a-z]{2,}"' "$OUT/study_results" 2>/dev/null | head -1 | grep -q .; then
+        echo "   REFUSING: an email address reached the bundle -- check $SRC_STUDY" >&2
+        exit 1
+    fi
 fi
 
 {
