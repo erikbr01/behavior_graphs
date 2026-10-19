@@ -231,7 +231,7 @@ covers that.
 | Figure 3 — policy success rates | **exact**, value by value | raw rollouts |
 | Figure 4 — study answers | **exact**, value by value | response store |
 | Table I — adjusted effects | **claims hold**, digits move | re-fit (seeded; versions differ) |
-| Table II — progress estimation | **self-consistent**; re-derivation needs a re-run | — |
+| Table II — progress estimation | **re-derived, all 43 × 4 methods**; 3 of 4 exact, ROBOMETER within 6e-02 | benchmark re-run |
 
 ## Building a behavior graph on your own data
 

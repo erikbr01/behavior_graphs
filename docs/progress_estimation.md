@@ -258,40 +258,33 @@ rollouts all succeeded.
 
 ## 5. What reproduces, and how exactly
 
-**The graph and MLP rows re-derive, almost all of them exactly.** The
-benchmark is seeded throughout — the KFold split depends only on the success
-flags, k-means and the MLP take a seed — and `KMeansClustering` now pins its
-thread pool, so a label array depends on the data and the seed rather than on
-the host's core count. Re-run over all 43 collections, both methods, all four
-metrics:
+All four methods have now been re-derived on all 43 collections from this
+repository — the two CPU methods and both VLM baselines. 680 values:
 
-| | |
-|---|---|
-| values compared | 340 |
-| identical to the published digit | **333 (97.9%)** |
-| differing | 7, all `graph_stage`, all ≤ 5.3e-04 |
-| datasets exact on every value | **41 of 43** |
+| method | values | identical to the published digit | median \|Δ\| | max \|Δ\| |
+|---|---|---|---|---|
+| `mlp` | 170 | **170** | 0 | 0 |
+| `topreward_ll` | 170 | **170** | 0 | 0 |
+| `graph_stage` | 170 | 163 | 0 | 5.3e-04 |
+| `robometer_4b` | 170 | 14 | 1.2e-03 | 6.3e-02 |
 
-`mlp` is exact on all 172 of its values. The residual sits in two LIBERO
-collections — `libero_plus_perturbations` and `libero_spatial` — and only in
-`graph_stage`, which is the one method whose output passes through k-means. It
-is a boundary effect: a handful of windows near a cluster edge land on the
-other side under a different BLAS build, which moves a rank correlation in its
-fourth decimal. Table II's margins are in the hundredths, so nothing it claims
-is sensitive to this.
+**Three of the four reproduce to the digit or within 5e-04.** `graph_stage`'s
+seven residuals are in two LIBERO collections and come from k-means boundary
+windows under a different BLAS build; the thread pin
+(`KMeansClustering`) removed the larger half of that effect.
 
-Thread count was the larger part of the same effect and is now fixed. Before
-the pin, `libero_object` read VOC 0.965863 against a published 0.965915; with
-threads pinned it reproduces to the digit. Two runs at the same thread count
-always agreed with each other, so this was never noise — it was a result that
-varied with the host.
+**`robometer_4b` is the one that moves**, at a median 1.2e-03 and a worst case
+of 0.0625 (an AUROC on a collection with 3 failures, where one swapped pair is
+worth 0.007). It dominates the curves document too: of 18,148 differing values
+there, 18,067 are ROBOMETER and 81 are `graph_stage`.
 
-**The VLM rows need a GPU, and they reproduce too.** ROBOMETER-4B on
-`libero_goal`, re-scored here from the checkpoint: VOC 0.70100 against a
-published 0.70052, Kendall 0.54271 against 0.54328, MAE 0.17234 against
-0.17294, AUROC 0.81240 against 0.81056 — within 2e-03 throughout. Not
-bit-exact, and not expected to be: GPU attention kernels are not
-deterministic.
+**Its cause is not known, and the obvious explanation is wrong.** GPU
+nondeterminism would be the natural guess, but `topreward_ll` is an 8B model
+scored on the same card through the same transformers stack and is
+bit-exact — so this is something specific to ROBOMETER's own forward path
+(it runs under unsloth's patching), not a property of running VLMs on a GPU.
+Worth knowing before trusting its fourth decimal; immaterial to Tab. II, whose
+margins are in the hundredths.
 
 ### Checking without re-running
 
