@@ -51,12 +51,71 @@ def diff(a, b, path: str = "", tol: float = 1e-9) -> list[str]:
     return out
 
 
+def _verify_curves(args) -> int:
+    """`progress_curves.json` -- the 42,000 numbers the site's charts consume.
+
+    It ships beside paper_results.json and had no reproduction check of its
+    own: every other published artifact was diffed against a re-derivation
+    and this one was taken on trust. It is written as a side effect of the
+    `progress` export rather than to stdout, so it needs its own path through
+    here: export to a temporary file and diff that.
+    """
+    import tempfile
+
+    from behavior_graphs.results import CURVES_PATH
+
+    if not CURVES_PATH.exists():
+        print(f"no published curves at {CURVES_PATH}", file=sys.stderr)
+        return 2
+    published = json.loads(CURVES_PATH.read_text())
+
+    with tempfile.TemporaryDirectory() as tmp:
+        out = pathlib.Path(tmp) / "paper_results.json"
+        curves = pathlib.Path(tmp) / "progress_curves.json"
+        proc = subprocess.run(
+            [
+                sys.executable,
+                "scripts/export_paper_results.py",
+                "--sections",
+                "progress",
+                "--out",
+                str(out),
+                "--curves",
+                str(curves),
+            ],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+        )
+        if proc.returncode != 0:
+            print(proc.stderr.strip()[-1500:], file=sys.stderr)
+            return proc.returncode
+        if not curves.exists():
+            print("the export wrote no curves file", file=sys.stderr)
+            return 2
+        fresh = json.loads(curves.read_text())
+
+    differences = diff(published, fresh, tol=args.tolerance)
+    if not differences:
+        print(f"curves: reproduces exactly ({len(json.dumps(published)):,} bytes compared)")
+        return 0
+    print(f"curves: {len(differences)} value(s) differ from the published curves")
+    for line in differences[: args.max_shown]:
+        print("   ", line)
+    if len(differences) > args.max_shown:
+        print(f"    ... and {len(differences) - args.max_shown} more")
+    return 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("section", help="policies | study | adjusted | progress")
+    ap.add_argument("section", help="policies | study | adjusted | progress | curves")
     ap.add_argument("--tolerance", type=float, default=1e-9)
     ap.add_argument("--max-shown", type=int, default=20)
     args = ap.parse_args()
+
+    if args.section == "curves":
+        return _verify_curves(args)
 
     if not PUBLISHED.exists():
         print(f"no published results at {PUBLISHED}", file=sys.stderr)
