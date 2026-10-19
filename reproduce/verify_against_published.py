@@ -24,6 +24,23 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 PUBLISHED = REPO / "src" / "behavior_graphs" / "results" / "paper_results.json"
 
 
+def leaves(value) -> int:
+    """How many scalars a document actually contains.
+
+    `diff` returning nothing means "no disagreement", which is the same answer
+    for two matching documents and for two empty ones. A neighbouring session
+    lost an experiment to exactly that: a pre-registered decision rule
+    comparing 0% against 0% and reporting "replicates". Counting the leaves is
+    the power check that belongs beside the comparison -- a verifier that
+    announces success should be able to say how many numbers it checked.
+    """
+    if isinstance(value, dict):
+        return sum(leaves(v) for v in value.values())
+    if isinstance(value, list):
+        return sum(leaves(v) for v in value)
+    return 1
+
+
 def diff(a, b, path: str = "", tol: float = 1e-9) -> list[str]:
     """Every leaf where *a* (published) and *b* (fresh) disagree."""
     if type(a) is not type(b):
@@ -95,9 +112,16 @@ def _verify_curves(args) -> int:
             return 2
         fresh = json.loads(curves.read_text())
 
+    n = leaves(published)
+    if n < args.min_values:
+        print(
+            f"curves: only {n} value(s) published -- refusing to call that a reproduction",
+            file=sys.stderr,
+        )
+        return 2
     differences = diff(published, fresh, tol=args.tolerance)
     if not differences:
-        print(f"curves: reproduces exactly ({len(json.dumps(published)):,} bytes compared)")
+        print(f"curves: reproduces exactly ({n:,} values compared)")
         return 0
     print(f"curves: {len(differences)} value(s) differ from the published curves")
     for line in differences[: args.max_shown]:
@@ -112,6 +136,14 @@ def main() -> int:
     ap.add_argument("section", help="policies | study | adjusted | progress | curves")
     ap.add_argument("--tolerance", type=float, default=1e-9)
     ap.add_argument("--max-shown", type=int, default=20)
+    ap.add_argument(
+        "--min-values",
+        type=int,
+        default=10,
+        help="refuse to report success if the published section holds fewer "
+        "scalars than this -- a comparison of nothing against nothing is not "
+        "a reproduction",
+    )
     args = ap.parse_args()
 
     if args.section == "curves":
@@ -140,9 +172,17 @@ def main() -> int:
         print(f"could not parse the export's output: {exc}", file=sys.stderr)
         return 2
 
+    n = leaves(published)
+    if n < args.min_values:
+        print(
+            f"{args.section}: only {n} value(s) in the published section -- refusing to "
+            f"call that a reproduction (--min-values {args.min_values})",
+            file=sys.stderr,
+        )
+        return 2
     differences = diff(published, fresh, tol=args.tolerance)
     if not differences:
-        print(f"{args.section}: reproduces exactly ({len(json.dumps(published))} bytes compared)")
+        print(f"{args.section}: reproduces exactly ({n:,} values compared)")
         return 0
     print(f"{args.section}: {len(differences)} value(s) differ from the published results")
     for line in differences[: args.max_shown]:

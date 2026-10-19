@@ -14,9 +14,14 @@ from __future__ import annotations
 import json
 import pathlib
 import statistics
+import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 RESULTS = REPO / "src" / "behavior_graphs" / "results" / "paper_results.json"
+#: Comparisons the shipped table supports. A run far below this has lost
+#: data, not gained agreement.
+MIN_CHECKS = 40
+
 TOL = 5e-3  # the export rounds; this is tight enough to catch a real slip
 
 
@@ -68,7 +73,18 @@ def main() -> int:
         for line in problems[:20]:
             print("   ", line)
         return 1
-    print("  the published table is internally consistent")
+    # Zero inconsistencies over zero comparisons is not consistency, it is an
+    # empty table -- and it exits 0 and reads as a pass. The published layout
+    # gives 80; anything far below that means the rows or the means went
+    # missing rather than that they agree.
+    if checked < MIN_CHECKS:
+        print(
+            f"\n  only {checked} comparison(s) were possible (expected ~{MIN_CHECKS}); "
+            "the table is missing rows or means rather than consistent",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"  the published table is internally consistent ({checked} comparisons)")
     print("\n  note: this does not re-derive the numbers. Table II's per-dataset")
     print("  metric files are not in this repo -- see REPRODUCE.md, step 2.")
     return 0
