@@ -40,8 +40,7 @@ reimplementation for this reason (`_HIDDEN_METHODS` in
 
 ## The VLM baselines have not been re-run here
 
-`third_party/robometer` and `third_party/warp_rm` now check out at their
-recorded commits, and the robometer pin carries
+`third_party/robometer` checks out at its recorded commit and carries
 `robometer/evals/baselines/topreward.py` — the code `TopRewardLL` reaches for.
 So the pins are good.
 

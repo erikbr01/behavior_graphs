@@ -68,14 +68,19 @@ _POLICY_STACKS = {
         "extra_args": lambda self: [],
     },
     "dp": {
-        # our diffusion_policy fork, robocasa365 runner; dedicated venv built
-        # by scripts/setup_env_robocasa365_uv.sh. Resolved relative to the
-        # submodule (the command runs with cwd=stack_dir), like the gr00t stack
-        # above; set BEHAVIOR_GRAPHS_ROBOCASA365_PYTHON to point at a venv built
-        # somewhere else.
+        # our diffusion_policy fork, robocasa365 runner. Its venv is NOT the
+        # submodule's `.venv`: that one is the python 3.9 training stack from
+        # setup_env_uv.sh, while robocasa365 needs 3.10 with robosuite master
+        # and pinned mujoco/numpy. `setup_env_robocasa365_uv.sh` builds
+        # `.venv-robocasa365` beside it, which is what this has to name --
+        # pointing at `.venv` silently runs the training interpreter.
+        # BEHAVIOR_GRAPHS_ROBOCASA365_PYTHON overrides it (the script takes the
+        # matching VENV= to build elsewhere).
         "submodule": "third_party/diffusion_policy",
         "script": "scripts/eval_save_rollouts.py",
-        "runner": [os.environ.get("BEHAVIOR_GRAPHS_ROBOCASA365_PYTHON", ".venv/bin/python")],
+        "runner": [
+            os.environ.get("BEHAVIOR_GRAPHS_ROBOCASA365_PYTHON", ".venv-robocasa365/bin/python")
+        ],
         "extra_args": lambda self: [
             "--layer",
             "obs_encoder",

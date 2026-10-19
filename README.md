@@ -80,10 +80,50 @@ The submodules are only needed to *train* policies and to run the two VLM
 baselines. Building graphs from existing rollouts, and everything in
 [REPRODUCE.md](REPRODUCE.md), works from a plain `git clone`.
 
-Environment-specific stacks (simulators, torch, JAX) are uv-managed per
-submodule: `third_party/diffusion_policy/scripts/setup_env_uv.sh` builds the
-training env for robomimic/mimicgen/droid; openpi manages its own via `uv sync`
-(see `third_party/openpi/README.md`).
+### Submodule environments
+
+Each environment's simulator and training stack is a separate venv inside its
+submodule, on a different Python than this package — they pin conflicting
+versions of torch, numpy and mujoco, which is why they are not one install.
+Build only the ones you need; nothing in
+[REPRODUCE.md](REPRODUCE.md) needs any of them.
+
+```bash
+# robomimic / mimicgen / DROID training and rollout collection  (python 3.9)
+git submodule update --init third_party/{diffusion_policy,mimicgen,robo_dataset}
+cd third_party/diffusion_policy && scripts/setup_env_uv.sh     # -> .venv
+
+# LIBERO via pi0.5                                             (openpi's own)
+git submodule update --init third_party/{openpi,libero}
+cd third_party/openpi && uv sync
+uv pip install -e ../libero --config-settings editable_mode=compat
+uv pip install "robosuite==1.4.1" "bddl==1.0.1" easydict future "gym==0.25.2" \
+    "thop==0.1.1.post2209072238"
+
+# rgrl flow-matching policies                                  (uv project)
+git submodule update --init third_party/rgrl
+cd third_party/rgrl && uv sync --extra video    # --extra eval to score in sim
+
+# the two VLM progress baselines                               (python 3.10)
+git submodule update --init third_party/robometer
+cd third_party/robometer && uv sync
+uv pip uninstall torchao   # see docs/progress_estimation.md -- without this
+                           # `import transformers` fails against its torch pin
+
+# LBM eval through vla_foundry                      (needs Docker, ~25 GB)
+git submodule update --init third_party/vla_foundry
+cd third_party/vla_foundry && uv sync --group inference && uv pip install -e .
+docker pull toyotaresearch/lbm-eval-oss:vla-foundry
+hf download TRI-ML/Foundry-VLA-1.7B-sim
+```
+
+Set `MUJOCO_GL=egl` for headless rendering and `UV_CACHE_DIR` to a disk with
+room. The setup scripts reach for sibling submodules (`../mimicgen`,
+`../robo_dataset`, `../robomimic`), so initialise those alongside rather than
+after.
+
+RoboCasa is supported but its submodules are not vendored here — see
+[docs/robocasa.md](docs/robocasa.md).
 
 ## Data
 
