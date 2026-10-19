@@ -4,7 +4,7 @@ The wide sweep is a conditional space -- ``n_components`` is nested inside
 ``reduction``, ``k`` inside ``clusterer``, and ``k`` is not even the same
 quantity across clusterers -- so no factorial exists over it and a
 best-per-level table there compares levels searched over unequal, confounded
-sets. ``configs/grid/ablation_core.yaml`` declares the largest rectangle that does
+sets. ``configs/grid/ablation_droid.yaml`` declares the largest rectangle that does
 exist; this selects it out of a loaded sweep.
 
 The level sets are parsed from that YAML rather than restated here. Two copies

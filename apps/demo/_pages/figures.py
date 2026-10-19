@@ -718,7 +718,7 @@ if lazy_section(
                 "**Not** in any number here, because they have no cached rows: "
                 + ", ".join(_agg.missing)
                 + ". `cooking` is expected among them — it ran the `ablation` "
-                "grid rather than the balanced `ablation_core` rectangle this table is "
+                "grid rather than the balanced `ablation_droid` rectangle this table is "
                 "built on, so it has no core cells to select from."
             )
         st.dataframe(

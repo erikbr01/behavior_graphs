@@ -88,7 +88,7 @@ def _level(cell, axis: str) -> str:
 
 
 def balanced_entries(cfg: DatasetConfig, *, k_min: int | None = None):
-    """``(axis, level, metrics)`` for a full-cross-product grid that is not ablation_core.
+    """``(axis, level, metrics)`` for a full-cross-product grid that is not ablation_droid.
 
     The same contract as :func:`latex.rows_for` -- argmax per level on the
     selection fold, re-scored on the reserved episodes -- but the design comes
@@ -184,7 +184,7 @@ def write_cache(cfg: DatasetConfig) -> pathlib.Path:
     The slow call, run deliberately from the CLI. Everything downstream reads
     the file.
     """
-    # ablation_core when the dataset ran it, otherwise the dataset's own grid --
+    # ablation_droid when the dataset ran it, otherwise the dataset's own grid --
     # verified balanced rather than assumed. A task swept on `ablation*`
     # has no `rescored_core.json` and would otherwise be uncacheable.
     if (cfg.sweep_dir / "rescored_core.json").is_file():

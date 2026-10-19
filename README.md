@@ -47,6 +47,9 @@ apps/reviewer◄─┤           Dimensionality reduction├── Policy       
 - **Visualization** (`src/behavior_graphs/viz/`, `apps/`) renders any run
   directory: clicking a node or a transition plays the episodes that went
   through it, starting where the behavior began.
+- **Documentation**: [`docs/envs.md`](docs/envs.md) for every environment and
+  its venv, [`docs/experiments.md`](docs/experiments.md) for running each
+  experiment, [`docs/data.md`](docs/data.md) for what goes on disk.
 - **Policy statistics** (`src/behavior_graphs/stats/`) compare policies on task
   success rather than on the graph: pairwise exact tests, family-wise error
   control, compact letter displays and Beta posteriors — the machinery behind

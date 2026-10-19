@@ -20,7 +20,7 @@ A maximum over configurations is optimistic in proportion to how many it
 maximises over, so the levels are only comparable on a balanced design. The wide
 sweep is not one: it pools several grid passes, ``n_components`` is nested inside
 ``reduction`` and ``k`` inside ``clusterer``, and ``k`` is not even the same
-quantity across clusterers. So this table is built on ``ablation_core`` instead --
+quantity across clusterers. So this table is built on ``ablation_droid`` instead --
 the largest rectangle inside that space, verified complete and balanced on both
 datasets at 36 configurations per representation, 180 in all, every level of
 every axis appearing in the same number of them.
@@ -142,7 +142,7 @@ def rows_for(
     if not rows:
         raise SystemExit(
             f"{cfg.name}: no core cells; run "
-            f'`launch_sweep.sh {cfg.name} "" 3 ablation_core` then rescore'
+            f'`launch_sweep.sh {cfg.name} "" 3 ablation_droid` then rescore'
         )
     named = splits.resolve(cfg)
     scorer = Scorer(cfg)

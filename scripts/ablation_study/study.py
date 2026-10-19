@@ -265,7 +265,7 @@ def main() -> None:
         default=None,
         help=(
             "sweep: run this grid for every representation, overriding the "
-            "per-representation mapping. Use `ablation_core` to fill the complete "
+            "per-representation mapping. Use `ablation_droid` to fill the complete "
             "balanced design, which is a property of the design rather than of "
             "one arm, so `state` has to run it on the same dials as the rest"
         ),

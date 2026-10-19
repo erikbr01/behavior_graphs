@@ -109,7 +109,7 @@ python scripts/collect_rollouts.py env=robomimic_lift_lowdim \
 ```
 
 Per-environment setup (which venv, which submodule, which embedding layer) is
-in [environments.md](environments.md).
+in [envs.md](envs.md).
 
 ### Real robot (DROID)
 

@@ -4,7 +4,7 @@
 #   launch_sweep.sh bottles dinov3        # one representation
 #   launch_sweep.sh legos                 # every representation in its config
 #   launch_sweep.sh bottles "" 3          # all reps, three layers at a time
-#   launch_sweep.sh legos "" 3 ablation_core   # fill the complete balanced design
+#   launch_sweep.sh legos "" 3 ablation_droid  # fill the complete balanced design
 #
 # study.py itself only builds the command and shells out to the cuml-sweep
 # interpreter, so it can run under the project venv.
@@ -16,7 +16,7 @@ LAYERS="${2:-}"
 # setting is one worker per layer, bounded by RAM rather than cores because each
 # holds its own features and windows (legos ~22 GB a worker, bottles ~7 GB).
 WORKERS="${3:-1}"
-# Override the per-representation grid mapping for every arm. `ablation_core` fills
+# Override the per-representation grid mapping for every arm. `ablation_droid` fills
 # the complete balanced design, which every arm has to run on the same dials --
 # including `state`, whose own grid uses n_components the others never see.
 GRID="${4:-}"
