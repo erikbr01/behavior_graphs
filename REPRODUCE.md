@@ -210,9 +210,7 @@ BEHAVIOR_GRAPHS_RUNS_ROOT=$DATA_PATH/sweeps streamlit run apps/demo/Home.py
 # -> Figures -> choose a run -> Export as a paper figure (PDF)
 ```
 
-Figures 1 and 2 are composed diagrams rather than plotted output. The paper
-source and the exact figure files it uses live in the paper repository,
-[corl_2026_behavior_graphs](https://github.com/erikbr01/corl_2026_behavior_graphs).
+Figures 1 and 2 are composed diagrams rather than plotted output.
 
 The export itself is verified: rendering a run directory from
 `$DATA_PATH/sweeps` through `graph_figure.behavior_graph_figure_files` — the
