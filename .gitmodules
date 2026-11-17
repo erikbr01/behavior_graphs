@@ -1,27 +1,27 @@
 [submodule "third_party/robomimic"]
 	path = third_party/robomimic
-	url = git@github.com:erikbr01/robomimic.git
+	url = https://github.com/erikbr01/robomimic.git
 [submodule "third_party/mimicgen"]
 	path = third_party/mimicgen
-	url = git@github.com:erikbr01/mimicgen.git
+	url = https://github.com/erikbr01/mimicgen.git
 [submodule "third_party/libero"]
 	path = third_party/libero
-	url = git@github.com:erikbr01/libero.git
+	url = https://github.com/erikbr01/libero.git
 [submodule "third_party/diffusion_policy"]
 	path = third_party/diffusion_policy
-	url = git@github.com:erikbr01/diffusion_policy.git
+	url = https://github.com/erikbr01/diffusion_policy.git
 [submodule "third_party/openpi"]
 	path = third_party/openpi
-	url = git@github.com:erikbr01/openpi.git
+	url = https://github.com/erikbr01/openpi.git
 [submodule "third_party/robo_dataset"]
 	path = third_party/robo_dataset
-	url = git@github.com:erikbr01/robo_dataset.git
+	url = https://github.com/erikbr01/robo_dataset.git
 [submodule "third_party/vla_foundry"]
 	path = third_party/vla_foundry
-	url = git@github.com:erikbr01/vla_foundry.git
+	url = https://github.com/erikbr01/vla_foundry.git
 [submodule "third_party/rgrl"]
 	path = third_party/rgrl
-	url = git@github.com:erikbr01/rgrl.git
+	url = https://github.com/erikbr01/rgrl.git
 	# Must name the branch the RECORDED gitlink is actually on. The pin
 	# (0915ec8) lives only on lerobot-v3-source; weighted-sampling (82ac6bd) is
 	# not an ancestor of it, so `submodule update --remote` used to jump to a
@@ -29,4 +29,4 @@
 	branch = lerobot-v3-source
 [submodule "third_party/robometer"]
 	path = third_party/robometer
-	url = git@github.com:erikbr01/robometer.git
+	url = https://github.com/erikbr01/robometer.git
